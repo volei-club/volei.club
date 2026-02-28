@@ -134,6 +134,22 @@ class DashAuthController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
+        // Preluăm toate înregistrările din tabelul password_reset_tokens
+        // Laravel salvează tokenul criptat cu Hash::check în baza de date
+        // Alternativ, în versiunile noi folosește SHA-256 hash(hashalgs).
+        // Cea mai sigură metodă e să verificăm direct prin broker dacă tokenul aparține
+        // măcar unui utilizator (folosind doar tokenul, din păcate, broker-ul cere și mailul).
+
+        // În Laravel 11, tokenurile sunt stocate ca text clar pt e-mail + hash ptr token
+        $tokenExists = \Illuminate\Support\Facades\DB::table('password_reset_tokens')->get()->filter(function ($record) use ($token) {
+            return Hash::check($token, $record->token);
+        })->isNotEmpty();
+
+        if (!$tokenExists) {
+            return redirect()->route('dash.login')
+                ->withErrors(['email' => 'Link-ul de resetare este invalid sau a fost deja folosit.']);
+        }
+
         return view('dash.auth.reset', ['token' => $token]);
     }
 
