@@ -69,6 +69,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all subscriptions associated with this user.
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    /**
+     * Get the currently active subscription (paid or pending) if any.
+     */
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)->whereIn('status', ['active_paid', 'active_pending'])->latest('id');
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

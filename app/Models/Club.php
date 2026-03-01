@@ -39,4 +39,12 @@ class Club extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * Get the generic subscriptions defined for this club.
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
 }

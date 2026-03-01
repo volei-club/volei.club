@@ -31,4 +31,5 @@ Route::prefix('dash')->group(function () {
     Route::get('/membri', [DashAuthController::class , 'index']);
     Route::get('/grupe', [DashAuthController::class , 'index']);
     Route::get('/echipe', [DashAuthController::class , 'index']);
+    Route::get('/abonamente', [DashAuthController::class , 'index']);
 });

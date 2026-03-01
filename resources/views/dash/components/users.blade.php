@@ -66,6 +66,7 @@
                                     <th class="px-6 py-4 font-bold">Nume & Email</th>
                                     <th class="px-6 py-4 font-bold">Rol / Statut</th>
                                     <th class="px-6 py-4 font-bold">Club</th>
+                                    <th class="px-6 py-4 font-bold">Abonament</th>
                                     <th class="px-6 py-4 font-bold text-right">Acțiuni</th>
                                 </tr>
                             </thead>
@@ -84,8 +85,40 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-slate-500" x-text="usr.club ? usr.club.name : '-'"></td>
+                                        <td class="px-6 py-4">
+                                            <template x-if="usr.role === 'sportiv'">
+                                                <div class="flex items-center gap-2">
+                                                    <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_paid'">
+                                                        <span class="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-lg text-xs font-bold border border-green-200 dark:border-green-800" title="Abonament Platit">
+                                                            <span class="material-symbols-outlined text-[14px] mr-1">check_circle</span>
+                                                            Activ (Plătit)
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_pending'">
+                                                        <span class="inline-flex items-center justify-center px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg text-xs font-bold border border-amber-200 dark:border-amber-800" title="Plată In Așteptare">
+                                                            <span class="material-symbols-outlined text-[14px] mr-1">pending_actions</span>
+                                                            Așteaptă Plată
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="!usr.active_subscription">
+                                                        <span class="inline-flex items-center justify-center px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-xs font-bold border border-red-200 dark:border-red-800" title="Fără Abonament">
+                                                            <span class="material-symbols-outlined text-[14px] mr-1">cancel</span>
+                                                            Inactiv
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                            <template x-if="usr.role !== 'sportiv'">
+                                                <span class="text-slate-400 text-xs italic">-</span>
+                                            </template>
+                                        </td>
                                         <td class="px-6 py-4 text-right">
-                                            <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1" title="Editează Membru">
+                                            <template x-if="usr.role === 'sportiv'">
+                                                <button @click="openSubscriptionModal(usr)" class="text-slate-400 hover:text-orange-500 transition-colors p-1" title="Gestionează Abonament">
+                                                    <span class="material-symbols-outlined text-sm">loyalty</span>
+                                                </button>
+                                            </template>
+                                            <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1 ml-1" title="Editează Membru">
                                                 <span class="material-symbols-outlined text-sm">edit</span>
                                             </button>
                                             <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
@@ -106,8 +139,13 @@
                     <!-- Mobile Cards -->
                     <div class="grid grid-cols-1 gap-4 md:hidden">
                         <template x-for="usr in users" :key="usr.id">
-                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative group">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative group" :class="usr.role === 'sportiv' && !usr.active_subscription ? 'border-red-200 dark:border-red-900/50' : ''">
                                 <div class="absolute top-4 right-4 flex gap-1">
+                                    <template x-if="usr.role === 'sportiv'">
+                                        <button @click="openSubscriptionModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-600">
+                                            <span class="material-symbols-outlined text-sm">loyalty</span>
+                                        </button>
+                                    </template>
                                     <button @click="openModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center">
                                         <span class="material-symbols-outlined text-sm">edit</span>
                                     </button>
@@ -121,7 +159,7 @@
                                     </button>
                                 </div>
                                 
-                                <div class="font-bold text-lg text-slate-900 dark:text-white mb-1 pr-8" x-text="usr.name"></div>
+                                <div class="font-bold text-lg text-slate-900 dark:text-white mb-1 pr-24" x-text="usr.name"></div>
                                 <div class="text-slate-500 text-sm mb-4" x-text="usr.email"></div>
                                 
                                 <div class="flex flex-wrap gap-2 mb-4">
@@ -130,7 +168,30 @@
                                     <span x-show="!usr.is_active" class="flex items-center px-2 py-1 bg-red-50 dark:bg-red-900/30 text-xs text-red-600 dark:text-red-400 font-semibold rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>Inactiv</span>
                                 </div>
                                 
-                                <div class="flex items-center text-sm font-semibold text-slate-600 dark:text-slate-400 pt-4 border-t border-slate-100 dark:border-slate-700">
+                                <template x-if="usr.role === 'sportiv'">
+                                    <div class="mb-4 flex flex-wrap gap-2">
+                                        <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_paid'">
+                                            <span class="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-lg text-xs font-bold mt-1">
+                                                <span class="material-symbols-outlined text-[14px] mr-1">check_circle</span>
+                                                Abonament Activ (Plătit)
+                                            </span>
+                                        </template>
+                                        <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_pending'">
+                                            <span class="inline-flex items-center justify-center px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg text-xs font-bold mt-1">
+                                                <span class="material-symbols-outlined text-[14px] mr-1">pending_actions</span>
+                                                Abonament În Așteptare Plată
+                                            </span>
+                                        </template>
+                                        <template x-if="!usr.active_subscription">
+                                            <span class="inline-flex items-center justify-center px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-xs font-bold mt-1">
+                                                <span class="material-symbols-outlined text-[14px] mr-1">warning</span>
+                                                Fără Abonament Activ
+                                            </span>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <div class="flex items-center text-sm font-semibold text-slate-600 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700">
                                     <span class="material-symbols-outlined text-[18px] mr-2">domain</span>
                                     <span x-text="usr.club ? usr.club.name : '-'"></span>
                                 </div>
@@ -279,6 +340,78 @@
                                     <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
                                     Salvează
                                 </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal Abonament Sportiv -->
+                <div x-show="showSubscriptionModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Abonament Sportiv</h3>
+                            <p class="text-sm font-semibold text-slate-500" x-text="subscriptionForm.user_name"></p>
+                        </div>
+                        <form @submit.prevent="saveUserSubscription()" class="flex flex-col overflow-hidden">
+                            <div class="p-6 overflow-y-auto">
+                                
+                                <template x-if="subscriptionForm.current_subscription">
+                                    <div class="mb-6 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Abonament Curent</span>
+                                            <template x-if="subscriptionForm.current_subscription.status === 'active_paid'">
+                                                <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded text-[10px] font-bold">Plătit</span>
+                                            </template>
+                                            <template x-if="subscriptionForm.current_subscription.status === 'active_pending'">
+                                                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded text-[10px] font-bold">Așteaptă Plată</span>
+                                            </template>
+                                        </div>
+                                        <div class="font-bold text-slate-900 dark:text-white mb-1" x-text="subscriptionForm.current_subscription.subscription.name"></div>
+                                        <div class="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                                            Valabil până la: <strong x-text="new Date(subscriptionForm.current_subscription.expires_at).toLocaleDateString()"></strong>
+                                        </div>
+
+                                        <template x-if="subscriptionForm.current_subscription.status === 'active_pending'">
+                                            <button type="button" @click="updateSubscriptionStatus(subscriptionForm.current_subscription.id, 'active_paid')" :disabled="savingSubscription" class="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold text-sm transition-colors flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-[16px] mr-1.5">check_circle</span>
+                                                Marchează ca Plătit
+                                            </button>
+                                        </template>
+
+                                        <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 text-center">
+                                            <button type="button" @click="updateSubscriptionStatus(subscriptionForm.current_subscription.id, 'cancelled')" :disabled="savingSubscription" class="text-red-500 hover:text-red-600 text-xs font-bold uppercase tracking-wider transition-colors inline-block pb-1">Anulează Abonamentul Curent</button>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <div class="mb-2">
+                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-3" x-text="subscriptionForm.current_subscription ? 'Generează Perioadă Nouă' : 'Asociază Abonament Nou'"></h4>
+                                    
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tip Abonament</label>
+                                    <select x-model="subscriptionForm.subscription_id" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+                                        <option value="" disabled selected>Alege abonamentul...</option>
+                                        <template x-for="sub in availableSubscriptions" :key="sub.id">
+                                            <option :value="sub.id" x-text="sub.name + ' (' + sub.price + ' lei / ' + sub.period.replace('_', ' ') + ')'"></option>
+                                        </template>
+                                    </select>
+                                    <template x-if="availableSubscriptions.length === 0">
+                                        <p class="text-xs text-red-500 mt-1 mt-1">Acest club nu are niciun tip de abonament definit. Mergeți la meniul "Abonamente" pentru a crea unul.</p>
+                                    </template>
+                                </div>
+
+                                <template x-if="subscriptionError">
+                                    <div class="p-3 my-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100 font-medium" x-text="subscriptionError"></div>
+                                </template>
+                            </div>
+
+                            <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 shrink-0 rounded-b-2xl">
+                                <button type="button" @click="showSubscriptionModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Închide</button>
+                                <template x-if="subscriptionForm.subscription_id">
+                                    <button type="submit" :disabled="savingSubscription" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
+                                        <span x-show="savingSubscription" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
+                                        Emite Abonament
+                                    </button>
+                                </template>
                             </div>
                         </form>
                     </div>

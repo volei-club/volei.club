@@ -21,7 +21,7 @@ class UserController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis. Doar administratorii și managerii pot gestiona utilizatori.'], 403);
         }
 
-        $query = User::with(['club', 'teams', 'squads']);
+        $query = User::with(['club', 'teams', 'squads', 'activeSubscription.subscription', 'subscriptions.subscription']);
 
         if ($role !== 'administrator') {
             // Managerii/Antrenorii etc. văd doar userii din clubul lor.

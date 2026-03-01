@@ -69,7 +69,7 @@
             @include('dash.components.users')
             @include('dash.components.teams')
             @include('dash.components.squads')
-
+            @include('dash.components.subscriptions')
 
         </main>
 
