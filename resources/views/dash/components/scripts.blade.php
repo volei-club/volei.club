@@ -1,0 +1,1121 @@
+    <!-- Alpine App Logic -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+
+            // ------- Gestiune Cluburi -------
+            Alpine.data('clubManager', () => ({
+                clubs: [],
+                loading: false,
+                saving: false,
+                showModal: false,
+                error: null,
+                form: { id: null, name: '' },
+
+                init() {
+                    if (this.currentPage.startsWith('/dash/cluburi')) {
+                        this.fetchClubs();
+                    }
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/cluburi' && this.clubs.length === 0) {
+                            this.fetchClubs();
+                        }
+                    });
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/cluburi')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.clubs.find(c => c.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.clubs.find(c => c.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteClub(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
+                },
+
+                openModal(club = null) {
+                    this.error = null;
+                    if(club) {
+                        this.form.id = club.id;
+                        this.form.name = club.name;
+                        this.updateHash('edit', club.id);
+                    } else {
+                        this.form.id = null;
+                        this.form.name = '';
+                        this.updateHash('add');
+                    }
+                    this.showModal = true;
+                },
+
+                async fetchClubs() {
+                    this.loading = true;
+                    try {
+                        const res = await fetch('/api/clubs', {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.clubs = payload.data;
+                            this.processHashActions();
+                        }
+                    } catch (e) { console.error(e); }
+                    this.loading = false;
+                },
+
+                async saveClub() {
+                    this.saving = true;
+                    this.error = null;
+                    
+                    const isEdit = !!this.form.id;
+                    const url = isEdit ? `/api/clubs/${this.form.id}` : '/api/clubs';
+                    const method = isEdit ? 'PUT' : 'POST';
+                    
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 
+                                'Accept': 'application/json', 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
+                            },
+                            body: JSON.stringify({ name: this.form.name })
+                        });
+                        
+                        const payload = await res.json();
+                        
+                        if(res.ok) {
+                            if (isEdit) {
+                                const idx = this.clubs.findIndex(c => c.id === this.form.id);
+                                if (idx !== -1) this.clubs[idx].name = payload.data.name;
+                            } else {
+                                this.clubs.unshift(payload.data);
+                            }
+                            window.dispatchEvent(new CustomEvent('clubs-updated'));
+                            this.showModal = false;
+                        } else {
+                            this.error = payload.message || 'Eroare la salvare.';
+                        }
+                    } catch (e) { this.error = "Eroare de rețea."; }
+                    this.saving = false;
+                },
+
+                async deleteClub(id) {
+                    if(!confirm('Sigur dorești ștergerea acestui club? Acțiunea e ireversibilă!')) return;
+                    
+                    try {
+                        const res = await fetch(`/api/clubs/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            this.clubs = this.clubs.filter(c => c.id !== id);
+                        } else {
+                            const data = await res.json();
+                            alert(data.message || 'Eroare la ștergere.');
+                        }
+                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                }
+            }));
+
+            // ------- Gestiune Utilizatori -------
+            Alpine.data('userManager', () => ({
+                users: [],
+                availableClubs: [],
+                availableTeams: [],
+                availableFilterTeams: [],
+                availableFilterSquads: [],
+                availableSquads: [],
+                loading: false,
+                loadingTeams: false,
+                loadingSquads: false,
+                saving: false,
+                showModal: false,
+                error: null,
+                form: { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [] },
+                filters: { role: '', club_id: '', team_id: '', squad_id: '' },
+
+                init() {
+                    const syncFromHash = () => {
+                        let hashRole = '';
+                        let hashClub = '';
+                        let hashTeam = '';
+                        let hashSquad = '';
+                        if (window.location.hash && window.location.pathname.startsWith('/dash/utilizatori')) {
+                            try {
+                                const hp = new URLSearchParams(window.location.hash.substring(1));
+                                hashRole = hp.get('role') || '';
+                                hashClub = hp.get('club_id') || '';
+                                hashTeam = hp.get('team_id') || '';
+                                hashSquad = hp.get('squad_id') || '';
+                            } catch(e) {}
+                        }
+                        return { role: hashRole, club: hashClub, team: hashTeam, squad: hashSquad };
+                    };
+
+                    const applyFiltersAndFetch = async (h) => {
+                        this.filters.role = h.role;
+                        this.filters.club_id = h.club;
+                        this.filters.team_id = h.team;
+                        this.filters.squad_id = h.squad;
+                        
+                        if (h.club || this.user?.role === 'manager') {
+                             await this.fetchFilterTeams(h.club || this.user?.club_id);
+                        }
+                        if (h.team) {
+                             await this.fetchFilterSquads(h.team);
+                        }
+
+                        // Break Alpine cache by forcefully mutating the native DOM element.
+                        setTimeout(() => {
+                            const rSelect = document.getElementById('userFilterRole');
+                            const cSelect = document.getElementById('userFilterClub');
+                            const tSelect = document.getElementById('userFilterTeam');
+                            const sSelect = document.getElementById('userFilterSquad');
+                            if (rSelect) rSelect.value = h.role;
+                            if (cSelect) cSelect.value = h.club;
+                            if (tSelect) tSelect.value = h.team;
+                            if (sSelect) sSelect.value = h.squad;
+                            this.fetchUsers();
+                        }, 50);
+                    };
+
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/utilizatori') {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (this.user?.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchDependentData();
+                            }
+                        } else if (!value.startsWith('/dash/utilizatori')) {
+                            this.filters.role = '';
+                            this.filters.club_id = '';
+                            this.filters.team_id = '';
+                        }
+                    });
+
+                    this.$watch('user', (usr) => {
+                        if (usr && this.currentPage.startsWith('/dash/utilizatori')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (usr.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchDependentData();
+                            }
+                        }
+                    });
+
+                    this.$watch('availableClubs', (clubs) => {
+                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/utilizatori')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                        }
+                    });
+
+                    if (this.currentPage.startsWith('/dash/utilizatori')) {
+                        const h = syncFromHash();
+                        applyFiltersAndFetch(h);
+                        if (this.user?.role === 'administrator') this.fetchDependentData();
+                    }
+                    
+                    window.addEventListener('clubs-updated', () => {
+                        if (this.user?.role === 'administrator') this.fetchDependentData();
+                    });
+                    
+                    this.$watch('filters.club_id', async (val) => {
+                        if (this.currentPage.startsWith('/dash/utilizatori')) {
+                            if (val) {
+                                await this.fetchFilterTeams(val);
+                            } else {
+                                this.availableFilterTeams = [];
+                                this.filters.team_id = '';
+                            }
+                        }
+                    });
+
+                    this.$watch('filters.team_id', async (val) => {
+                        if (this.currentPage.startsWith('/dash/utilizatori')) {
+                            if (val) {
+                                await this.fetchFilterSquads(val);
+                            } else {
+                                this.availableFilterSquads = [];
+                                this.filters.squad_id = '';
+                            }
+                        }
+                    });
+
+                    this.$watch('form.club_id', async (val) => {
+                        if (this.showModal) await this.fetchTeamsBasedOnClub();
+                    });
+                    this.$watch('form.role', async (val) => {
+                        if (this.showModal && (val === 'sportiv' || val === 'antrenor')) await this.fetchTeamsBasedOnClub();
+                    });
+                    this.$watch('form.team_ids', async (val) => {
+                        if (this.showModal) await this.fetchSquadsBasedOnTeams();
+                    });
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/utilizatori')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.users.find(u => u.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.users.find(u => u.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteUser(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (this.filters.role) params.append('role', this.filters.role);
+                    if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                    if (this.filters.team_id) params.append('team_id', this.filters.team_id);
+                    if (this.filters.squad_id) params.append('squad_id', this.filters.squad_id);
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
+                },
+
+                openModal(userToEdit = null) {
+                    this.error = null;
+                    if(userToEdit) {
+                        this.form.id = userToEdit.id;
+                        this.form.name = userToEdit.name;
+                        this.form.email = userToEdit.email;
+                        this.form.role = userToEdit.role;
+                        this.form.club_id = userToEdit.club_id || '';
+                        this.form.is_active = !!userToEdit.is_active;
+                        this.form.team_ids = userToEdit.teams ? userToEdit.teams.map(t => t.id) : [];
+                        this.form.squad_ids = userToEdit.squads ? userToEdit.squads.map(s => s.id) : [];
+                        this.form.password = ''; // empty default, typed only to override
+                        this.updateHash('edit', userToEdit.id);
+                        this.fetchTeamsBasedOnClub().then(() => {
+                            if (this.form.team_ids.length > 0) this.fetchSquadsBasedOnTeams();
+                        });
+                    } else {
+                        this.form.id = null;
+                        this.form.name = '';
+                        this.form.email = '';
+                        this.form.role = '';
+                        this.form.club_id = '';
+                        this.form.password = '';
+                        this.form.team_ids = [];
+                        this.form.squad_ids = [];
+                        this.availableSquads = [];
+                        this.form.is_active = true;
+                        this.updateHash('add');
+                    }
+                    this.showModal = true;
+                },
+
+                async fetchUsers() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams();
+                        if (this.filters.role) params.append('role', this.filters.role);
+                        if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                        if (this.filters.team_id) params.append('team_id', this.filters.team_id);
+                        if (this.filters.squad_id) params.append('squad_id', this.filters.squad_id);
+
+                        const res = await fetch(`/api/users?${params.toString()}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.users = payload.data;
+                            this.processHashActions();
+                        }
+                    } catch (e) {}
+                    this.loading = false;
+                },
+
+                async fetchDependentData() {
+                    try {
+                        const res = await fetch('/api/clubs', {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableClubs = payload.data;
+                        }
+                    } catch(e) {}
+                },
+
+                async fetchFilterTeams(clubIdStr) {
+                    if(!clubIdStr) return;
+                    try {
+                        const res = await fetch(`/api/teams?club_id=${clubIdStr}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableFilterTeams = payload.data;
+                        }
+                    } catch (e) {}
+                },
+
+                async fetchFilterSquads(teamIdStr) {
+                    if(!teamIdStr) return;
+                    try {
+                        const res = await fetch(`/api/squads?team_id=${teamIdStr}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableFilterSquads = payload.data;
+                        }
+                    } catch (e) {}
+                },
+
+                async fetchTeamsBasedOnClub() {
+                    const cid = this.form.club_id || (this.user?.role === 'manager' ? this.user.club_id : null);
+                    if (!cid) {
+                        this.availableTeams = [];
+                        return;
+                    }
+                    this.loadingTeams = true;
+                    try {
+                        const res = await fetch(`/api/teams?club_id=${cid}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableTeams = payload.data;
+                        }
+                    } catch (e) {}
+                    this.loadingTeams = false;
+                },
+
+                async fetchSquadsBasedOnTeams() {
+                    if (this.form.team_ids.length === 0) {
+                        this.availableSquads = [];
+                        return;
+                    }
+                    this.loadingSquads = true;
+                    try {
+                        let squadsRaw = [];
+                        for(let tid of this.form.team_ids) {
+                            const res = await fetch(`/api/squads?team_id=${tid}`, {
+                                headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                            });
+                            if(res.ok) {
+                                const payload = await res.json();
+                                squadsRaw.push(...payload.data);
+                            }
+                        }
+                        this.availableSquads = squadsRaw;
+                    } catch (e) {}
+                    this.loadingSquads = false;
+                },
+
+                async saveUser() {
+                    this.saving = true;
+                    this.error = null;
+                    
+                    if (this.form.role === 'administrator') this.form.club_id = '';
+                    
+                    const isEdit = !!this.form.id;
+                    const url = isEdit ? `/api/users/${this.form.id}` : '/api/users';
+                    const method = isEdit ? 'PUT' : 'POST';
+                    
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 
+                                'Accept': 'application/json', 'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
+                            },
+                            body: JSON.stringify({
+                                name: this.form.name,
+                                email: this.form.email,
+                                role: this.form.role,
+                                password: this.form.password,
+                                is_active: this.form.is_active,
+                                club_id: this.form.club_id || null,
+                                team_ids: this.form.team_ids,
+                                squad_ids: this.form.squad_ids
+                            })
+                        });
+                        
+                        const payload = await res.json();
+                        
+                        if(res.ok) {
+                            if(isEdit) {
+                                const idx = this.users.findIndex(u => u.id === this.form.id);
+                                if(idx !== -1) this.users[idx] = payload.data;
+                            } else {
+                                this.fetchUsers(); // Refresh pt a aduce pe noua pozitie + relatii noi in caz extrem
+                            }
+                            this.showModal = false;
+                            this.form = { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [] };
+                            this.availableSquads = [];
+                        } else {
+                            this.error = payload.message || 'Eroare la salvare. Verificați datele (ex: email duplicat).';
+                        }
+                    } catch (e) { this.error = "Eroare rețea."; }
+                    
+                    this.saving = false;
+                },
+
+                async deleteUser(id) {
+                    if(!confirm('Sigur dorești să ștergi acest utilizator? Această acțiune este ireversibilă.')) return;
+                    try {
+                        const res = await fetch(`/api/users/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        const payload = await res.json();
+                        if(!res.ok) {
+                            alert(payload.message || 'Nu poți șterge acest utilizator.');
+                            return;
+                        }
+                        this.fetchUsers();
+                    } catch(e) {
+                        alert('A apărut o eroare la ștergere.');
+                    }
+                },
+
+                async impersonateUser(user) {
+                    if(!confirm(`Ești sigur că vrei să te loghezi ca ${user.name}?`)) return;
+                    
+                    try {
+                        const res = await fetch(`/api/impersonate/${user.id}`, {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        const payload = await res.json();
+                        if(res.ok) {
+                            // Salvam tokenul de admin original pentru restabilire
+                            localStorage.setItem('original_admin_token', localStorage.getItem('auth_token'));
+                            
+                            // Inlocuim tokenul activ cu cel al utilizatorului
+                            localStorage.setItem('auth_token', payload.token);
+                            
+                            // Reincarcam aplicatia complet
+                            window.location.reload();
+                        } else {
+                            alert(payload.message || 'Eroare la impersonare.');
+                        }
+                    } catch(e) {
+                        alert('Eroare de rețea la impersonare.');
+                    }
+                }
+            }));
+
+            // ------- Gestiune Grupe (Teams) -------
+            Alpine.data('teamManager', () => ({
+                teams: [],
+                availableClubs: [],
+                loading: false,
+                saving: false,
+                showModal: false,
+                error: null,
+                form: { id: null, name: '', club_id: '' },
+                filters: { club_id: '' },
+
+                init() {
+                    const syncFromHash = () => {
+                        let hashClub = '';
+                        if (window.location.hash && window.location.pathname.startsWith('/dash/grupe')) {
+                            try {
+                                const hp = new URLSearchParams(window.location.hash.substring(1));
+                                hashClub = hp.get('club_id') || '';
+                            } catch(e) {}
+                        }
+                        return hashClub;
+                    };
+
+                    const applyFiltersAndFetch = (h) => {
+                        this.filters.club_id = h;
+                        
+                        setTimeout(() => {
+                            const cSelect = document.getElementById('teamFilterClub');
+                            if (cSelect) cSelect.value = h;
+                            this.fetchTeams();
+                        }, 50);
+                    };
+
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/grupe') {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (this.user?.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchClubs();
+                            }
+                        } else if (!value.startsWith('/dash/grupe')) {
+                            this.filters.club_id = '';
+                        }
+                    });
+
+                    this.$watch('user', (usr) => {
+                        if (usr && usr.role === 'administrator' && this.currentPage.startsWith('/dash/grupe')) {
+                            if (this.availableClubs.length === 0) this.fetchClubs();
+                        }
+                    });
+
+                    this.$watch('availableClubs', (clubs) => {
+                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/grupe')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                        }
+                    });
+
+                    if (this.currentPage.startsWith('/dash/grupe')) {
+                        const h = syncFromHash();
+                        applyFiltersAndFetch(h);
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    }
+
+                    window.addEventListener('clubs-updated', () => {
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    });
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/grupe')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.teams.find(t => t.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.teams.find(t => t.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteTeam(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
+                },
+
+                openModal(team = null) {
+                    this.error = null;
+                    if(team) {
+                        this.form.id = team.id;
+                        this.form.name = team.name;
+                        this.form.club_id = team.club_id;
+                        this.updateHash('edit', team.id);
+                    } else {
+                        this.form.id = null;
+                        this.form.name = '';
+                        this.form.club_id = '';
+                        this.updateHash('add');
+                    }
+                    this.showModal = true;
+                },
+
+                async fetchClubs() {
+                    try {
+                        const res = await fetch('/api/clubs', {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableClubs = payload.data;
+                        }
+                    } catch(e) {}
+                },
+
+                async fetchTeams() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams();
+                        if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+
+                        const res = await fetch(`/api/teams?${params.toString()}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.teams = payload.data;
+                            this.processHashActions();
+                        }
+                    } catch (e) { console.error(e); }
+                    this.loading = false;
+                },
+
+                async saveTeam() {
+                    this.saving = true;
+                    this.error = null;
+                    
+                    const isEdit = !!this.form.id;
+                    const url = isEdit ? `/api/teams/${this.form.id}` : '/api/teams';
+                    const method = isEdit ? 'PUT' : 'POST';
+                    
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 
+                                'Accept': 'application/json', 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
+                            },
+                            body: JSON.stringify({ 
+                                name: this.form.name,
+                                club_id: this.form.club_id || null
+                            })
+                        });
+                        
+                        const payload = await res.json();
+                        
+                        if(res.ok) {
+                            this.fetchTeams();
+                            this.showModal = false;
+                        } else {
+                            this.error = payload.message || 'Eroare la salvare.';
+                        }
+                    } catch (e) { this.error = "Eroare de rețea."; }
+                    this.saving = false;
+                },
+
+                async deleteTeam(id) {
+                    if(!confirm('Sigur dorești ștergerea acestei grupe? Acțiunea e ireversibilă!')) return;
+                    
+                    try {
+                        const res = await fetch(`/api/teams/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            this.teams = this.teams.filter(t => t.id !== id);
+                        } else {
+                            const data = await res.json();
+                            alert(data.message || 'Eroare la ștergere. Posibil grupa are membri asociați.');
+                        }
+                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                }
+            }));
+
+            // ------- Gestiune Echipe (Squads) -------
+            Alpine.data('squadManager', () => ({
+                squads: [],
+                availableClubs: [],
+                availableModalTeams: [], // Grupele încărcate pentru dropdown-ul din modal de creare
+                loading: false,
+                saving: false,
+                showModal: false,
+                error: null,
+                form: { id: null, name: '', club_id: '', team_id: '' },
+                filters: { club_id: '' },
+
+                init() {
+                    const syncFromHash = () => {
+                        let hashClub = '';
+                        if (window.location.hash && window.location.pathname.startsWith('/dash/echipe')) {
+                            try {
+                                const hp = new URLSearchParams(window.location.hash.substring(1));
+                                hashClub = hp.get('club_id') || '';
+                            } catch(e) {}
+                        }
+                        return hashClub;
+                    };
+
+                    const applyFiltersAndFetch = (h) => {
+                        this.filters.club_id = h;
+                        this.fetchSquads();
+                    };
+
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/echipe') {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (this.user?.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchClubs();
+                            }
+                        } else if (!value.startsWith('/dash/echipe')) {
+                            this.filters.club_id = '';
+                        }
+                    });
+
+                    this.$watch('user', (usr) => {
+                        if (usr && usr.role === 'administrator' && this.currentPage.startsWith('/dash/echipe')) {
+                            if (this.availableClubs.length === 0) this.fetchClubs();
+                        }
+                    });
+                    
+                    this.$watch('availableClubs', (clubs) => {
+                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/echipe')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                        }
+                    });
+
+                    if (this.currentPage.startsWith('/dash/echipe')) {
+                        const h = syncFromHash();
+                        applyFiltersAndFetch(h);
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    }
+
+                    window.addEventListener('clubs-updated', () => {
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    });
+
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/echipe')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.squads.find(s => s.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.squads.find(s => s.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteSquad(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
+                },
+
+                async fetchModalTeams() {
+                    // Când selectezi un club in modal, vrem să arătăm doar grupele acelui club
+                    this.availableModalTeams = [];
+                    this.form.team_id = ''; // resetare selecție
+                    if (this.user?.role === 'administrator' && !this.form.club_id) return;
+                    
+                    try {
+                        let url = '/api/teams';
+                        if (this.form.club_id) {
+                            url += `?club_id=${this.form.club_id}`;
+                        }
+
+                        const res = await fetch(url, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if (res.ok) {
+                            const payload = await res.json();
+                            this.availableModalTeams = payload.data;
+                        }
+                    } catch(e) {}
+                },
+
+                openModal(squad = null) {
+                    this.error = null;
+                    if(squad) {
+                        this.form.id = squad.id;
+                        this.form.name = squad.name;
+                        this.form.club_id = squad.team?.club_id || '';
+                        this.updateHash('edit', squad.id);
+                        
+                        // Populăm echipele pentru acel club + selectăm grupa
+                        if (this.form.club_id || this.user?.role === 'manager') {
+                            // Dacă e manager, știm sigur că tragem toate echipele din clubul lui implicit (via empty club_id query for teams sau backend filter).
+                            // Pentru admin, o chemăm explicit.
+                            this.fetchModalTeams().then(() => {
+                                this.form.team_id = squad.team_id;
+                            });
+                        } else {
+                            this.form.team_id = squad.team_id;
+                        }
+                    } else {
+                        this.form.id = null;
+                        this.form.name = '';
+                        this.form.club_id = '';
+                        this.form.team_id = '';
+                        this.availableModalTeams = [];
+                        
+                        // Dacă e manager, încarcă direct grupele lui (fără să trebuiască selecteze club)
+                        if (this.user?.role === 'manager') {
+                            this.fetchModalTeams();
+                        }
+                        this.updateHash('add');
+                    }
+                    this.showModal = true;
+                },
+
+                async fetchClubs() {
+                    try {
+                        const res = await fetch('/api/clubs', {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableClubs = payload.data;
+                        }
+                    } catch(e) {}
+                },
+
+                async fetchSquads() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams();
+                        if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+
+                        const res = await fetch(`/api/squads?${params.toString()}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.squads = payload.data;
+                            this.processHashActions();
+                        }
+                    } catch(e) {}
+                    this.loading = false;
+                },
+
+                async saveSquad() {
+                    this.saving = true;
+                    this.error = null;
+                    
+                    const isEdit = !!this.form.id;
+                    const url = isEdit ? `/api/squads/${this.form.id}` : '/api/squads';
+                    const method = isEdit ? 'PUT' : 'POST';
+                    
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 
+                                'Accept': 'application/json', 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
+                            },
+                            body: JSON.stringify({ 
+                                name: this.form.name,
+                                team_id: this.form.team_id
+                            })
+                        });
+                        
+                        const payload = await res.json();
+                        
+                        if(res.ok) {
+                            this.fetchSquads();
+                            this.showModal = false;
+                        } else {
+                            this.error = payload.message || 'Eroare la salvare.';
+                        }
+                    } catch (e) { this.error = "Eroare de rețea."; }
+                    this.saving = false;
+                },
+
+                async deleteSquad(id) {
+                    if(!confirm('Sigur dorești ștergerea acestei echipe? Acțiunea e ireversibilă!')) return;
+                    
+                    try {
+                        const res = await fetch(`/api/squads/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            this.squads = this.squads.filter(s => s.id !== id);
+                        } else {
+                            const data = await res.json();
+                            alert(data.message || 'Eroare la ștergere. Posibil echipa are membri asociați.');
+                        }
+                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                }
+            }));
+
+            // ------- Kernel SPA Dashboard -------
+            Alpine.data('dashboard', () => ({
+                user: null,
+                isLoading: true,
+                token: null,
+                isMobileMenuOpen: false,
+                isImpersonating: false,
+                currentPage: window.location.pathname, // Route Tracker Simplu
+
+                    getPageTitle() {
+                        if(this.currentPage === '/dash') return 'Acasă';
+                        if(this.currentPage.startsWith('/dash/cluburi')) return 'Management Cluburi';
+                        if(this.currentPage.startsWith('/dash/utilizatori')) return 'Echipă & Utilizatori';
+                        if(this.currentPage.startsWith('/dash/echipe')) return 'Echipe Formate';
+                        return 'Dashboard';
+                    },
+
+                navigate(path) {
+                    if (this.user) {
+                        if (!['administrator', 'manager'].includes(this.user.role) && path !== '/dash') {
+                            path = '/dash';
+                        }
+                        if (this.user.role === 'manager' && path.startsWith('/dash/cluburi')) {
+                            path = '/dash';
+                        }
+                    }
+                    this.currentPage = path;
+                    
+                    // Clear Hash State gracefully on programmatic navigation
+                    if (window.location.hash) {
+                        window.history.pushState({}, '', path); // Set without hash
+                    } else {
+                        window.history.pushState({}, '', path);
+                    }
+                },
+
+                async init() {
+                    // Ascultăm schimbările de istoric din browser (Butonul Back/Forward)
+                    window.addEventListener('popstate', () => {
+                        this.currentPage = window.location.pathname;
+                    });
+                    
+                    // Suport fallback SPA imediat după încărcarea paginii dacă URL-ul este pe vreo subrută
+                    const currentPath = window.location.pathname;
+                    if (currentPath !== '/dash' && currentPath.startsWith('/dash/')) {
+                         this.currentPage = currentPath;
+                    }
+
+                    this.token = localStorage.getItem('auth_token');
+                    this.isImpersonating = !!localStorage.getItem('original_admin_token');
+                    
+                    if (!this.token) {
+                        window.location.href = '/dash/login';
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/user', {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            this.user = await response.json();
+                            this.isLoading = false;
+                            
+                            // Security check fallback for deep links
+                            if (!['administrator', 'manager'].includes(this.user.role) && this.currentPage !== '/dash') {
+                                this.navigate('/dash');
+                            } else if (this.user.role === 'manager' && this.currentPage.startsWith('/dash/cluburi')) {
+                                this.navigate('/dash');
+                            }
+                        } else {
+                            this.logout(false);
+                        }
+                    } catch (error) {
+                        this.logout(false);
+                    }
+                },
+
+                async logout(callApi = true) {
+                    if (callApi && this.token) {
+                        try {
+                            await fetch('/api/logout', {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Authorization': `Bearer ${this.token}`
+                                }
+                            });
+                        } catch (e) {}
+                    }
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('original_admin_token'); // Clear in caz ca era impersonat si da logout manual
+                    window.location.href = '/dash/login';
+                },
+
+                async leaveImpersonation() {
+                    try {
+                        const res = await fetch('/api/impersonate-leave', {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${this.token}` }
+                        });
+                        
+                        // Oricum distrugem starea locala chiar dac API da timeout, sa nu ramana blocat
+                        const adminToken = localStorage.getItem('original_admin_token');
+                        localStorage.setItem('auth_token', adminToken);
+                        localStorage.removeItem('original_admin_token');
+                        window.location.reload();
+                    } catch (e) {
+                        alert('Eroare la delogare din impersonare.');
+                    }
+                }
+            }));
+        });
