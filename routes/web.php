@@ -4,39 +4,27 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashAuthController;
 
 Route::get('/', function () {
-    return view('home');
+    return redirect()->route('dash.index');
 });
 
 Route::get('/login', function () {
     return redirect()->route('dash.login');
 })->name('login');
 
-// Dashboard Authentication Routes
+// Dashboard routes (Views only, logic handled via API)
 Route::prefix('dash')->group(function () {
-    // Guest roots
-    Route::middleware('guest')->group(function () {
-            Route::get('/login', [DashAuthController::class , 'showLogin'])->name('dash.login');
-            Route::post('/login', [DashAuthController::class , 'login']);
+    Route::get('/login', [DashAuthController::class , 'showLogin'])->name('dash.login');
 
-            Route::get('/recuperare', [DashAuthController::class , 'showRecovery'])->name('dash.recovery');
-            Route::post('/recuperare', [DashAuthController::class , 'sendRecovery'])->name('password.email');
+    // Mentine recuperarea/resetarea standard in web deocamdata, sau o putem porta imediat
+    Route::get('/recuperare', [DashAuthController::class , 'showRecovery'])->name('dash.recovery');
 
-            Route::get('/resetare-parola/{token}', [DashAuthController::class , 'showResetForm'])->name('password.reset');
-            Route::post('/resetare-parola', [DashAuthController::class , 'resetPassword'])->name('password.update');
+    Route::get('/resetare-parola/{token}', [DashAuthController::class , 'showResetForm'])->name('password.reset');
 
-            Route::get('/google/redirect', [DashAuthController::class , 'redirectToGoogle'])->name('dash.google.redirect');
-            Route::get('/google/callback', [DashAuthController::class , 'handleGoogleCallback'])->name('dash.google.callback');
+    Route::get('/google/redirect', [DashAuthController::class , 'redirectToGoogle'])->name('dash.google.redirect');
+    Route::get('/google/callback', [DashAuthController::class , 'handleGoogleCallback'])->name('dash.google.callback');
 
-            Route::get('/2fa', [DashAuthController::class , 'show2fa'])->name('dash.2fa.show');
-            Route::post('/2fa', [DashAuthController::class , 'verify2fa'])->name('dash.2fa.verify');
-            Route::post('/2fa/resend', [DashAuthController::class , 'resend2fa'])->name('dash.2fa.resend');
-        }
-        );
+    Route::get('/2fa', [DashAuthController::class , 'show2fa'])->name('dash.2fa.show');
 
-        // Protected roots
-        Route::middleware('auth')->group(function () {
-            Route::get('/', [DashAuthController::class , 'index'])->name('dash.index');
-            Route::post('/logout', [DashAuthController::class , 'logout'])->name('dash.logout');
-        }
-        );
-    });
+    // Dashboard root view. Protection will be done via frontend JS checking the API token.
+    Route::get('/', [DashAuthController::class , 'index'])->name('dash.index');
+});

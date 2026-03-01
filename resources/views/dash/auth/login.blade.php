@@ -50,23 +50,28 @@
 <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Bine ai revenit!</h1>
 <p class="text-slate-500 dark:text-slate-400">Introdu datele pentru a accesa panoul de control</p>
 </div>
-<form method="POST" action="{{ route('dash.login') }}" class="space-y-6">
-@csrf
+<form @submit.prevent="submitLogin" class="space-y-6" x-data="loginForm()">
+<!-- Global Error Message -->
+<div x-show="errorMessage" class="p-4 rounded-xl bg-red-50 text-red-600 border border-red-200 text-sm font-medium" style="display: none;">
+    <span class="material-symbols-outlined align-middle mr-1 text-[20px]">error</span>
+    <span x-text="errorMessage" class="align-middle"></span>
+</div>
+
 <!-- Email Field -->
 <div class="space-y-2">
 <label class="text-sm font-medium text-slate-900 dark:text-slate-100" for="email">Email</label>
 <div class="relative">
-<input name="email" value="{{ old('email') }}" required class="w-full h-12 pl-4 pr-11 rounded-xl border {{ $errors->has('email') ? 'border-red-500' : 'border-slate-200 dark:border-slate-700' }} bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="ex: admin@volei.club" type="email"/>
+<input x-model="email" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="ex: admin@volei.club" type="email" :disabled="isLoading"/>
 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
 <span class="material-symbols-outlined">mail</span>
 </div>
 </div>
 </div>
 <!-- Password Field -->
-<div class="space-y-2" x-data="{ show: false }">
+<div class="space-y-2">
 <label class="text-sm font-medium text-slate-900 dark:text-slate-100" for="password">Parolă</label>
 <div class="relative">
-<input name="password" required class="w-full h-12 pl-4 pr-11 rounded-xl border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-200 dark:border-slate-700' }} bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="password" placeholder="••••••••" :type="show ? 'text' : 'password'"/>
+<input x-model="password" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="password" placeholder="••••••••" :type="show ? 'text' : 'password'" :disabled="isLoading"/>
 <button @click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" type="button">
 <span class="material-symbols-outlined" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
 </button>
@@ -75,16 +80,64 @@
 <!-- Remember & Forgot -->
 <div class="flex items-center justify-between text-sm">
 <label class="flex items-center gap-2 cursor-pointer">
-<input name="remember" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" {{ old('remember') ? 'checked' : '' }}/>
+<input x-model="remember" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
 <span class="text-slate-600 dark:text-slate-300">Ține-mă minte</span>
 </label>
 <a class="font-semibold text-primary hover:text-primary-dark transition-colors" href="{{ route('dash.recovery') }}">Ai uitat parola?</a>
 </div>
 <!-- Submit Button -->
-<button type="submit" class="w-full h-12 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] flex items-center justify-center gap-2">
-                        Autentificare
-                    </button>
+<button type="submit" :disabled="isLoading" class="w-full h-12 bg-primary hover:bg-primary-dark disabled:opacity-75 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] flex items-center justify-center gap-2">
+        <span x-show="!isLoading">Autentificare</span>
+        <span x-show="isLoading" class="material-symbols-outlined animate-spin" style="display: none;">progress_activity</span>
+</button>
 </form>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('loginForm', () => ({
+            email: '',
+            password: '',
+            remember: false,
+            show: false,
+            isLoading: false,
+            errorMessage: '',
+            
+            async submitLogin() {
+                this.isLoading = true;
+                this.errorMessage = '';
+                
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: this.email,
+                            password: this.password,
+                            remember: this.remember
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.status === 'success') {
+                        // Salvează ID-ul utilizatorului temporal pentru ecranul 2FA
+                        sessionStorage.setItem('2fa_user_id', data.user_id);
+                        window.location.href = '/dash/2fa';
+                    } else {
+                        this.errorMessage = data.message || 'Date incorecte.';
+                    }
+                } catch (error) {
+                    this.errorMessage = 'A apărut o eroare de conexiune. Te rugăm să încerci din nou.';
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+        }));
+    });
+</script>
 <!-- Divider -->
 <div class="relative my-8">
 <div class="absolute inset-0 flex items-center">

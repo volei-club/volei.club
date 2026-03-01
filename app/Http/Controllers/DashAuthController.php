@@ -49,10 +49,8 @@ class DashAuthController extends Controller
 
     public function show2fa(Request $request)
     {
-        if (!$request->session()->has('2fa_user_id')) {
-            return redirect()->route('dash.login');
-        }
-
+        // Protecția se face pe frontend (SPA) verificând sessionStorage['2fa_user_id'].
+        // Nu mai verificăm sesiunea de Laravel aici.
         return view('dash.auth.2fa');
     }
 
@@ -116,22 +114,6 @@ class DashAuthController extends Controller
         return view('dash.auth.recuperare');
     }
 
-    public function sendRecovery(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
-
-        $status = \Illuminate\Support\Facades\Password::sendResetLink(
-            $request->only('email')
-        );
-
-        if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
-            return back()->with(['status' => 'Ți-am trimis prin e-mail linkul pentru resetarea parolei!']);
-        }
-
-        return back()->withInput($request->only('email'))
-            ->withErrors(['email' => 'Nu am putut găsi un utilizator cu această adresă de e-mail.']);
-    }
-
     public function showResetForm(Request $request, $token = null)
     {
         // Preluăm toate înregistrările din tabelul password_reset_tokens
@@ -153,30 +135,6 @@ class DashAuthController extends Controller
         return view('dash.auth.reset', ['token' => $token]);
     }
 
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
-        ]);
-
-        $status = \Illuminate\Support\Facades\Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-            $user->password = Hash::make($password);
-            $user->save();
-        }
-        );
-
-        if ($status === \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
-            return redirect()->route('dash.login')->with('status', 'Parola a fost resetată cu succes! Te poți autentifica acum.');
-        }
-
-        return back()->withInput($request->only('email'))
-            ->withErrors(['email' => 'Eroare la resetarea parolei. Legătura este invalidă sau a expirat.']);
-    }
-
     public function redirectToGoogle()
     {
         return \Laravel\Socialite\Facades\Socialite::driver('google')->redirect();
@@ -194,9 +152,11 @@ class DashAuthController extends Controller
         $user = User::where('email', $googleUser->getEmail())->first();
 
         if ($user) {
-            // Autentificare reușită
-            Auth::login($user, true); // implicit „remember me” pentru login social 
-            return redirect()->route('dash.index');
+            // Generăm un API Token în loc de Login Sesiune
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            // Returnăm un view minimalist care înscrie token-ul în localStorage
+            return view('dash.auth.oauth_proxy', ['token' => $token]);
         }
         else {
             // Contul nu există local

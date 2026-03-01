@@ -4,6 +4,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Volei.Club Recuperare Parolă</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
@@ -57,26 +58,73 @@
                     Introdu adresa de email asociată contului tău și îți vom trimite un link pentru resetarea parolei.
                 </p>
 </div>
-<form method="POST" action="{{ route('dash.recovery') }}" class="space-y-6">
-@csrf
+<form @submit.prevent="submitRecovery" class="space-y-6" x-data="recoveryForm()">
+<!-- Global Error or Success Message -->
+<div x-show="message" class="p-4 rounded-xl text-sm font-medium border" :class="isSuccess ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'" style="display: none;">
+    <span class="material-symbols-outlined align-middle mr-1 text-[20px]" x-text="isSuccess ? 'check_circle' : 'error'"></span>
+    <span x-text="message" class="align-middle"></span>
+</div>
+
 <div class="space-y-2">
 <label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1" for="email">Adresă de email</label>
 <div class="relative">
-<input name="email" value="{{ old('email') }}" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="ex: nume@email.ro" type="email"/>
+<input x-model="email" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="ex: nume@email.ro" type="email" :disabled="isLoading || isSuccess"/>
 <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400">
 <span class="material-symbols-outlined text-[20px]">mail</span>
 </div>
 </div>
 </div>
-<button type="submit" class="w-full h-12 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/25 active:scale-[0.98] flex items-center justify-center gap-2">
-                    Trimite link-ul de resetare
-                </button>
+<button type="submit" :disabled="isLoading || isSuccess" class="w-full h-12 bg-primary hover:bg-primary-dark disabled:opacity-75 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/25 active:scale-[0.98] flex items-center justify-center gap-2">
+    <span x-show="!isLoading">Trimite link-ul de resetare</span>
+    <span x-show="isLoading" class="material-symbols-outlined animate-spin" style="display: none;">progress_activity</span>
+</button>
 </form>
-@if (session('status'))
-    <div class="mt-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 text-center" role="alert">
-        {{ session('status') }}
-    </div>
-@endif
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('recoveryForm', () => ({
+            email: '',
+            isLoading: false,
+            message: '',
+            isSuccess: false,
+            
+            async submitRecovery() {
+                this.isLoading = true;
+                this.message = '';
+                this.isSuccess = false;
+                
+                try {
+                    const response = await fetch('/api/recuperare', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: this.email
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.status === 'success') {
+                        this.isSuccess = true;
+                        this.message = data.message || 'Link-ul a fost trimis!';
+                    } else {
+                        this.isSuccess = false;
+                        // Putem primi si erori de validare din request->validate dacă nu e email valid
+                        this.message = data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Te rugăm să verifici adresa de email.');
+                    }
+                } catch (error) {
+                    this.isSuccess = false;
+                    this.message = 'A apărut o eroare de conexiune. Te rugăm să încerci din nou.';
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+        }));
+    });
+</script>
 <div class="mt-10 flex justify-center">
 <a class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary transition-colors group" href="{{ route('dash.login') }}">
 <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
