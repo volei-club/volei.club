@@ -1,9 +1,9 @@
 <?php
 \App\Models\User::firstOrCreate(
-['email' => 'ion@exemplu.ro'],
+['email' => 'isacescua@gmail.com'],
 [
-    'name' => 'Ion Popescu',
-    'password' => \Illuminate\Support\Facades\Hash::make('parola123')
+    'name' => 'Andrei Isacescu',
+    'password' => \Illuminate\Support\Facades\Hash::make('Password20!!')
 ]
 );
 echo "User successfully created.\n";
