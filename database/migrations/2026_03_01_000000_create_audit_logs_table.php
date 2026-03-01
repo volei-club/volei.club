@@ -28,7 +28,7 @@ return new class extends Migration
             $table->json('new_values')->nullable();
 
             // Request context
-            $table->string('url')->nullable();
+            $table->text('url')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
 
