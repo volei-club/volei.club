@@ -2,9 +2,9 @@
             <div x-show="currentPage.startsWith('/dash/membri')" x-data="userManager()" class="h-full flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
                     <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Membri</h3>
-                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
-                        <span class="material-symbols-outlined mr-2">person_add</span>
-                        Adaugă Membru
+                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none flex items-center justify-center sm:justify-start gap-2">
+                        <span class="material-symbols-outlined text-[20px]">person_add</span>
+                        <span>Adaugă Membru</span>
                     </button>
                 </div>
 
@@ -113,27 +113,29 @@
                                             </template>
                                         </td>
                                         <td class="px-6 py-4 text-right">
-                                            <template x-if="usr.role === 'sportiv'">
-                                                <div class="inline-flex">
-                                                    <button @click="openSubscriptionModal(usr)" class="text-slate-400 hover:text-orange-500 transition-colors p-1" title="Gestionează Abonament">
-                                                        <span class="material-symbols-outlined text-sm">loyalty</span>
-                                                    </button>
-                                                    <button @click="openSubscriptionHistory(usr)" class="text-slate-400 hover:text-blue-500 transition-colors p-1 ml-1" title="Istoric Abonamente">
-                                                        <span class="material-symbols-outlined text-sm">history</span>
-                                                    </button>
-                                                </div>
-                                            </template>
-                                            <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1 ml-1" title="Editează Membru">
-                                                <span class="material-symbols-outlined text-sm">edit</span>
-                                            </button>
-                                            <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
-                                                <button @click="impersonateUser(usr)" class="text-slate-400 hover:text-blue-500 transition-colors p-1 ml-1" title="Loghează-te ca">
-                                                    <span class="material-symbols-outlined text-sm">login</span>
+                                            <div class="flex justify-end gap-1">
+                                                <template x-if="usr.role === 'sportiv'">
+                                                    <div class="flex gap-1">
+                                                        <button @click="openSubscriptionModal(usr)" class="p-2 text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded-lg transition-colors" title="Gestionează Abonament">
+                                                            <span class="material-symbols-outlined text-[20px]">loyalty</span>
+                                                        </button>
+                                                        <button @click="openSubscriptionHistory(usr)" class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Istoric Abonamente">
+                                                            <span class="material-symbols-outlined text-[20px]">history</span>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                                <button @click="openModal(usr)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editează Membru">
+                                                    <span class="material-symbols-outlined text-[20px]">edit</span>
                                                 </button>
-                                            </template>
-                                            <button @click="deleteUser(usr.id)" class="text-slate-400 hover:text-red-500 transition-colors p-1 ml-1" title="Șterge Membru">
-                                                <span class="material-symbols-outlined text-sm">delete</span>
-                                            </button>
+                                                <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
+                                                    <button @click="impersonateUser(usr)" class="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" title="Loghează-te ca">
+                                                        <span class="material-symbols-outlined text-[20px]">login</span>
+                                                    </button>
+                                                </template>
+                                                <button @click="deleteUser(usr.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge Membru">
+                                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </template>
@@ -148,24 +150,24 @@
                                 <div class="absolute top-4 right-4 flex gap-1">
                                     <template x-if="usr.role === 'sportiv'">
                                         <div class="flex gap-1">
-                                            <button @click="openSubscriptionModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-600">
-                                                <span class="material-symbols-outlined text-sm">loyalty</span>
+                                            <button @click="openSubscriptionModal(usr)" class="p-2 text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded-lg transition-colors" title="Gestionează Abonament">
+                                                <span class="material-symbols-outlined text-[20px]">loyalty</span>
                                             </button>
-                                            <button @click="openSubscriptionHistory(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-600">
-                                                <span class="material-symbols-outlined text-sm">history</span>
+                                            <button @click="openSubscriptionHistory(usr)" class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Istoric Abonamente">
+                                                <span class="material-symbols-outlined text-[20px]">history</span>
                                             </button>
                                         </div>
                                     </template>
-                                    <button @click="openModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                    <button @click="openModal(usr)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editează Membru">
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
                                     </button>
                                     <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
-                                        <button @click="impersonateUser(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors flex items-center justify-center" title="Loghează-te ca">
-                                            <span class="material-symbols-outlined text-sm">login</span>
+                                        <button @click="impersonateUser(usr)" class="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" title="Loghează-te ca">
+                                            <span class="material-symbols-outlined text-[20px]">login</span>
                                         </button>
                                     </template>
-                                    <button @click="deleteUser(usr.id)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-sm">delete</span>
+                                    <button @click="deleteUser(usr.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge Membru">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>
                                 </div>
                                 
@@ -209,8 +211,8 @@
                         </template>
                     </div>
 
-                    <div x-show="users.length === 0 && !loading" class="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl md:rounded-none">
-                        <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">group_off</span>
+                    <div x-show="users.length === 0 && !loading" class="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 border-dashed">
+                        <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700 mb-4">group_off</span>
                         <p class="text-slate-500">Niciun Membru găsit.</p>
                     </div>
                 </div>

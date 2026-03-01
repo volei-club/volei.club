@@ -71,6 +71,7 @@
             @include('dash.components.squads')
             @include('dash.components.subscriptions')
             @include('dash.components.audit')
+            @include('dash.components.locatii')
 
         </main>
 

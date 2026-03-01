@@ -2,9 +2,9 @@
             <div x-show="currentPage.startsWith('/dash/cluburi')" x-data="clubManager()" class="h-full flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
                     <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Toate Cluburile</h3>
-                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
-                        <span class="material-symbols-outlined mr-2">add</span>
-                        Adaugă Club
+                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none flex items-center justify-center sm:justify-start gap-2">
+                        <span class="material-symbols-outlined text-[20px]">add</span>
+                        <span>Adaugă Club</span>
                     </button>
                 </div>
 
@@ -12,16 +12,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <template x-for="club in clubs" :key="club.id">
                         <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm relative group">
-                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
-                                <button @click="openModal(club)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                                    <span class="material-symbols-outlined text-sm">edit</span>
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                <button @click="openModal(club)" class="p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-primary hover:text-white transition-colors" title="Editează">
+                                    <span class="material-symbols-outlined text-[20px]">edit</span>
                                 </button>
-                                <button @click="deleteClub(club.id)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors">
-                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                <button @click="deleteClub(club.id)" class="p-2 bg-slate-100 dark:bg-slate-700 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors" title="Șterge">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
                                 </button>
                             </div>
                             <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-4">
-                                <span class="material-symbols-outlined">domain</span>
+                                <span class="material-symbols-outlined text-2xl">domain</span>
                             </div>
                             <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2" x-text="club.name"></h4>
                             <p class="text-sm text-slate-500 mb-4">
@@ -31,8 +31,8 @@
                     </template>
                 </div>
 
-                <div x-show="clubs.length === 0 && !loading" class="text-center py-12">
-                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">domain_disabled</span>
+                <div x-show="clubs.length === 0 && !loading" class="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 border-dashed">
+                    <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700 mb-4">domain_disabled</span>
                     <p class="text-slate-500">Nu am găsit cluburi. Creează tu primul!</p>
                 </div>
 

@@ -2,9 +2,9 @@
             <div x-show="currentPage.startsWith('/dash/grupe')" x-data="teamManager()" class="h-full flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
                     <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Grupe</h3>
-                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
-                        <span class="material-symbols-outlined mr-2">group_add</span>
-                        Adaugă Grupă
+                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none flex items-center justify-center sm:justify-start gap-2">
+                        <span class="material-symbols-outlined text-[20px]">group_add</span>
+                        <span>Adaugă Grupă</span>
                     </button>
                 </div>
 
@@ -50,12 +50,14 @@
                                         </td>
                                     </template>
                                     <td class="px-6 py-4 text-right">
-                                        <button @click="openModal(team)" class="text-slate-400 hover:text-primary transition-colors p-2" title="Editează">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                        <button @click="deleteTeam(team.id)" class="text-slate-400 hover:text-red-500 transition-colors p-2 ml-1" title="Șterge">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
+                                        <div class="flex justify-end gap-2">
+                                            <button @click="openModal(team)" class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Editează">
+                                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                                            </button>
+                                            <button @click="deleteTeam(team.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge">
+                                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             </template>
@@ -79,8 +81,8 @@
                     </template>
                 </div>
 
-                <div x-show="teams.length === 0 && !loading" class="text-center py-12">
-                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">diversity_3</span>
+                <div x-show="teams.length === 0 && !loading" class="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 border-dashed">
+                    <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700 mb-4">diversity_3</span>
                     <p class="text-slate-500">Acest club nu are asocieri de grupe încă.</p>
                 </div>
 

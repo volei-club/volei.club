@@ -5,7 +5,7 @@
             <p class="text-sm text-slate-500 dark:text-slate-400">Jurnalul activităților și modificărilor din platformă</p>
         </div>
         <div class="flex gap-2">
-            <button @click="fetchLogs()" class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm outline-none">
+            <button @click="fetchLogs()" class="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm outline-none flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary active:scale-95">
                 <span class="material-symbols-outlined text-[20px]">refresh</span>
             </button>
         </div>
@@ -86,21 +86,23 @@
                                         </div>
                                     </template>
                                     <template x-if="log.event === 'created'">
-                                        <button @click="openLogDetails(log)" class="text-xs text-primary hover:underline flex items-center">
-                                            <span class="material-symbols-outlined text-sm mr-1">visibility</span> Vezi date inițiale
+                                        <button @click="openLogDetails(log)" class="text-xs text-primary hover:text-primary-dark font-bold flex items-center gap-1.5 transition-colors group/link">
+                                            <span class="material-symbols-outlined text-[18px] transition-transform group-hover/link:scale-110">visibility</span>
+                                            <span>Vezi date inițiale</span>
                                         </button>
                                     </template>
                                     <template x-if="log.event === 'deleted'">
-                                        <button @click="openLogDetails(log)" class="text-xs text-red-500 hover:underline flex items-center">
-                                            <span class="material-symbols-outlined text-sm mr-1">history</span> Vezi date șterse
+                                        <button @click="openLogDetails(log)" class="text-xs text-red-500 hover:text-red-600 font-bold flex items-center gap-1.5 transition-colors group/link">
+                                            <span class="material-symbols-outlined text-[18px] transition-transform group-hover/link:scale-110">history</span>
+                                            <span>Vezi date șterse</span>
                                         </button>
                                     </template>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-slate-900 dark:text-white font-medium" x-text="new Date(log.created_at).toLocaleString('ro-RO')"></div>
-                                <div class="text-[10px] text-slate-500 flex items-center mt-0.5">
-                                    <span class="material-symbols-outlined text-[12px] mr-1">lan</span>
+                                <div class="text-[10px] text-slate-500 flex items-center mt-1 opacity-70">
+                                    <span class="material-symbols-outlined text-[14px] mr-1">lan</span>
                                     <span x-text="log.ip_address"></span>
                                 </div>
                             </td>
@@ -127,8 +129,8 @@
         <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[85vh]">
             <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                 <h3 class="text-xl font-bold">Detalii Obiect</h3>
-                <button @click="showDetailsModal = false" class="text-slate-400 hover:text-slate-600">
-                    <span class="material-symbols-outlined">close</span>
+                <button @click="showDetailsModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
             <div class="p-6 overflow-y-auto bg-slate-50 dark:bg-slate-900 font-mono text-xs">

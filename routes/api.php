@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('user-subscriptions', [\App\Http\Controllers\UserSubscriptionController::class , 'assign']);
         Route::patch('user-subscriptions/{id}/status', [\App\Http\Controllers\UserSubscriptionController::class , 'updateStatus']);
         Route::get('audit', [\App\Http\Controllers\AuditController::class , 'index']);
+        Route::apiResource('locations', \App\Http\Controllers\LocationController::class)->except(['show']);
 
         Route::post('/impersonate/{user}', [\App\Http\Controllers\Api\ImpersonationController::class , 'impersonate']);
         Route::post('/impersonate-leave', [\App\Http\Controllers\Api\ImpersonationController::class , 'leave']);

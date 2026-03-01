@@ -6,7 +6,7 @@
         <!-- Logo Area -->
         <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800 shrink-0">
             <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white mr-3">
-                <span class="material-symbols-outlined text-sm">sports_volleyball</span>
+                <span class="material-symbols-outlined text-[20px]">sports_volleyball</span>
             </div>
             <span class="text-lg font-bold tracking-tight">Volei.Club</span>
         </div>
@@ -61,6 +61,13 @@
                         Membri
                     </a>
 
+                    <a href="/dash/locatii" @click.prevent="navigate('/dash/locatii'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/locatii') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/locatii') ? 'fill-1' : ''">location_on</span>
+                        Locații
+                    </a>
+
                     <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/abonamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
@@ -104,7 +111,7 @@
                     <p class="text-xs text-slate-500 capitalize truncate" x-text="user?.role"></p>
                 </div>
                 <button @click="logout()" class="ml-2 text-slate-400 hover:text-red-500 transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-lg" title="Deconectare">
-                    <span class="material-symbols-outlined text-sm">logout</span>
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
                 </button>
             </div>
         </div>
