@@ -54,10 +54,19 @@ trait Auditable
             return;
         }
 
+        $clubId = null;
+        if (isset($this->club_id)) {
+            $clubId = $this->club_id;
+        }
+        elseif (Auth::check()) {
+            $clubId = Auth::user()->club_id;
+        }
+
         AuditLog::create([
             'auditable_type' => get_class($this),
             'auditable_id' => $this->getKey(),
-            'user_id' => Auth::id() ?? null, // Will capture authenticated API/Web user
+            'user_id' => Auth::id() ?? null,
+            'club_id' => $clubId,
             'event' => $event,
             'old_values' => empty($oldValues) ? null : $oldValues,
             'new_values' => empty($newValues) ? null : $newValues,

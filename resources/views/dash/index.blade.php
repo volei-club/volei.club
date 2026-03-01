@@ -70,6 +70,7 @@
             @include('dash.components.teams')
             @include('dash.components.squads')
             @include('dash.components.subscriptions')
+            @include('dash.components.audit')
 
         </main>
 

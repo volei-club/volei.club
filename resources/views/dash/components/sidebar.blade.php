@@ -81,6 +81,13 @@
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/echipe') ? 'fill-1' : ''">groups_2</span>
                         Echipele Mele
                     </a>
+
+                    <a href="/dash/audit" @click.prevent="navigate('/dash/audit'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/audit') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mt-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/audit') ? 'fill-1' : ''">history_edu</span>
+                        Audit
+                    </a>
                 </div>
             </template>
             

@@ -1444,4 +1444,74 @@
                     }
                 }
             }));
+
+            Alpine.data('auditManager', () => ({
+                logs: [],
+                loading: false,
+                filters: {
+                    event: '',
+                    type: '',
+                    page: 1
+                },
+                pagination: {
+                    current_page: 1,
+                    last_page: 1,
+                    total: 0
+                },
+                showDetailsModal: false,
+                selectedLogData: null,
+
+                async init() {
+                    this.$watch('currentPage', (val) => {
+                        if (val === '/dash/audit') {
+                            this.fetchLogs();
+                        }
+                    });
+                    
+                    if (this.currentPage === '/dash/audit') {
+                        this.fetchLogs();
+                    }
+                },
+
+                async fetchLogs() {
+                    this.loading = true;
+                    try {
+                        let url = `/api/audit?page=${this.filters.page}`;
+                        if (this.filters.event) url += `&event=${this.filters.event}`;
+                        if (this.filters.type) url += `&auditable_type=${this.filters.type}`;
+
+                        const res = await fetch(url, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                            }
+                        });
+                        const data = await res.json();
+                        
+                        if (res.ok) {
+                            this.logs = data.data;
+                            this.pagination = {
+                                current_page: data.current_page,
+                                last_page: data.last_page,
+                                total: data.total
+                            };
+                        }
+                    } catch (e) {
+                        console.error("Audit fetch error", e);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                changePage(page) {
+                    if (page < 1 || page > this.pagination.last_page) return;
+                    this.filters.page = page;
+                    this.fetchLogs();
+                },
+
+                openLogDetails(log) {
+                    this.selectedLogData = log.event === 'created' ? log.new_values : log.old_values;
+                    this.showDetailsModal = true;
+                }
+            }));
         });
