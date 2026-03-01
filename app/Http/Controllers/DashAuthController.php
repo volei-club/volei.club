@@ -152,6 +152,19 @@ class DashAuthController extends Controller
         $user = User::where('email', $googleUser->getEmail())->first();
 
         if ($user) {
+            // Înregistrăm evenimentul de login în Audit
+            \App\Models\AuditLog::create([
+                'auditable_type' => get_class($user),
+                'auditable_id' => $user->id,
+                'user_id' => $user->id,
+                'event' => 'logged_in',
+                'old_values' => null,
+                'new_values' => ['method' => 'google'],
+                'url' => request()->fullUrl(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
             // Generăm un API Token în loc de Login Sesiune
             $token = $user->createToken('auth_token')->plainTextToken;
 

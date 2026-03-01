@@ -71,6 +71,19 @@ class ApiAuthController extends Controller
         // 'auth_token' is the name of the token. We can name it based on device type in the future.
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Înregistrăm evenimentul de login în Audit
+        \App\Models\AuditLog::create([
+            'auditable_type' => get_class($user),
+            'auditable_id' => $user->id,
+            'user_id' => $user->id,
+            'event' => 'logged_in',
+            'old_values' => null,
+            'new_values' => ['method' => 'credentials_2fa'],
+            'url' => request()->fullUrl(),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
         return response()->json([
             'status' => 'success',
             'message' => '2FA verified successfully.',
