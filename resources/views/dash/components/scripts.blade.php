@@ -145,7 +145,7 @@
                 }
             }));
 
-            // ------- Gestiune Utilizatori -------
+            // ------- Gestiune Membru -------
             Alpine.data('userManager', () => ({
                 users: [],
                 availableClubs: [],
@@ -168,7 +168,7 @@
                         let hashClub = '';
                         let hashTeam = '';
                         let hashSquad = '';
-                        if (window.location.hash && window.location.pathname.startsWith('/dash/utilizatori')) {
+                        if (window.location.hash && window.location.pathname.startsWith('/dash/membri')) {
                             try {
                                 const hp = new URLSearchParams(window.location.hash.substring(1));
                                 hashRole = hp.get('role') || '';
@@ -208,13 +208,13 @@
                     };
 
                     this.$watch('currentPage', value => {
-                        if (value === '/dash/utilizatori') {
+                        if (value === '/dash/membri') {
                             const h = syncFromHash();
                             applyFiltersAndFetch(h);
                             if (this.user?.role === 'administrator' && this.availableClubs.length === 0) {
                                 this.fetchDependentData();
                             }
-                        } else if (!value.startsWith('/dash/utilizatori')) {
+                        } else if (!value.startsWith('/dash/membri')) {
                             this.filters.role = '';
                             this.filters.club_id = '';
                             this.filters.team_id = '';
@@ -222,7 +222,7 @@
                     });
 
                     this.$watch('user', (usr) => {
-                        if (usr && this.currentPage.startsWith('/dash/utilizatori')) {
+                        if (usr && this.currentPage.startsWith('/dash/membri')) {
                             const h = syncFromHash();
                             applyFiltersAndFetch(h);
                             if (usr.role === 'administrator' && this.availableClubs.length === 0) {
@@ -232,13 +232,13 @@
                     });
 
                     this.$watch('availableClubs', (clubs) => {
-                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/utilizatori')) {
+                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/membri')) {
                             const h = syncFromHash();
                             applyFiltersAndFetch(h);
                         }
                     });
 
-                    if (this.currentPage.startsWith('/dash/utilizatori')) {
+                    if (this.currentPage.startsWith('/dash/membri')) {
                         const h = syncFromHash();
                         applyFiltersAndFetch(h);
                         if (this.user?.role === 'administrator') this.fetchDependentData();
@@ -249,7 +249,7 @@
                     });
                     
                     this.$watch('filters.club_id', async (val) => {
-                        if (this.currentPage.startsWith('/dash/utilizatori')) {
+                        if (this.currentPage.startsWith('/dash/membri')) {
                             if (val) {
                                 await this.fetchFilterTeams(val);
                             } else {
@@ -260,7 +260,7 @@
                     });
 
                     this.$watch('filters.team_id', async (val) => {
-                        if (this.currentPage.startsWith('/dash/utilizatori')) {
+                        if (this.currentPage.startsWith('/dash/membri')) {
                             if (val) {
                                 await this.fetchFilterSquads(val);
                             } else {
@@ -288,7 +288,7 @@
                 },
 
                 processHashActions() {
-                    if (!this.currentPage.startsWith('/dash/utilizatori')) return;
+                    if (!this.currentPage.startsWith('/dash/membri')) return;
                     try {
                         const hp = new URLSearchParams(window.location.hash.substring(1));
                         const action = hp.get('action');
@@ -506,7 +506,7 @@
                 },
 
                 async deleteUser(id) {
-                    if(!confirm('Sigur dorești să ștergi acest utilizator? Această acțiune este ireversibilă.')) return;
+                    if(!confirm('Sigur dorești să ștergi acest Membru? Această acțiune este ireversibilă.')) return;
                     try {
                         const res = await fetch(`/api/users/${id}`, {
                             method: 'DELETE',
@@ -514,7 +514,7 @@
                         });
                         const payload = await res.json();
                         if(!res.ok) {
-                            alert(payload.message || 'Nu poți șterge acest utilizator.');
+                            alert(payload.message || 'Nu poți șterge acest Membru.');
                             return;
                         }
                         this.fetchUsers();
@@ -536,7 +536,7 @@
                             // Salvam tokenul de admin original pentru restabilire
                             localStorage.setItem('original_admin_token', localStorage.getItem('auth_token'));
                             
-                            // Inlocuim tokenul activ cu cel al utilizatorului
+                            // Inlocuim tokenul activ cu cel al Membruului
                             localStorage.setItem('auth_token', payload.token);
                             
                             // Reincarcam aplicatia complet
@@ -1013,8 +1013,8 @@
                     getPageTitle() {
                         if(this.currentPage === '/dash') return 'Acasă';
                         if(this.currentPage.startsWith('/dash/cluburi')) return 'Management Cluburi';
-                        if(this.currentPage.startsWith('/dash/utilizatori')) return 'Echipă & Utilizatori';
-                        if(this.currentPage.startsWith('/dash/echipe')) return 'Echipe Formate';
+                        if(this.currentPage.startsWith('/dash/membri')) return 'Membri';
+                        if(this.currentPage.startsWith('/dash/echipe')) return 'Echipe';
                         return 'Dashboard';
                     },
 

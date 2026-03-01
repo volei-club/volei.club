@@ -54,11 +54,11 @@
             <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
                 <div :class="user?.role === 'administrator' ? 'mt-4' : ''">
                     <div x-show="user?.role === 'manager'" class="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Clubul Meu</div>
-                    <a href="/dash/utilizatori" @click.prevent="navigate('/dash/utilizatori'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/utilizatori') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="/dash/membri" @click.prevent="navigate('/dash/membri'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/membri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/utilizatori') ? 'fill-1' : ''">groups</span>
-                        Membrii
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/membri') ? 'fill-1' : ''">groups</span>
+                        Membri
                     </a>
                     
                     <a x-show="user?.role === 'manager'" href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"

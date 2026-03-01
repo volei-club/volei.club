@@ -14,7 +14,7 @@
             <div class="bg-red-500 text-white px-4 py-3 flex items-center justify-between shrink-0 shadow-sm z-50 relative">
                 <div class="flex items-center">
                     <span class="material-symbols-outlined mr-2">group_add</span>
-                    <span class="font-semibold text-sm">Atenție! Acționați în contul unui alt utilizator (<span x-text="user?.name"></span>).</span>
+                    <span class="font-semibold text-sm">Atenție! Acționați în contul unui alt membru (<span x-text="user?.name"></span>).</span>
                 </div>
                 <button @click="leaveImpersonation()" class="bg-white/20 hover:bg-white/30 text-white text-sm font-bold py-1.5 px-4 rounded-lg transition-colors flex items-center">
                     <span class="material-symbols-outlined text-[16px] mr-1">exit_to_app</span>

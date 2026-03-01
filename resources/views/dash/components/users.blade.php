@@ -1,7 +1,7 @@
             <!-- USERS VIEW -->
-            <div x-show="currentPage.startsWith('/dash/utilizatori')" x-data="userManager()" class="h-full flex flex-col">
+            <div x-show="currentPage.startsWith('/dash/membri')" x-data="userManager()" class="h-full flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Membrii</h3>
+                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Membri</h3>
                     <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
                         <span class="material-symbols-outlined mr-2">person_add</span>
                         Adaugă Membru
@@ -55,7 +55,7 @@
                     </div>
                 </div>
 
-                <!-- Tabel & Carduri Utilizatori -->
+                <!-- Tabel & Carduri -->
                 <div class="bg-transparent md:bg-white md:dark:bg-slate-800 rounded-2xl md:border md:border-slate-100 dark:md:border-slate-700 md:shadow-sm md:overflow-hidden">
                     
                     <!-- Desktop Table -->
@@ -85,7 +85,7 @@
                                         </td>
                                         <td class="px-6 py-4 text-slate-500" x-text="usr.club ? usr.club.name : '-'"></td>
                                         <td class="px-6 py-4 text-right">
-                                            <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1" title="Editează Utilizator">
+                                            <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1" title="Editează Membru">
                                                 <span class="material-symbols-outlined text-sm">edit</span>
                                             </button>
                                             <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
@@ -93,7 +93,7 @@
                                                     <span class="material-symbols-outlined text-sm">login</span>
                                                 </button>
                                             </template>
-                                            <button @click="deleteUser(usr.id)" class="text-slate-400 hover:text-red-500 transition-colors p-1 ml-1" title="Șterge Utilizator">
+                                            <button @click="deleteUser(usr.id)" class="text-slate-400 hover:text-red-500 transition-colors p-1 ml-1" title="Șterge Membru">
                                                 <span class="material-symbols-outlined text-sm">delete</span>
                                             </button>
                                         </td>
@@ -140,7 +140,7 @@
 
                     <div x-show="users.length === 0 && !loading" class="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl md:rounded-none">
                         <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">group_off</span>
-                        <p class="text-slate-500">Niciun utilizator găsit.</p>
+                        <p class="text-slate-500">Niciun Membru găsit.</p>
                     </div>
                 </div>
 
@@ -148,7 +148,7 @@
                 <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
                         <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
-                            <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Utilizator' : 'Adaugă Utilizator Nou'"></h3>
+                            <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Membru' : 'Adaugă Membru Nou'"></h3>
                         </div>
                         <form @submit.prevent="saveUser()" class="flex flex-col overflow-hidden">
                             <div class="p-6 overflow-y-auto">
@@ -184,7 +184,7 @@
                                     <span x-text="form.id ? 'Parolă Nouă (opțional)' : 'Parolă (opțional)'"></span>
                                 </label>
                                 <input x-model="form.password" type="password" placeholder="Minim 6 caractere..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"/>
-                                <p class="text-xs text-slate-500 mt-1">Dacă e lăsat gol la creare, se va genera o parolă temporară pe care utilizatorul și-o va reseta.</p>
+                                <p class="text-xs text-slate-500 mt-1">Dacă e lăsat gol la creare, se va genera o parolă temporară pe care Membruul și-o va reseta.</p>
                             </div>
 
                             <div class="mb-5 flex items-center">
@@ -231,7 +231,7 @@
                                         </template>
                                     </div>
                                     <template x-if="availableTeams.length > 0 && !loadingTeams">
-                                         <p class="text-xs text-slate-500 mt-2">Bifează una sau mai multe grupe pentru a asocia utilizatorul.</p>
+                                         <p class="text-xs text-slate-500 mt-2">Bifează una sau mai multe grupe pentru a asocia Membruul.</p>
                                     </template>
                                 </div>
                             </template>
@@ -263,7 +263,7 @@
                                         </template>
                                     </div>
                                     <template x-if="availableSquads.length > 0 && !loadingSquads">
-                                         <p class="text-xs text-slate-500 mt-2">Bifează una sau mai multe echipe pentru a asocia utilizatorul.</p>
+                                         <p class="text-xs text-slate-500 mt-2">Bifează una sau mai multe echipe pentru a asocia Membruul.</p>
                                     </template>
                                 </div>
                             </template>
