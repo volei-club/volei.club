@@ -167,6 +167,15 @@
                 subscriptionForm: { user_id: null, user_name: '', current_subscription: null, subscription_id: '' },
                 subscriptionError: null,
                 savingSubscription: false,
+                showSubscriptionHistoryModal: false,
+                historyUser: null,
+                statusLabels: {
+                    'active_paid': 'Plătit',
+                    'active_pending': 'Așteaptă Plată',
+                    'expired': 'Expirat',
+                    'cancelled': 'Anulat',
+                    'inactive_expired': 'Expirat'
+                },
 
                 filters: { role: '', club_id: '', team_id: '', squad_id: '' },
 
@@ -622,6 +631,21 @@
                     } catch (e) { this.subscriptionError = "Eroare rețea."; }
                     
                     this.savingSubscription = false;
+                },
+
+                openSubscriptionHistory(user) {
+                    this.historyUser = user;
+                    this.showSubscriptionHistoryModal = true;
+                },
+
+                formatDate(dateString) {
+                    if (!dateString) return '-';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('ro-RO', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                    });
                 },
 
                 async updateSubscriptionStatus(userSubscriptionId, status) {

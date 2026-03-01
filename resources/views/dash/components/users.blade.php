@@ -114,9 +114,14 @@
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <template x-if="usr.role === 'sportiv'">
-                                                <button @click="openSubscriptionModal(usr)" class="text-slate-400 hover:text-orange-500 transition-colors p-1" title="Gestionează Abonament">
-                                                    <span class="material-symbols-outlined text-sm">loyalty</span>
-                                                </button>
+                                                <div class="inline-flex">
+                                                    <button @click="openSubscriptionModal(usr)" class="text-slate-400 hover:text-orange-500 transition-colors p-1" title="Gestionează Abonament">
+                                                        <span class="material-symbols-outlined text-sm">loyalty</span>
+                                                    </button>
+                                                    <button @click="openSubscriptionHistory(usr)" class="text-slate-400 hover:text-blue-500 transition-colors p-1 ml-1" title="Istoric Abonamente">
+                                                        <span class="material-symbols-outlined text-sm">history</span>
+                                                    </button>
+                                                </div>
                                             </template>
                                             <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1 ml-1" title="Editează Membru">
                                                 <span class="material-symbols-outlined text-sm">edit</span>
@@ -142,9 +147,14 @@
                             <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative group" :class="usr.role === 'sportiv' && !usr.active_subscription ? 'border-red-200 dark:border-red-900/50' : ''">
                                 <div class="absolute top-4 right-4 flex gap-1">
                                     <template x-if="usr.role === 'sportiv'">
-                                        <button @click="openSubscriptionModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-600">
-                                            <span class="material-symbols-outlined text-sm">loyalty</span>
-                                        </button>
+                                        <div class="flex gap-1">
+                                            <button @click="openSubscriptionModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-600">
+                                                <span class="material-symbols-outlined text-sm">loyalty</span>
+                                            </button>
+                                            <button @click="openSubscriptionHistory(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-600">
+                                                <span class="material-symbols-outlined text-sm">history</span>
+                                            </button>
+                                        </div>
                                     </template>
                                     <button @click="openModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center">
                                         <span class="material-symbols-outlined text-sm">edit</span>
@@ -414,6 +424,105 @@
                                 </template>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                <!-- Subscription History Modal -->
+                <div x-show="showSubscriptionHistoryModal" 
+                     class="fixed inset-0 z-[70] overflow-y-auto" 
+                     x-cloak style="display: none;">
+                    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                        <div x-show="showSubscriptionHistoryModal" 
+                             x-transition:enter="ease-out duration-300"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             x-transition:leave="ease-in duration-200"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0"
+                             class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" 
+                             @click="showSubscriptionHistoryModal = false"></div>
+
+                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                        <div x-show="showSubscriptionHistoryModal"
+                             x-transition:enter="ease-out duration-300"
+                             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                             x-transition:leave="ease-in duration-200"
+                             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                             class="inline-block w-full max-w-2xl p-0 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 shadow-2xl rounded-3xl border border-slate-100 dark:border-slate-700">
+                            
+                            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl shadow-sm border border-blue-200 dark:border-blue-800">
+                                        <span class="material-symbols-outlined">history</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="historyUser ? 'Istoric Abonamente: ' + historyUser.name : 'Istoric Abonamente'"></h3>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Arhiva tuturor plăților și abonamentelor active</p>
+                                    </div>
+                                </div>
+                                <button @click="showSubscriptionHistoryModal = false" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+
+                            <div class="px-6 py-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                <template x-if="historyUser && historyUser.subscriptions && historyUser.subscriptions.length > 0">
+                                    <div class="space-y-3">
+                                        <template x-for="sub in [...historyUser.subscriptions].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))" :key="sub.id">
+                                            <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all bg-white dark:bg-slate-800/50 group">
+                                                <div class="flex items-start justify-between gap-4">
+                                                    <div class="flex gap-3">
+                                                        <div :class="{
+                                                            'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400': sub.status === 'active_paid',
+                                                            'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400': sub.status === 'active_pending',
+                                                            'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500': sub.status === 'expired',
+                                                            'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400': sub.status === 'cancelled'
+                                                        }" class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border border-slate-100 dark:border-slate-700 shadow-sm">
+                                                            <span class="material-symbols-outlined" x-text="sub.status === 'active_paid' ? 'check_circle' : (sub.status === 'active_pending' ? 'pending_actions' : (sub.status === 'expired' ? 'history' : 'cancel'))"></span>
+                                                        </div>
+                                                        <div>
+                                                            <div class="font-bold text-slate-900 dark:text-white" x-text="sub.subscription ? sub.subscription.name : 'Abonament Șters'"></div>
+                                                            <div class="flex items-center gap-2 mt-1">
+                                                                <span class="text-xs font-semibold text-slate-600 dark:text-slate-400" x-text="formatDate(sub.starts_at)"></span>
+                                                                <span class="text-slate-300">→</span>
+                                                                <span class="text-xs font-semibold text-slate-600 dark:text-slate-400" x-text="formatDate(sub.expires_at)"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <span :class="{
+                                                            'bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-400 border-green-100 dark:border-green-800': sub.status === 'active_paid',
+                                                            'bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-amber-100 dark:border-amber-800': sub.status === 'active_pending',
+                                                            'bg-slate-50 text-slate-600 dark:bg-slate-700/40 dark:text-slate-400 border-slate-100 dark:border-slate-700': sub.status === 'expired',
+                                                            'bg-red-50 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-red-100 dark:border-red-800': sub.status === 'cancelled'
+                                                        }" class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shadow-sm" x-text="statusLabels[sub.status] || sub.status"></span>
+                                                        <div class="text-[10px] text-slate-400 mt-2">Creat pe <span x-text="formatDate(sub.created_at)"></span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="!historyUser || !historyUser.subscriptions || historyUser.subscriptions.length === 0">
+                                    <div class="text-center py-16">
+                                        <div class="w-20 h-20 bg-slate-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-slate-200 dark:border-slate-700">
+                                            <span class="material-symbols-outlined text-4xl text-slate-300">subscriptions</span>
+                                        </div>
+                                        <h4 class="text-slate-900 dark:text-white font-bold mb-1">Niciun abonament</h4>
+                                        <p class="text-slate-500 dark:text-slate-400 text-sm">Acest sportiv nu are niciun abonament înregistrat în istoric.</p>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="px-6 py-5 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 flex justify-end">
+                                <button @click="showSubscriptionHistoryModal = false" class="px-8 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 rounded-2xl transition-all border border-slate-200 dark:border-slate-600 shadow-sm hover:shadow-md active:scale-95">
+                                    Închide
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
