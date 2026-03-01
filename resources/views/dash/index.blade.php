@@ -87,7 +87,13 @@
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/cluburi') ? 'fill-1' : ''">domain</span>
                         Cluburi
                     </a>
+                </div>
+            </template>
 
+            <!-- Management Section (Admins & Managers) -->
+            <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
+                <div :class="user?.role === 'administrator' ? 'mt-4' : ''">
+                    <div x-show="user?.role === 'manager'" class="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Clubul Meu</div>
                     <a href="/dash/utilizatori" @click.prevent="navigate('/dash/utilizatori'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/utilizatori') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors">
@@ -282,6 +288,9 @@
                                             <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1" title="Editează Utilizator">
                                                 <span class="material-symbols-outlined text-sm">edit</span>
                                             </button>
+                                            <button @click="deleteUser(usr.id)" class="text-slate-400 hover:text-red-500 transition-colors p-1 ml-1" title="Șterge Utilizator">
+                                                <span class="material-symbols-outlined text-sm">delete</span>
+                                            </button>
                                         </td>
                                     </tr>
                                 </template>
@@ -293,9 +302,14 @@
                     <div class="grid grid-cols-1 gap-4 md:hidden">
                         <template x-for="usr in users" :key="usr.id">
                             <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative group">
-                                <button @click="openModal(usr)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-sm">edit</span>
-                                </button>
+                                <div class="absolute top-4 right-4 flex gap-1">
+                                    <button @click="openModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                    </button>
+                                    <button @click="deleteUser(usr.id)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-sm">delete</span>
+                                    </button>
+                                </div>
                                 
                                 <div class="font-bold text-lg text-slate-900 dark:text-white mb-1 pr-8" x-text="usr.name"></div>
                                 <div class="text-slate-500 text-sm mb-4" x-text="usr.email"></div>
@@ -623,6 +637,24 @@
                     } catch (e) { this.error = "Eroare rețea."; }
                     
                     this.saving = false;
+                },
+
+                async deleteUser(id) {
+                    if(!confirm('Sigur dorești să ștergi acest utilizator? Această acțiune este ireversibilă.')) return;
+                    try {
+                        const res = await fetch(`/api/users/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        const payload = await res.json();
+                        if(!res.ok) {
+                            alert(payload.message || 'Nu poți șterge acest utilizator.');
+                            return;
+                        }
+                        this.fetchUsers();
+                    } catch(e) {
+                        alert('A apărut o eroare la ștergere.');
+                    }
                 }
             }));
 

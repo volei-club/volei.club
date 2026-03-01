@@ -33,6 +33,9 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
+        // Ascunde utilizatorul apelant din lista proprie
+        $query->where('id', '!=', $request->user()->id);
+
         return response()->json([
             'status' => 'success',
             'data' => $query->latest()->get()
@@ -131,6 +134,36 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Utilizator actualizat!',
             'data' => $userToEdit->load('club')
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Request $request, string $id)
+    {
+        $caller = $request->user();
+
+        if ($caller->id === $id) {
+            return response()->json(['status' => 'error', 'message' => 'Nu vă puteți șterge propriul cont.'], 403);
+        }
+
+        $userToDelete = User::findOrFail($id);
+
+        if ($caller->role !== 'administrator') {
+            if ($userToDelete->club_id !== $caller->club_id) {
+                return response()->json(['status' => 'error', 'message' => 'Acest utilizator nu face parte din clubul dvs.'], 403);
+            }
+            if ($userToDelete->role === 'administrator' || $userToDelete->role === 'manager') {
+                return response()->json(['status' => 'error', 'message' => 'Nu aveți permisiunea de a șterge acest tip de cont.'], 403);
+            }
+        }
+
+        $userToDelete->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Utilizatorul a fost șters.'
         ]);
     }
 }
