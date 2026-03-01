@@ -63,6 +63,11 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class , 'parent_student', 'parent_id', 'student_id');
     }
 
+    public function squads()
+    {
+        return $this->belongsToMany(Squad::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -94,6 +94,13 @@
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
                         Grupe
                     </a>
+
+                    <a href="/dash/echipe" @click.prevent="navigate('/dash/echipe'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/echipe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/echipe') ? 'fill-1' : ''">groups_2</span>
+                        Echipe
+                    </a>
                 </div>
             </template>
 
@@ -110,9 +117,16 @@
                     
                     <a x-show="user?.role === 'manager'" href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/grupe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
-                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors">
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
                         Grupele Mele
+                    </a>
+
+                    <a x-show="user?.role === 'manager'" href="/dash/echipe" @click.prevent="navigate('/dash/echipe'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/echipe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/echipe') ? 'fill-1' : ''">groups_2</span>
+                        Echipele Mele
                     </a>
                 </div>
             </template>
@@ -148,7 +162,6 @@
                 </button>
                 <h1 class="text-xl font-bold text-slate-800 dark:text-white" x-text="getPageTitle()"></h1>
             </div>
-            <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
             <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
         </header>
 
@@ -222,9 +235,12 @@
 
                 <!-- Modal Adăugare -->
                 <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-xl border border-slate-100 dark:border-slate-700">
-                        <h3 class="text-xl font-bold mb-4">Adaugă Club Nou</h3>
-                        <form @submit.prevent="saveClub()">
+                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                            <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Club' : 'Adaugă Club Nou'"></h3>
+                        </div>
+                        <form @submit.prevent="saveClub()" class="flex flex-col overflow-hidden">
+                            <div class="p-6 overflow-y-auto">
                             <div class="mb-4">
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Denumire Club</label>
                                 <input x-model="form.name" type="text" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none text-slate-900 dark:text-white transition-all"/>
@@ -234,7 +250,8 @@
                                 <div class="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100" x-text="error"></div>
                             </template>
                             
-                            <div class="flex justify-end gap-3 mt-6">
+                            </div>
+                            <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 shrink-0 rounded-b-2xl">
                                 <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Anulare</button>
                                 <button type="submit" :disabled="saving" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
                                     <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
@@ -251,7 +268,7 @@
             <div x-show="currentPage.startsWith('/dash/utilizatori')" x-data="userManager()" class="h-full flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
                     <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Membri & Utilizatori</h3>
-                    <button @click="showModal = true" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
+                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
                         <span class="material-symbols-outlined mr-2">person_add</span>
                         Adaugă Membru
                     </button>
@@ -260,7 +277,7 @@
                 <!-- Filtre -->
                 <div class="mb-6 flex flex-col md:flex-row gap-4">
                     <div class="w-full md:w-64">
-                        <select x-model="filters.role" @change="fetchUsers()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                        <select id="userFilterRole" x-model="filters.role" @change="fetchUsers(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
                             <option value="">Toate Rolurile</option>
                             <template x-if="user?.role === 'administrator'">
                                 <option value="administrator">Administrator</option>
@@ -276,7 +293,7 @@
 
                     <template x-if="user?.role === 'administrator'">
                         <div class="w-full md:w-64">
-                            <select x-model="filters.club_id" @change="fetchUsers()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                            <select id="userFilterClub" x-model="filters.club_id" @change="fetchUsers(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
                                 <option value="">Toate Cluburile</option>
                                 <template x-for="c in availableClubs" :key="c.id">
                                     <option :value="c.id" x-text="c.name"></option>
@@ -284,6 +301,24 @@
                             </select>
                         </div>
                     </template>
+
+                    <div class="w-full md:w-64" x-show="user?.role === 'manager' || (user?.role === 'administrator' && filters.club_id)">
+                        <select id="userFilterTeam" x-model="filters.team_id" @change="fetchUsers(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                            <option value="">Toate Grupele</option>
+                            <template x-for="t in availableFilterTeams" :key="t.id">
+                                <option :value="t.id" x-text="t.name"></option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="w-full md:w-64" x-show="filters.team_id">
+                        <select id="userFilterSquad" x-model="filters.squad_id" @change="fetchUsers(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                            <option value="">Toate Echipele</option>
+                            <template x-for="s in availableFilterSquads" :key="s.id">
+                                <option :value="s.id" x-text="s.name"></option>
+                            </template>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Tabel & Carduri Utilizatori -->
@@ -377,9 +412,12 @@
 
                 <!-- Modal Adăugare User -->
                 <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-xl border border-slate-100 dark:border-slate-700">
-                        <h3 class="text-xl font-bold mb-4">Adaugă Utilizator Nou</h3>
-                        <form @submit.prevent="saveUser()">
+                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                            <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Utilizator' : 'Adaugă Utilizator Nou'"></h3>
+                        </div>
+                        <form @submit.prevent="saveUser()" class="flex flex-col overflow-hidden">
+                            <div class="p-6 overflow-y-auto">
                             
                             <div class="mb-4">
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nume Complet</label>
@@ -464,11 +502,44 @@
                                 </div>
                             </template>
                             
+                            <!-- Squad Association (Checkboxes) -->
+                            <template x-if="(form.role === 'antrenor' || form.role === 'sportiv') && form.team_ids.length > 0">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selectează Echipele</label>
+                                    
+                                    <template x-if="loadingSquads">
+                                        <div class="text-xs text-slate-500 mb-2 flex items-center">
+                                            <span class="material-symbols-outlined animate-spin text-sm mr-1">sync</span> Se încarcă echipele...
+                                        </div>
+                                    </template>
+                                    
+                                    <div class="space-y-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-xl max-h-48 overflow-y-auto">
+                                        <template x-if="availableSquads.length === 0 && !loadingSquads">
+                                            <div class="text-slate-500 text-sm italic">Nu există echipe asociate formatiilor selectate.</div>
+                                        </template>
+                                        
+                                        <template x-for="s in availableSquads" :key="s.id">
+                                            <label class="flex items-center cursor-pointer hover:bg-white dark:hover:bg-slate-800 p-2 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+                                                <input type="checkbox" :value="s.id" x-model="form.squad_ids" class="w-5 h-5 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 dark:bg-slate-800 dark:border-slate-600 transition-all cursor-pointer">
+                                                <div class="ml-3">
+                                                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300" x-text="s.name"></span>
+                                                    <span class="block text-xs text-slate-500" x-text="s.team?.name"></span>
+                                                </div>
+                                            </label>
+                                        </template>
+                                    </div>
+                                    <template x-if="availableSquads.length > 0 && !loadingSquads">
+                                         <p class="text-xs text-slate-500 mt-2">Bifează una sau mai multe echipe pentru a asocia utilizatorul.</p>
+                                    </template>
+                                </div>
+                            </template>
+                            
                             <template x-if="error">
                                 <div class="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100" x-text="error"></div>
                             </template>
                             
-                            <div class="flex justify-end gap-3 mt-6">
+                            </div>
+                            <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 shrink-0 rounded-b-2xl">
                                 <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Anulare</button>
                                 <button type="submit" :disabled="saving" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
                                     <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
@@ -494,7 +565,7 @@
                 <template x-if="user?.role === 'administrator'">
                     <div class="mb-6 flex flex-col md:flex-row gap-4">
                         <div class="w-full md:w-64">
-                            <select x-model="filters.club_id" @change="fetchTeams()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                            <select id="teamFilterClub" x-model="filters.club_id" @change="fetchTeams(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
                                 <option value="">Toate Grupele din Toate Cluburile</option>
                                 <template x-for="c in availableClubs" :key="c.id">
                                     <option :value="c.id" x-text="c.name"></option>
@@ -569,9 +640,12 @@
 
                 <!-- Modal Grupe -->
                 <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-xl border border-slate-100 dark:border-slate-700">
-                        <h3 class="text-xl font-bold mb-4">Adaugă sau Editează Grupă</h3>
-                        <form @submit.prevent="saveTeam()">
+                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                            <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Grupă' : 'Adaugă Grupă Nouă'"></h3>
+                        </div>
+                        <form @submit.prevent="saveTeam()" class="flex flex-col overflow-hidden">
+                            <div class="p-6 overflow-y-auto">
                             <div class="mb-4">
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Denumire Grupă</label>
                                 <input x-model="form.name" type="text" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none text-slate-900 dark:text-white transition-all" placeholder="ex: U18 Fete"/>
@@ -593,7 +667,8 @@
                                 <div class="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100" x-text="error"></div>
                             </template>
                             
-                            <div class="flex justify-end gap-3 mt-6">
+                            </div>
+                            <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 shrink-0 rounded-b-2xl">
                                 <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Anulare</button>
                                 <button type="submit" :disabled="saving" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
                                     <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
@@ -603,6 +678,152 @@
                         </form>
                     </div>
                 </div>
+
+            </div>
+
+            <!-- SQUADS (ECHIPE) VIEW -->
+            <div x-show="currentPage.startsWith('/dash/echipe')" x-data="squadManager()" class="h-full flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Echipe Formate</h3>
+                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
+                        <span class="material-symbols-outlined mr-2">groups_2</span>
+                        Adaugă Echipă
+                    </button>
+                </div>
+
+                <template x-if="user?.role === 'administrator'">
+                    <div class="mb-6 flex flex-col md:flex-row gap-4">
+                        <div class="w-full md:w-64">
+                            <select x-model="filters.club_id" @change="fetchSquads(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                                <option value="">Toate Echipele din Toate Cluburile</option>
+                                <template x-for="c in availableClubs" :key="c.id">
+                                    <option :value="c.id" x-text="c.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </template>
+
+                <div x-show="loading" class="text-center py-12">
+                    <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
+                    <p class="text-slate-500">Se încarcă echipele...</p>
+                </div>
+
+                <!-- Desktop Table -->
+                <div class="hidden md:block bg-transparent md:bg-white md:dark:bg-slate-800 rounded-2xl md:border md:border-slate-100 dark:md:border-slate-700 md:shadow-sm md:overflow-hidden">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 uppercase text-xs tracking-wider">
+                                <th class="px-6 py-4 font-bold">Denumire Echipă</th>
+                                <th class="px-6 py-4 font-bold">Aparține de Grupa</th>
+                                <template x-if="user?.role === 'administrator'">
+                                    <th class="px-6 py-4 font-bold">Club</th>
+                                </template>
+                                <th class="px-6 py-4 font-bold text-right">Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
+                            <template x-for="squad in squads" :key="squad.id">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-slate-900 dark:text-white text-base" x-text="squad.name"></div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-slate-700 dark:text-slate-300 font-semibold" x-text="squad.team?.name"></div>
+                                    </td>
+                                    <template x-if="user?.role === 'administrator'">
+                                        <td class="px-6 py-4">
+                                            <span class="text-slate-500" x-text="squad.team?.club?.name || 'Necunoscut'"></span>
+                                        </td>
+                                    </template>
+                                    <td class="px-6 py-4 text-right">
+                                        <button @click="openModal(squad)" class="text-slate-400 hover:text-primary transition-colors p-2" title="Editează">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                        <button @click="deleteSquad(squad.id)" class="text-slate-400 hover:text-red-500 transition-colors p-2 ml-1" title="Șterge">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="md:hidden flex flex-col gap-4">
+                    <template x-for="squad in squads" :key="squad.id">
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
+                            <h4 class="font-bold text-lg text-slate-800 dark:text-white" x-text="squad.name"></h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400 mt-2 font-semibold" x-text="'Grupă: ' + squad.team?.name"></p>
+                            <template x-if="user?.role === 'administrator'">
+                                <p class="text-sm text-slate-500 mt-1" x-text="'Club: ' + (squad.team?.club?.name || 'Necunoscut')"></p>
+                            </template>
+                            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+                                <button @click="openModal(squad)" class="text-sm font-semibold text-primary hover:text-primary-dark px-3 py-1.5 bg-primary/10 rounded-lg">Editează</button>
+                                <button @click="deleteSquad(squad.id)" class="text-sm font-semibold text-red-500 hover:text-red-700 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 rounded-lg">Șterge</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="squads.length === 0 && !loading" class="text-center py-12">
+                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">groups_2</span>
+                    <p class="text-slate-500">Nu a fost găsită nicio echipă.</p>
+                </div>
+
+                <!-- Modal Echipe Formate -->
+                <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                            <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Echipă' : 'Adaugă Echipă Nouă'"></h3>
+                        </div>
+                        <form @submit.prevent="saveSquad()" class="flex flex-col overflow-hidden">
+                            <div class="p-6 overflow-y-auto">
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Denumire Echipă</label>
+                                <input x-model="form.name" type="text" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none text-slate-900 dark:text-white transition-all" placeholder="ex: Echipa de Joi"/>
+                            </div>
+                            
+                            <template x-if="user?.role === 'administrator'">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Selectează Mai Întâi Clubul</label>
+                                    <select x-model="form.club_id" @change="fetchModalTeams()" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+                                        <option value="" disabled selected>Alege clubul...</option>
+                                        <template x-for="c in availableClubs" :key="c.id">
+                                            <option :value="c.id" x-text="c.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </template>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Aparține de Grupa (Obligatoriu)</label>
+                                <select x-model="form.team_id" required :disabled="!form.club_id && user?.role === 'administrator'" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer disabled:opacity-50">
+                                    <option value="" disabled selected>Alege grupa...</option>
+                                    <template x-for="t in availableModalTeams" :key="t.id">
+                                        <option :value="t.id" x-text="t.name"></option>
+                                    </template>
+                                </select>
+                                <template x-if="user?.role === 'administrator' && !form.club_id">
+                                    <p class="text-xs text-red-500 mt-1">Selectați mai întâi un club pentru a vedea grupele.</p>
+                                </template>
+                            </div>
+                            
+                            <template x-if="error">
+                                <div class="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100" x-text="error"></div>
+                            </template>
+                            
+                            </div>
+                            <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 shrink-0 rounded-b-2xl">
+                                <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Anulare</button>
+                                <button type="submit" :disabled="saving" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
+                                    <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
+                                    Salvează
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
             </div>
 
@@ -632,6 +853,45 @@
                             this.fetchClubs();
                         }
                     });
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/cluburi')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.clubs.find(c => c.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.clubs.find(c => c.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteClub(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
                 },
 
                 openModal(club = null) {
@@ -639,9 +899,11 @@
                     if(club) {
                         this.form.id = club.id;
                         this.form.name = club.name;
+                        this.updateHash('edit', club.id);
                     } else {
                         this.form.id = null;
                         this.form.name = '';
+                        this.updateHash('add');
                     }
                     this.showModal = true;
                 },
@@ -655,6 +917,7 @@
                         if(res.ok) {
                             const payload = await res.json();
                             this.clubs = payload.data;
+                            this.processHashActions();
                         }
                     } catch (e) { console.error(e); }
                     this.loading = false;
@@ -720,37 +983,178 @@
                 users: [],
                 availableClubs: [],
                 availableTeams: [],
+                availableFilterTeams: [],
+                availableFilterSquads: [],
+                availableSquads: [],
                 loading: false,
                 loadingTeams: false,
+                loadingSquads: false,
                 saving: false,
                 showModal: false,
                 error: null,
-                form: { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [] },
-                filters: { role: '', club_id: '' },
+                form: { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [] },
+                filters: { role: '', club_id: '', team_id: '', squad_id: '' },
 
                 init() {
-                    if (this.currentPage.startsWith('/dash/utilizatori')) {
-                        this.fetchUsers();
-                        this.fetchDependentData();
-                    }
-                    this.$watch('currentPage', value => {
-                        if (value === '/dash/utilizatori' && this.users.length === 0) {
+                    const syncFromHash = () => {
+                        let hashRole = '';
+                        let hashClub = '';
+                        let hashTeam = '';
+                        let hashSquad = '';
+                        if (window.location.hash && window.location.pathname.startsWith('/dash/utilizatori')) {
+                            try {
+                                const hp = new URLSearchParams(window.location.hash.substring(1));
+                                hashRole = hp.get('role') || '';
+                                hashClub = hp.get('club_id') || '';
+                                hashTeam = hp.get('team_id') || '';
+                                hashSquad = hp.get('squad_id') || '';
+                            } catch(e) {}
+                        }
+                        return { role: hashRole, club: hashClub, team: hashTeam, squad: hashSquad };
+                    };
+
+                    const applyFiltersAndFetch = async (h) => {
+                        this.filters.role = h.role;
+                        this.filters.club_id = h.club;
+                        this.filters.team_id = h.team;
+                        this.filters.squad_id = h.squad;
+                        
+                        if (h.club || this.user?.role === 'manager') {
+                             await this.fetchFilterTeams(h.club || this.user?.club_id);
+                        }
+                        if (h.team) {
+                             await this.fetchFilterSquads(h.team);
+                        }
+
+                        // Break Alpine cache by forcefully mutating the native DOM element.
+                        setTimeout(() => {
+                            const rSelect = document.getElementById('userFilterRole');
+                            const cSelect = document.getElementById('userFilterClub');
+                            const tSelect = document.getElementById('userFilterTeam');
+                            const sSelect = document.getElementById('userFilterSquad');
+                            if (rSelect) rSelect.value = h.role;
+                            if (cSelect) cSelect.value = h.club;
+                            if (tSelect) tSelect.value = h.team;
+                            if (sSelect) sSelect.value = h.squad;
                             this.fetchUsers();
-                            this.fetchDependentData(); 
+                        }, 50);
+                    };
+
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/utilizatori') {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (this.user?.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchDependentData();
+                            }
+                        } else if (!value.startsWith('/dash/utilizatori')) {
+                            this.filters.role = '';
+                            this.filters.club_id = '';
+                            this.filters.team_id = '';
                         }
                     });
+
+                    this.$watch('user', (usr) => {
+                        if (usr && this.currentPage.startsWith('/dash/utilizatori')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (usr.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchDependentData();
+                            }
+                        }
+                    });
+
+                    this.$watch('availableClubs', (clubs) => {
+                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/utilizatori')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                        }
+                    });
+
+                    if (this.currentPage.startsWith('/dash/utilizatori')) {
+                        const h = syncFromHash();
+                        applyFiltersAndFetch(h);
+                        if (this.user?.role === 'administrator') this.fetchDependentData();
+                    }
                     
                     window.addEventListener('clubs-updated', () => {
-                        this.fetchDependentData();
+                        if (this.user?.role === 'administrator') this.fetchDependentData();
                     });
                     
-                    // Fetch teams whenever club_id or role changes
+                    this.$watch('filters.club_id', async (val) => {
+                        if (this.currentPage.startsWith('/dash/utilizatori')) {
+                            if (val) {
+                                await this.fetchFilterTeams(val);
+                            } else {
+                                this.availableFilterTeams = [];
+                                this.filters.team_id = '';
+                            }
+                        }
+                    });
+
+                    this.$watch('filters.team_id', async (val) => {
+                        if (this.currentPage.startsWith('/dash/utilizatori')) {
+                            if (val) {
+                                await this.fetchFilterSquads(val);
+                            } else {
+                                this.availableFilterSquads = [];
+                                this.filters.squad_id = '';
+                            }
+                        }
+                    });
+
                     this.$watch('form.club_id', async (val) => {
                         if (this.showModal) await this.fetchTeamsBasedOnClub();
                     });
                     this.$watch('form.role', async (val) => {
                         if (this.showModal && (val === 'sportiv' || val === 'antrenor')) await this.fetchTeamsBasedOnClub();
                     });
+                    this.$watch('form.team_ids', async (val) => {
+                        if (this.showModal) await this.fetchSquadsBasedOnTeams();
+                    });
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/utilizatori')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.users.find(u => u.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.users.find(u => u.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteUser(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (this.filters.role) params.append('role', this.filters.role);
+                    if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                    if (this.filters.team_id) params.append('team_id', this.filters.team_id);
+                    if (this.filters.squad_id) params.append('squad_id', this.filters.squad_id);
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
                 },
 
                 openModal(userToEdit = null) {
@@ -763,8 +1167,12 @@
                         this.form.club_id = userToEdit.club_id || '';
                         this.form.is_active = !!userToEdit.is_active;
                         this.form.team_ids = userToEdit.teams ? userToEdit.teams.map(t => t.id) : [];
+                        this.form.squad_ids = userToEdit.squads ? userToEdit.squads.map(s => s.id) : [];
                         this.form.password = ''; // empty default, typed only to override
-                        this.fetchTeamsBasedOnClub();
+                        this.updateHash('edit', userToEdit.id);
+                        this.fetchTeamsBasedOnClub().then(() => {
+                            if (this.form.team_ids.length > 0) this.fetchSquadsBasedOnTeams();
+                        });
                     } else {
                         this.form.id = null;
                         this.form.name = '';
@@ -773,7 +1181,10 @@
                         this.form.club_id = '';
                         this.form.password = '';
                         this.form.team_ids = [];
+                        this.form.squad_ids = [];
+                        this.availableSquads = [];
                         this.form.is_active = true;
+                        this.updateHash('add');
                     }
                     this.showModal = true;
                 },
@@ -784,6 +1195,8 @@
                         const params = new URLSearchParams();
                         if (this.filters.role) params.append('role', this.filters.role);
                         if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                        if (this.filters.team_id) params.append('team_id', this.filters.team_id);
+                        if (this.filters.squad_id) params.append('squad_id', this.filters.squad_id);
 
                         const res = await fetch(`/api/users?${params.toString()}`, {
                             headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
@@ -791,6 +1204,7 @@
                         if(res.ok) {
                             const payload = await res.json();
                             this.users = payload.data;
+                            this.processHashActions();
                         }
                     } catch (e) {}
                     this.loading = false;
@@ -806,6 +1220,32 @@
                             this.availableClubs = payload.data;
                         }
                     } catch(e) {}
+                },
+
+                async fetchFilterTeams(clubIdStr) {
+                    if(!clubIdStr) return;
+                    try {
+                        const res = await fetch(`/api/teams?club_id=${clubIdStr}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableFilterTeams = payload.data;
+                        }
+                    } catch (e) {}
+                },
+
+                async fetchFilterSquads(teamIdStr) {
+                    if(!teamIdStr) return;
+                    try {
+                        const res = await fetch(`/api/squads?team_id=${teamIdStr}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableFilterSquads = payload.data;
+                        }
+                    } catch (e) {}
                 },
 
                 async fetchTeamsBasedOnClub() {
@@ -825,6 +1265,28 @@
                         }
                     } catch (e) {}
                     this.loadingTeams = false;
+                },
+
+                async fetchSquadsBasedOnTeams() {
+                    if (this.form.team_ids.length === 0) {
+                        this.availableSquads = [];
+                        return;
+                    }
+                    this.loadingSquads = true;
+                    try {
+                        let squadsRaw = [];
+                        for(let tid of this.form.team_ids) {
+                            const res = await fetch(`/api/squads?team_id=${tid}`, {
+                                headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                            });
+                            if(res.ok) {
+                                const payload = await res.json();
+                                squadsRaw.push(...payload.data);
+                            }
+                        }
+                        this.availableSquads = squadsRaw;
+                    } catch (e) {}
+                    this.loadingSquads = false;
                 },
 
                 async saveUser() {
@@ -851,7 +1313,8 @@
                                 password: this.form.password,
                                 is_active: this.form.is_active,
                                 club_id: this.form.club_id || null,
-                                team_ids: this.form.team_ids
+                                team_ids: this.form.team_ids,
+                                squad_ids: this.form.squad_ids
                             })
                         });
                         
@@ -865,7 +1328,8 @@
                                 this.fetchUsers(); // Refresh pt a aduce pe noua pozitie + relatii noi in caz extrem
                             }
                             this.showModal = false;
-                            this.form = { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true };
+                            this.form = { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [] };
+                            this.availableSquads = [];
                         } else {
                             this.error = payload.message || 'Eroare la salvare. Verificați datele (ex: email duplicat).';
                         }
@@ -931,20 +1395,101 @@
                 filters: { club_id: '' },
 
                 init() {
-                    if (this.currentPage.startsWith('/dash/grupe')) {
-                        this.fetchTeams();
-                        if (this.user?.role === 'administrator') this.fetchClubs();
-                    }
-                    this.$watch('currentPage', value => {
-                        if (value === '/dash/grupe' && this.teams.length === 0) {
+                    const syncFromHash = () => {
+                        let hashClub = '';
+                        if (window.location.hash && window.location.pathname.startsWith('/dash/grupe')) {
+                            try {
+                                const hp = new URLSearchParams(window.location.hash.substring(1));
+                                hashClub = hp.get('club_id') || '';
+                            } catch(e) {}
+                        }
+                        return hashClub;
+                    };
+
+                    const applyFiltersAndFetch = (h) => {
+                        this.filters.club_id = h;
+                        
+                        setTimeout(() => {
+                            const cSelect = document.getElementById('teamFilterClub');
+                            if (cSelect) cSelect.value = h;
                             this.fetchTeams();
-                            if (this.user?.role === 'administrator') this.fetchClubs();
+                        }, 50);
+                    };
+
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/grupe') {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (this.user?.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchClubs();
+                            }
+                        } else if (!value.startsWith('/dash/grupe')) {
+                            this.filters.club_id = '';
                         }
                     });
+
+                    this.$watch('user', (usr) => {
+                        if (usr && usr.role === 'administrator' && this.currentPage.startsWith('/dash/grupe')) {
+                            if (this.availableClubs.length === 0) this.fetchClubs();
+                        }
+                    });
+
+                    this.$watch('availableClubs', (clubs) => {
+                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/grupe')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                        }
+                    });
+
+                    if (this.currentPage.startsWith('/dash/grupe')) {
+                        const h = syncFromHash();
+                        applyFiltersAndFetch(h);
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    }
 
                     window.addEventListener('clubs-updated', () => {
                         if (this.user?.role === 'administrator') this.fetchClubs();
                     });
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/grupe')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.teams.find(t => t.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.teams.find(t => t.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteTeam(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
                 },
 
                 openModal(team = null) {
@@ -953,10 +1498,12 @@
                         this.form.id = team.id;
                         this.form.name = team.name;
                         this.form.club_id = team.club_id;
+                        this.updateHash('edit', team.id);
                     } else {
                         this.form.id = null;
                         this.form.name = '';
                         this.form.club_id = '';
+                        this.updateHash('add');
                     }
                     this.showModal = true;
                 },
@@ -985,6 +1532,7 @@
                         if(res.ok) {
                             const payload = await res.json();
                             this.teams = payload.data;
+                            this.processHashActions();
                         }
                     } catch (e) { console.error(e); }
                     this.loading = false;
@@ -1042,6 +1590,250 @@
                 }
             }));
 
+            // ------- Gestiune Echipe (Squads) -------
+            Alpine.data('squadManager', () => ({
+                squads: [],
+                availableClubs: [],
+                availableModalTeams: [], // Grupele încărcate pentru dropdown-ul din modal de creare
+                loading: false,
+                saving: false,
+                showModal: false,
+                error: null,
+                form: { id: null, name: '', club_id: '', team_id: '' },
+                filters: { club_id: '' },
+
+                init() {
+                    const syncFromHash = () => {
+                        let hashClub = '';
+                        if (window.location.hash && window.location.pathname.startsWith('/dash/echipe')) {
+                            try {
+                                const hp = new URLSearchParams(window.location.hash.substring(1));
+                                hashClub = hp.get('club_id') || '';
+                            } catch(e) {}
+                        }
+                        return hashClub;
+                    };
+
+                    const applyFiltersAndFetch = (h) => {
+                        this.filters.club_id = h;
+                        this.fetchSquads();
+                    };
+
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/echipe') {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                            if (this.user?.role === 'administrator' && this.availableClubs.length === 0) {
+                                this.fetchClubs();
+                            }
+                        } else if (!value.startsWith('/dash/echipe')) {
+                            this.filters.club_id = '';
+                        }
+                    });
+
+                    this.$watch('user', (usr) => {
+                        if (usr && usr.role === 'administrator' && this.currentPage.startsWith('/dash/echipe')) {
+                            if (this.availableClubs.length === 0) this.fetchClubs();
+                        }
+                    });
+                    
+                    this.$watch('availableClubs', (clubs) => {
+                        if (clubs.length > 0 && this.currentPage.startsWith('/dash/echipe')) {
+                            const h = syncFromHash();
+                            applyFiltersAndFetch(h);
+                        }
+                    });
+
+                    if (this.currentPage.startsWith('/dash/echipe')) {
+                        const h = syncFromHash();
+                        applyFiltersAndFetch(h);
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    }
+
+                    window.addEventListener('clubs-updated', () => {
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    });
+
+                    this.$watch('showModal', (val) => {
+                        if (!val) this.updateHash();
+                    });
+                    window.addEventListener('hashchange', () => {
+                        this.processHashActions();
+                    });
+                },
+
+                processHashActions() {
+                    if (!this.currentPage.startsWith('/dash/echipe')) return;
+                    try {
+                        const hp = new URLSearchParams(window.location.hash.substring(1));
+                        const action = hp.get('action');
+                        const id = hp.get('id');
+                        
+                        if (action === 'add' && !this.showModal) {
+                            this.openModal();
+                        } else if (action === 'edit' && id && !this.showModal) {
+                            const target = this.squads.find(s => s.id == id);
+                            if (target) this.openModal(target);
+                        } else if (action === 'delete' && id) {
+                            const target = this.squads.find(s => s.id == id);
+                            if (target) {
+                                setTimeout(() => { this.deleteSquad(id); }, 100);
+                            }
+                            this.updateHash();
+                        }
+                    } catch(e) {}
+                },
+
+                updateHash(action = null, targetId = null) {
+                    const params = new URLSearchParams();
+                    if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+                    if (action) params.append('action', action);
+                    if (targetId) params.append('id', targetId);
+                    
+                    const newHash = params.toString() ? '#' + params.toString() : '';
+                    if (window.location.hash !== newHash) {
+                        history.replaceState(null, null, newHash || window.location.pathname);
+                    }
+                },
+
+                async fetchModalTeams() {
+                    // Când selectezi un club in modal, vrem să arătăm doar grupele acelui club
+                    this.availableModalTeams = [];
+                    this.form.team_id = ''; // resetare selecție
+                    if (this.user?.role === 'administrator' && !this.form.club_id) return;
+                    
+                    try {
+                        let url = '/api/teams';
+                        if (this.form.club_id) {
+                            url += `?club_id=${this.form.club_id}`;
+                        }
+
+                        const res = await fetch(url, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if (res.ok) {
+                            const payload = await res.json();
+                            this.availableModalTeams = payload.data;
+                        }
+                    } catch(e) {}
+                },
+
+                openModal(squad = null) {
+                    this.error = null;
+                    if(squad) {
+                        this.form.id = squad.id;
+                        this.form.name = squad.name;
+                        this.form.club_id = squad.team?.club_id || '';
+                        this.updateHash('edit', squad.id);
+                        
+                        // Populăm echipele pentru acel club + selectăm grupa
+                        if (this.form.club_id || this.user?.role === 'manager') {
+                            // Dacă e manager, știm sigur că tragem toate echipele din clubul lui implicit (via empty club_id query for teams sau backend filter).
+                            // Pentru admin, o chemăm explicit.
+                            this.fetchModalTeams().then(() => {
+                                this.form.team_id = squad.team_id;
+                            });
+                        } else {
+                            this.form.team_id = squad.team_id;
+                        }
+                    } else {
+                        this.form.id = null;
+                        this.form.name = '';
+                        this.form.club_id = '';
+                        this.form.team_id = '';
+                        this.availableModalTeams = [];
+                        
+                        // Dacă e manager, încarcă direct grupele lui (fără să trebuiască selecteze club)
+                        if (this.user?.role === 'manager') {
+                            this.fetchModalTeams();
+                        }
+                        this.updateHash('add');
+                    }
+                    this.showModal = true;
+                },
+
+                async fetchClubs() {
+                    try {
+                        const res = await fetch('/api/clubs', {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableClubs = payload.data;
+                        }
+                    } catch(e) {}
+                },
+
+                async fetchSquads() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams();
+                        if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+
+                        const res = await fetch(`/api/squads?${params.toString()}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.squads = payload.data;
+                            this.processHashActions();
+                        }
+                    } catch(e) {}
+                    this.loading = false;
+                },
+
+                async saveSquad() {
+                    this.saving = true;
+                    this.error = null;
+                    
+                    const isEdit = !!this.form.id;
+                    const url = isEdit ? `/api/squads/${this.form.id}` : '/api/squads';
+                    const method = isEdit ? 'PUT' : 'POST';
+                    
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 
+                                'Accept': 'application/json', 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
+                            },
+                            body: JSON.stringify({ 
+                                name: this.form.name,
+                                team_id: this.form.team_id
+                            })
+                        });
+                        
+                        const payload = await res.json();
+                        
+                        if(res.ok) {
+                            this.fetchSquads();
+                            this.showModal = false;
+                        } else {
+                            this.error = payload.message || 'Eroare la salvare.';
+                        }
+                    } catch (e) { this.error = "Eroare de rețea."; }
+                    this.saving = false;
+                },
+
+                async deleteSquad(id) {
+                    if(!confirm('Sigur dorești ștergerea acestei echipe? Acțiunea e ireversibilă!')) return;
+                    
+                    try {
+                        const res = await fetch(`/api/squads/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            this.squads = this.squads.filter(s => s.id !== id);
+                        } else {
+                            const data = await res.json();
+                            alert(data.message || 'Eroare la ștergere. Posibil echipa are membri asociați.');
+                        }
+                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                }
+            }));
+
             // ------- Kernel SPA Dashboard -------
             Alpine.data('dashboard', () => ({
                 user: null,
@@ -1051,12 +1843,13 @@
                 isImpersonating: false,
                 currentPage: window.location.pathname, // Route Tracker Simplu
 
-                getPageTitle() {
-                    if(this.currentPage === '/dash') return 'Acasă';
-                    if(this.currentPage.startsWith('/dash/cluburi')) return 'Management Cluburi';
-                    if(this.currentPage.startsWith('/dash/utilizatori')) return 'Echipă & Utilizatori';
-                    return 'Dashboard';
-                },
+                    getPageTitle() {
+                        if(this.currentPage === '/dash') return 'Acasă';
+                        if(this.currentPage.startsWith('/dash/cluburi')) return 'Management Cluburi';
+                        if(this.currentPage.startsWith('/dash/utilizatori')) return 'Echipă & Utilizatori';
+                        if(this.currentPage.startsWith('/dash/echipe')) return 'Echipe Formate';
+                        return 'Dashboard';
+                    },
 
                 navigate(path) {
                     if (this.user) {
@@ -1068,7 +1861,13 @@
                         }
                     }
                     this.currentPage = path;
-                    window.history.pushState({}, '', path);
+                    
+                    // Clear Hash State gracefully on programmatic navigation
+                    if (window.location.hash) {
+                        window.history.pushState({}, '', path); // Set without hash
+                    } else {
+                        window.history.pushState({}, '', path);
+                    }
                 },
 
                 async init() {

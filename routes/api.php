@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('clubs', \App\Http\Controllers\Api\ClubController::class);
         Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
         Route::apiResource('teams', \App\Http\Controllers\Api\TeamController::class);
+        Route::apiResource('squads', \App\Http\Controllers\Api\SquadController::class);
 
         Route::post('/impersonate/{user}', [\App\Http\Controllers\Api\ImpersonationController::class , 'impersonate']);
         Route::post('/impersonate-leave', [\App\Http\Controllers\Api\ImpersonationController::class , 'leave']);
