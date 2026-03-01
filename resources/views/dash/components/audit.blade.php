@@ -77,10 +77,10 @@
                                         <div class="space-y-1">
                                             <template x-for="(val, key) in log.new_values" :key="key">
                                                 <div class="text-[11px] truncate">
-                                                    <span class="font-bold text-slate-600 dark:text-slate-400" x-text="key + ': '"></span>
-                                                    <span class="text-red-500 line-through" x-text="log.old_values[key] || 'null'"></span>
+                                                    <span class="font-bold text-slate-600 dark:text-slate-400" x-text="translateAuditKey(key) + ': '"></span>
+                                                    <span class="text-red-500 line-through" x-text="translateAuditValue(key, log.old_values[key])"></span>
                                                     <span class="text-slate-400 mx-1">→</span>
-                                                    <span class="text-green-600 dark:text-green-400 font-medium" x-text="val"></span>
+                                                    <span class="text-green-600 dark:text-green-400 font-medium" x-text="translateAuditValue(key, val)"></span>
                                                 </div>
                                             </template>
                                         </div>

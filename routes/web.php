@@ -34,4 +34,5 @@ Route::prefix('dash')->group(function () {
     Route::get('/abonamente', [DashAuthController::class , 'index']);
     Route::get('/audit', [DashAuthController::class , 'index']);
     Route::get('/locatii', [DashAuthController::class , 'index']);
+    Route::get('/antrenamente', [DashAuthController::class , 'index']);
 });

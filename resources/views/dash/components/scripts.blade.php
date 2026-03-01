@@ -174,7 +174,11 @@
                     'active_pending': 'Așteaptă Plată',
                     'expired': 'Expirat',
                     'cancelled': 'Anulat',
-                    'inactive_expired': 'Expirat'
+                    'inactive_expired': 'Expirat',
+                    // Fallbacks for uppercase if they ever appear
+                    'ACTIVE_PAID': 'Plătit',
+                    'ACTIVE_PENDING': 'Așteaptă Plată',
+                    'CANCELLED': 'Anulat'
                 },
 
                 filters: { role: '', club_id: '', team_id: '', squad_id: '' },
@@ -1512,6 +1516,69 @@
                 openLogDetails(log) {
                     this.selectedLogData = log.event === 'created' ? log.new_values : log.old_values;
                     this.showDetailsModal = true;
+                },
+
+                translateAuditKey(key) {
+                    const keys = {
+                        'name': 'Nume',
+                        'email': 'Email',
+                        'role': 'Rol',
+                        'is_active': 'Activ',
+                        'club_id': 'Club',
+                        'team_ids': 'Grupe',
+                        'squad_ids': 'Echipe',
+                        'status': 'Statut',
+                        'price': 'Preț',
+                        'period': 'Perioadă',
+                        'address': 'Adresă',
+                        'day_of_week': 'Zi Săptămână',
+                        'start_time': 'Oră Start',
+                        'end_time': 'Oră Final',
+                        'location_id': 'Locație',
+                        'coach_id': 'Antrenor',
+                        'team_id': 'Grupă',
+                        'starts_at': 'Data Început',
+                        'expires_at': 'Data Expirare',
+                        'subscription_id': 'Tip Abonament'
+                    };
+                    return keys[key] || key;
+                },
+
+                translateAuditValue(key, val) {
+                    if (val === null || val === undefined || val === '') return 'N/A';
+                    if (val === true || val === '1' || val === 1) return 'Da';
+                    if (val === false || val === '0' || val === 0) return 'Nu';
+                    
+                    if (key === 'status') return this.statusLabels[val] || val;
+                    if (key === 'role') {
+                        const roles = { 'administrator': 'Administrator', 'manager': 'Manager', 'antrenor': 'Antrenor', 'sportiv': 'Sportiv' };
+                        return roles[val] || val;
+                    }
+                    if (key === 'day_of_week') {
+                        const days = { 'luni': 'Luni', 'marti': 'Marți', 'miercuri': 'Miercuri', 'joi': 'Joi', 'vineri': 'Vineri', 'sambata': 'Sâmbătă', 'duminica': 'Duminică' };
+                        return days[val] || val;
+                    }
+                    if (key === 'period') {
+                        const periods = { '1_saptamana': '1 Săptămână', '2_saptamani': '2 Săptămâni', '1_luna': '1 Lună', '3_luni': '3 Luni', '6_luni': '6 Luni', '1_an': '1 An' };
+                        return periods[val] || val;
+                    }
+
+                    return val;
+                },
+
+                translateAuditType(type) {
+                    const cleanType = type.split('\\').pop();
+                    const types = {
+                        'User': 'Utilizator',
+                        'Club': 'Club',
+                        'Subscription': 'Definiție Abonament',
+                        'UserSubscription': 'Abonament Membru',
+                        'Team': 'Grupă',
+                        'Squad': 'Echipă',
+                        'Location': 'Locație',
+                        'Training': 'Antrenament'
+                    };
+                    return types[cleanType] || cleanType;
                 }
             }));
 
@@ -1646,6 +1713,210 @@
                         }
                     } catch (e) {
                         console.error("Location delete error", e);
+                    }
+                }
+            }));
+
+            Alpine.data('trainingManager', () => ({
+                trainings: [],
+                loading: false,
+                saving: false,
+                showModal: false,
+                editingId: null,
+                allClubs: [],
+                availableLocations: [],
+                availableTeams: [],
+                availableCoaches: [],
+                error: null,
+                filters: {
+                    club_id: '',
+                    team_id: ''
+                },
+                formData: {
+                    club_id: '',
+                    location_id: '',
+                    team_id: '',
+                    coach_id: '',
+                    day_of_week: 'luni',
+                    start_time: '18:00',
+                    end_time: '20:00'
+                },
+
+                async init() {
+                    this.$watch('currentPage', (val) => {
+                        if (val === '/dash/antrenamente') {
+                            this.fetchTrainings();
+                            if (this.user?.role === 'administrator') {
+                                this.fetchClubs();
+                            } else if (this.user?.club_id) {
+                                this.formData.club_id = this.user.club_id;
+                                this.onClubChange();
+                            }
+                        }
+                    });
+
+                    if (this.currentPage === '/dash/antrenamente') {
+                        this.fetchTrainings();
+                        if (this.user?.role === 'administrator') {
+                            this.fetchClubs();
+                        } else if (this.user?.club_id) {
+                            this.formData.club_id = this.user.club_id;
+                            this.onClubChange();
+                        }
+                    }
+                },
+
+                async fetchTrainings() {
+                    this.loading = true;
+                    try {
+                        let url = '/api/trainings';
+                        const params = new URLSearchParams();
+                        
+                        const clubId = this.filters.club_id || (this.user?.role === 'manager' ? this.user.club_id : '');
+                        if (clubId) params.append('club_id', clubId);
+                        if (this.filters.team_id) params.append('team_id', this.filters.team_id);
+                        
+                        if (params.toString()) url += '?' + params.toString();
+
+                        const res = await fetch(url, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                            }
+                        });
+                        if (res.ok) {
+                            this.trainings = await res.json();
+                        }
+                    } catch (e) {
+                        console.error("Training fetch error", e);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async fetchClubs() {
+                    try {
+                        const res = await fetch('/api/clubs', {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                            }
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                            this.allClubs = data.data || data;
+                        }
+                    } catch (e) {}
+                },
+
+                async onClubChange() {
+                    const clubId = this.formData.club_id || (this.user?.role === 'manager' ? this.user.club_id : '');
+                    if (!clubId) {
+                        this.availableLocations = [];
+                        this.availableTeams = [];
+                        this.availableCoaches = [];
+                        return;
+                    }
+
+                    // Fetch Locations for club
+                    fetch(`/api/locations?club_id=${clubId}`, {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                    }).then(r => r.json()).then(data => this.availableLocations = data);
+
+                    // Fetch Teams for club
+                    fetch(`/api/teams?club_id=${clubId}`, {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                    }).then(r => r.json()).then(data => this.availableTeams = data.data || data);
+
+                    // Fetch Coaches for club
+                    fetch(`/api/users?club_id=${clubId}&role=antrenor`, {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                    }).then(r => r.json()).then(data => this.availableCoaches = data.data || data);
+                },
+
+                openModal(t = null) {
+                    this.error = null;
+                    if (t) {
+                        this.editingId = t.id;
+                        this.formData = {
+                            club_id: t.club_id,
+                            location_id: t.location_id,
+                            team_id: t.team_id,
+                            coach_id: t.coach_id,
+                            day_of_week: t.day_of_week,
+                            start_time: t.start_time.substring(0,5),
+                            end_time: t.end_time.substring(0,5)
+                        };
+                        this.onClubChange();
+                    } else {
+                        this.editingId = null;
+                        this.formData = {
+                            club_id: this.user?.role === 'manager' ? this.user.club_id : '',
+                            location_id: '',
+                            team_id: '',
+                            coach_id: '',
+                            day_of_week: 'luni',
+                            start_time: '18:00',
+                            end_time: '20:00'
+                        };
+                        if (this.user?.role === 'manager' || this.formData.club_id) {
+                            this.onClubChange();
+                        }
+                    }
+                    this.showModal = true;
+                },
+
+                async saveTraining() {
+                    this.saving = true;
+                    this.error = null;
+                    try {
+                        const method = this.editingId ? 'PUT' : 'POST';
+                        const url = this.editingId ? `/api/trainings/${this.editingId}` : '/api/trainings';
+
+                        const payload = {...this.formData};
+                        if (this.user?.role === 'manager') payload.club_id = this.user.club_id;
+
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (res.ok) {
+                            this.showModal = false;
+                            this.fetchTrainings();
+                        } else {
+                            const data = await res.json();
+                            this.error = data.message || "Eroare la salvarea antrenamentului.";
+                        }
+                    } catch (e) {
+                        console.error("Training save error", e);
+                    } finally {
+                        this.saving = false;
+                    }
+                },
+
+                async deleteTraining(id) {
+                    if (!confirm("Ești sigur că vrei să ștergi acest antrenament?")) return;
+
+                    try {
+                        const res = await fetch(`/api/trainings/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                            }
+                        });
+
+                        if (res.ok) {
+                            this.fetchTrainings();
+                        }
+                    } catch (e) {
+                        console.error("Training delete error", e);
                     }
                 }
             }));

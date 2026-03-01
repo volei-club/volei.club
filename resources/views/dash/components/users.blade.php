@@ -88,16 +88,13 @@
                                         <td class="px-6 py-4">
                                             <template x-if="usr.role === 'sportiv'">
                                                 <div class="flex items-center gap-2">
-                                                    <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_paid'">
-                                                        <span class="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-lg text-xs font-bold border border-green-200 dark:border-green-800" title="Abonament Platit">
-                                                            <span class="material-symbols-outlined text-[14px] mr-1">check_circle</span>
-                                                            Activ (Plătit)
-                                                        </span>
-                                                    </template>
-                                                    <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_pending'">
-                                                        <span class="inline-flex items-center justify-center px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg text-xs font-bold border border-amber-200 dark:border-amber-800" title="Plată In Așteptare">
-                                                            <span class="material-symbols-outlined text-[14px] mr-1">pending_actions</span>
-                                                            Așteaptă Plată
+                                                    <template x-if="usr.active_subscription">
+                                                        <span :class="{
+                                                            'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800': usr.active_subscription.status === 'active_paid',
+                                                            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800': usr.active_subscription.status === 'active_pending'
+                                                        }" class="inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-bold border" :title="statusLabels[usr.active_subscription.status]">
+                                                            <span class="material-symbols-outlined text-[14px] mr-1" x-text="usr.active_subscription.status === 'active_paid' ? 'check_circle' : 'pending_actions'"></span>
+                                                            <span x-text="statusLabels[usr.active_subscription.status]"></span>
                                                         </span>
                                                     </template>
                                                     <template x-if="!usr.active_subscription">
@@ -182,16 +179,13 @@
                                 
                                 <template x-if="usr.role === 'sportiv'">
                                     <div class="mb-4 flex flex-wrap gap-2">
-                                        <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_paid'">
-                                            <span class="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-lg text-xs font-bold mt-1">
-                                                <span class="material-symbols-outlined text-[14px] mr-1">check_circle</span>
-                                                Abonament Activ (Plătit)
-                                            </span>
-                                        </template>
-                                        <template x-if="usr.active_subscription && usr.active_subscription.status === 'active_pending'">
-                                            <span class="inline-flex items-center justify-center px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg text-xs font-bold mt-1">
-                                                <span class="material-symbols-outlined text-[14px] mr-1">pending_actions</span>
-                                                Abonament În Așteptare Plată
+                                        <template x-if="usr.active_subscription">
+                                            <span :class="{
+                                                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': usr.active_subscription.status === 'active_paid',
+                                                'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': usr.active_subscription.status === 'active_pending'
+                                            }" class="inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-bold mt-1">
+                                                <span class="material-symbols-outlined text-[14px] mr-1" x-text="usr.active_subscription.status === 'active_paid' ? 'check_circle' : 'pending_actions'"></span>
+                                                <span x-text="statusLabels[usr.active_subscription.status]"></span>
                                             </span>
                                         </template>
                                         <template x-if="!usr.active_subscription">
