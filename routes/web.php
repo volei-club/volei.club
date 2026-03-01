@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashAuthController;
 
 Route::get('/', function () {
-    return redirect()->route('dash.index');
+    return view('home');
 });
 
 Route::get('/login', function () {
