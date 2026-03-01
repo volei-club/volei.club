@@ -14,9 +14,13 @@ Route::post('/resetare-parola', [ApiAuthController::class , 'resetPassword']);
 // Protected routes using Sanctum token
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-            return response()->json($request->user());
+            // Returnăm userul complet plus club-ul său pentru UI-ul de profil
+            return response()->json($request->user()->load('club'));
         }
         );
 
         Route::post('/logout', [ApiAuthController::class , 'logout']);
-    });
+
+        // Rute de Management (Scopingul se face nivel de controllere în funcție de rol)
+        Route::apiResource('clubs', \App\Http\Controllers\Api\ClubController::class);
+        Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);    });

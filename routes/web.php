@@ -27,4 +27,6 @@ Route::prefix('dash')->group(function () {
 
     // Dashboard root view. Protection will be done via frontend JS checking the API token.
     Route::get('/', [DashAuthController::class , 'index'])->name('dash.index');
+    Route::get('/cluburi', [DashAuthController::class , 'index']);
+    Route::get('/utilizatori', [DashAuthController::class , 'index']);
 });
