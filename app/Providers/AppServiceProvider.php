@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Gate;
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('viewApiDocs', function ($user = null) {
+            return true;
+        });
+
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
             return route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()]);
         });
@@ -32,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
             'url' => route('password.reset', ['token' => $token]),
             'email' => $notifiable->getEmailForPasswordReset()
             ]);
+        });
+
+        Scramble::extendOpenApi(function (OpenApi $openApi) {
+            $openApi->secure(
+                SecurityScheme::http('bearer')
+            );
         });
     }
 }

@@ -87,6 +87,13 @@
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/cluburi') ? 'fill-1' : ''">domain</span>
                         Cluburi
                     </a>
+
+                    <a href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/grupe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
+                        Grupe
+                    </a>
                 </div>
             </template>
 
@@ -96,9 +103,16 @@
                     <div x-show="user?.role === 'manager'" class="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Clubul Meu</div>
                     <a href="/dash/utilizatori" @click.prevent="navigate('/dash/utilizatori'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/utilizatori') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
-                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors">
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/utilizatori') ? 'fill-1' : ''">groups</span>
                         Utilizatori
+                    </a>
+                    
+                    <a x-show="user?.role === 'manager'" href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/grupe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
+                        Grupele Mele
                     </a>
                 </div>
             </template>
@@ -135,7 +149,22 @@
                 <h1 class="text-xl font-bold text-slate-800 dark:text-white" x-text="getPageTitle()"></h1>
             </div>
             <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
+            <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
         </header>
+
+        <!-- Banner Impersonare Activa -->
+        <template x-if="isImpersonating">
+            <div class="bg-red-500 text-white px-4 py-3 flex items-center justify-between shrink-0 shadow-sm z-50 relative">
+                <div class="flex items-center">
+                    <span class="material-symbols-outlined mr-2">group_add</span>
+                    <span class="font-semibold text-sm">Atenție! Acționați în contul unui alt utilizator (<span x-text="user?.name"></span>).</span>
+                </div>
+                <button @click="leaveImpersonation()" class="bg-white/20 hover:bg-white/30 text-white text-sm font-bold py-1.5 px-4 rounded-lg transition-colors flex items-center">
+                    <span class="material-symbols-outlined text-[16px] mr-1">exit_to_app</span>
+                    Înapoi la contul tău
+                </button>
+            </div>
+        </template>
 
         <!-- Dynamic Working Canvas -->
         <main class="flex-1 overflow-y-auto p-6 relative">
@@ -236,7 +265,9 @@
                             <template x-if="user?.role === 'administrator'">
                                 <option value="administrator">Administrator</option>
                             </template>
-                            <option value="manager">Manager de Club</option>
+                            <template x-if="user?.role === 'administrator'">
+                                <option value="manager">Manager de Club</option>
+                            </template>
                             <option value="antrenor">Antrenor</option>
                             <option value="parinte">Părinte</option>
                             <option value="sportiv">Sportiv</option>
@@ -288,6 +319,11 @@
                                             <button @click="openModal(usr)" class="text-slate-400 hover:text-primary transition-colors p-1" title="Editează Utilizator">
                                                 <span class="material-symbols-outlined text-sm">edit</span>
                                             </button>
+                                            <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
+                                                <button @click="impersonateUser(usr)" class="text-slate-400 hover:text-blue-500 transition-colors p-1 ml-1" title="Loghează-te ca">
+                                                    <span class="material-symbols-outlined text-sm">login</span>
+                                                </button>
+                                            </template>
                                             <button @click="deleteUser(usr.id)" class="text-slate-400 hover:text-red-500 transition-colors p-1 ml-1" title="Șterge Utilizator">
                                                 <span class="material-symbols-outlined text-sm">delete</span>
                                             </button>
@@ -306,6 +342,11 @@
                                     <button @click="openModal(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center">
                                         <span class="material-symbols-outlined text-sm">edit</span>
                                     </button>
+                                    <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
+                                        <button @click="impersonateUser(usr)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors flex items-center justify-center" title="Loghează-te ca">
+                                            <span class="material-symbols-outlined text-sm">login</span>
+                                        </button>
+                                    </template>
                                     <button @click="deleteUser(usr.id)" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center">
                                         <span class="material-symbols-outlined text-sm">delete</span>
                                     </button>
@@ -357,7 +398,9 @@
                                     <template x-if="user?.role === 'administrator'">
                                         <option value="administrator">Administrator (Global)</option>
                                     </template>
-                                    <option value="manager">Manager de Club</option>
+                                    <template x-if="user?.role === 'administrator'">
+                                        <option value="manager">Manager de Club</option>
+                                    </template>
                                     <option value="antrenor">Antrenor</option>
                                     <option value="parinte">Părinte</option>
                                     <option value="sportiv">Sportiv</option>
@@ -392,12 +435,166 @@
                                 </div>
                             </template>
                             
+                            <!-- Team Association (Checkboxes) -->
+                            <template x-if="(form.role === 'antrenor' || form.role === 'sportiv') && (user?.role === 'manager' || form.club_id)">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selectează Grupele</label>
+                                    
+                                    <template x-if="loadingTeams">
+                                        <div class="text-xs text-slate-500 mb-2 flex items-center">
+                                            <span class="material-symbols-outlined animate-spin text-sm mr-1">sync</span> Se încarcă grupele...
+                                        </div>
+                                    </template>
+                                    
+                                    <div class="space-y-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-xl max-h-48 overflow-y-auto">
+                                        <template x-if="availableTeams.length === 0 && !loadingTeams">
+                                            <div class="text-slate-500 text-sm italic">Acest club nu are asocieri de grupe încă.</div>
+                                        </template>
+                                        
+                                        <template x-for="t in availableTeams" :key="t.id">
+                                            <label class="flex items-center cursor-pointer hover:bg-white dark:hover:bg-slate-800 p-2 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+                                                <input type="checkbox" :value="t.id" x-model="form.team_ids" class="w-5 h-5 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 dark:bg-slate-800 dark:border-slate-600 transition-all cursor-pointer">
+                                                <span class="ml-3 text-sm font-medium text-slate-700 dark:text-slate-300" x-text="t.name"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                    <template x-if="availableTeams.length > 0 && !loadingTeams">
+                                         <p class="text-xs text-slate-500 mt-2">Bifează una sau mai multe grupe pentru a asocia utilizatorul.</p>
+                                    </template>
+                                </div>
+                            </template>
+                            
                             <template x-if="error">
                                 <div class="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100" x-text="error"></div>
                             </template>
                             
                             <div class="flex justify-end gap-3 mt-6">
                                 <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Anulare</button>
+                                <button type="submit" :disabled="saving" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
+                                    <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
+                                    Salvează
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TEAMS (GRUPE) VIEW -->
+            <div x-show="currentPage.startsWith('/dash/grupe')" x-data="teamManager()" class="h-full flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Grupe</h3>
+                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
+                        <span class="material-symbols-outlined mr-2">group_add</span>
+                        Adaugă Grupă
+                    </button>
+                </div>
+
+                <template x-if="user?.role === 'administrator'">
+                    <div class="mb-6 flex flex-col md:flex-row gap-4">
+                        <div class="w-full md:w-64">
+                            <select x-model="filters.club_id" @change="fetchTeams()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                                <option value="">Toate Grupele din Toate Cluburile</option>
+                                <template x-for="c in availableClubs" :key="c.id">
+                                    <option :value="c.id" x-text="c.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </template>
+
+                <div x-show="loading" class="text-center py-12">
+                    <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
+                    <p class="text-slate-500">Se încarcă grupele...</p>
+                </div>
+
+                <!-- Desktop Table -->
+                <div class="hidden md:block bg-transparent md:bg-white md:dark:bg-slate-800 rounded-2xl md:border md:border-slate-100 dark:md:border-slate-700 md:shadow-sm md:overflow-hidden">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 uppercase text-xs tracking-wider">
+                                <th class="px-6 py-4 font-bold">Denumire Grupă</th>
+                                <template x-if="user?.role === 'administrator'">
+                                    <th class="px-6 py-4 font-bold">Asociată Clubului</th>
+                                </template>
+                                <th class="px-6 py-4 font-bold text-right">Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
+                            <template x-for="team in teams" :key="team.id">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-slate-900 dark:text-white text-base" x-text="team.name"></div>
+                                    </td>
+                                    <template x-if="user?.role === 'administrator'">
+                                        <td class="px-6 py-4">
+                                            <span class="text-slate-500" x-text="availableClubs.find(c => c.id === team.club_id)?.name || 'Necunoscut'"></span>
+                                        </td>
+                                    </template>
+                                    <td class="px-6 py-4 text-right">
+                                        <button @click="openModal(team)" class="text-slate-400 hover:text-primary transition-colors p-2" title="Editează">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                        <button @click="deleteTeam(team.id)" class="text-slate-400 hover:text-red-500 transition-colors p-2 ml-1" title="Șterge">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="md:hidden flex flex-col gap-4">
+                    <template x-for="team in teams" :key="team.id">
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
+                            <h4 class="font-bold text-lg text-slate-800 dark:text-white" x-text="team.name"></h4>
+                            <template x-if="user?.role === 'administrator'">
+                                <p class="text-sm text-slate-500 mt-1" x-text="'Club: ' + (availableClubs.find(c => c.id === team.club_id)?.name || 'Necunoscut')"></p>
+                            </template>
+                            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+                                <button @click="openModal(team)" class="text-sm font-semibold text-primary hover:text-primary-dark px-3 py-1.5 bg-primary/10 rounded-lg">Editează</button>
+                                <button @click="deleteTeam(team.id)" class="text-sm font-semibold text-red-500 hover:text-red-700 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 rounded-lg">Șterge</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="teams.length === 0 && !loading" class="text-center py-12">
+                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">diversity_3</span>
+                    <p class="text-slate-500">Acest club nu are asocieri de grupe încă.</p>
+                </div>
+
+                <!-- Modal Grupe -->
+                <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-xl border border-slate-100 dark:border-slate-700">
+                        <h3 class="text-xl font-bold mb-4">Adaugă sau Editează Grupă</h3>
+                        <form @submit.prevent="saveTeam()">
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Denumire Grupă</label>
+                                <input x-model="form.name" type="text" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none text-slate-900 dark:text-white transition-all" placeholder="ex: U18 Fete"/>
+                            </div>
+                            
+                            <template x-if="user?.role === 'administrator'">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Aparține de Clubul (Obligatoriu)</label>
+                                    <select x-model="form.club_id" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+                                        <option value="" disabled selected>Alege clubul...</option>
+                                        <template x-for="c in availableClubs" :key="c.id">
+                                            <option :value="c.id" x-text="c.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </template>
+                            
+                            <template x-if="error">
+                                <div class="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100" x-text="error"></div>
+                            </template>
+                            
+                            <div class="flex justify-end gap-3 mt-6">
+                                <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Anulare</button>
                                 <button type="submit" :disabled="saving" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
                                     <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
                                     Salvează
@@ -491,6 +688,7 @@
                             } else {
                                 this.clubs.unshift(payload.data);
                             }
+                            window.dispatchEvent(new CustomEvent('clubs-updated'));
                             this.showModal = false;
                         } else {
                             this.error = payload.message || 'Eroare la salvare.';
@@ -521,11 +719,13 @@
             Alpine.data('userManager', () => ({
                 users: [],
                 availableClubs: [],
+                availableTeams: [],
                 loading: false,
+                loadingTeams: false,
                 saving: false,
                 showModal: false,
                 error: null,
-                form: { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true },
+                form: { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [] },
                 filters: { role: '', club_id: '' },
 
                 init() {
@@ -539,6 +739,18 @@
                             this.fetchDependentData(); 
                         }
                     });
+                    
+                    window.addEventListener('clubs-updated', () => {
+                        this.fetchDependentData();
+                    });
+                    
+                    // Fetch teams whenever club_id or role changes
+                    this.$watch('form.club_id', async (val) => {
+                        if (this.showModal) await this.fetchTeamsBasedOnClub();
+                    });
+                    this.$watch('form.role', async (val) => {
+                        if (this.showModal && (val === 'sportiv' || val === 'antrenor')) await this.fetchTeamsBasedOnClub();
+                    });
                 },
 
                 openModal(userToEdit = null) {
@@ -550,7 +762,9 @@
                         this.form.role = userToEdit.role;
                         this.form.club_id = userToEdit.club_id || '';
                         this.form.is_active = !!userToEdit.is_active;
+                        this.form.team_ids = userToEdit.teams ? userToEdit.teams.map(t => t.id) : [];
                         this.form.password = ''; // empty default, typed only to override
+                        this.fetchTeamsBasedOnClub();
                     } else {
                         this.form.id = null;
                         this.form.name = '';
@@ -558,6 +772,7 @@
                         this.form.role = '';
                         this.form.club_id = '';
                         this.form.password = '';
+                        this.form.team_ids = [];
                         this.form.is_active = true;
                     }
                     this.showModal = true;
@@ -593,6 +808,25 @@
                     } catch(e) {}
                 },
 
+                async fetchTeamsBasedOnClub() {
+                    const cid = this.form.club_id || (this.user?.role === 'manager' ? this.user.club_id : null);
+                    if (!cid) {
+                        this.availableTeams = [];
+                        return;
+                    }
+                    this.loadingTeams = true;
+                    try {
+                        const res = await fetch(`/api/teams?club_id=${cid}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableTeams = payload.data;
+                        }
+                    } catch (e) {}
+                    this.loadingTeams = false;
+                },
+
                 async saveUser() {
                     this.saving = true;
                     this.error = null;
@@ -616,7 +850,8 @@
                                 role: this.form.role,
                                 password: this.form.password,
                                 is_active: this.form.is_active,
-                                club_id: this.form.club_id || null
+                                club_id: this.form.club_id || null,
+                                team_ids: this.form.team_ids
                             })
                         });
                         
@@ -655,6 +890,155 @@
                     } catch(e) {
                         alert('A apărut o eroare la ștergere.');
                     }
+                },
+
+                async impersonateUser(user) {
+                    if(!confirm(`Ești sigur că vrei să te loghezi ca ${user.name}?`)) return;
+                    
+                    try {
+                        const res = await fetch(`/api/impersonate/${user.id}`, {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        const payload = await res.json();
+                        if(res.ok) {
+                            // Salvam tokenul de admin original pentru restabilire
+                            localStorage.setItem('original_admin_token', localStorage.getItem('auth_token'));
+                            
+                            // Inlocuim tokenul activ cu cel al utilizatorului
+                            localStorage.setItem('auth_token', payload.token);
+                            
+                            // Reincarcam aplicatia complet
+                            window.location.reload();
+                        } else {
+                            alert(payload.message || 'Eroare la impersonare.');
+                        }
+                    } catch(e) {
+                        alert('Eroare de rețea la impersonare.');
+                    }
+                }
+            }));
+
+            // ------- Gestiune Grupe (Teams) -------
+            Alpine.data('teamManager', () => ({
+                teams: [],
+                availableClubs: [],
+                loading: false,
+                saving: false,
+                showModal: false,
+                error: null,
+                form: { id: null, name: '', club_id: '' },
+                filters: { club_id: '' },
+
+                init() {
+                    if (this.currentPage.startsWith('/dash/grupe')) {
+                        this.fetchTeams();
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    }
+                    this.$watch('currentPage', value => {
+                        if (value === '/dash/grupe' && this.teams.length === 0) {
+                            this.fetchTeams();
+                            if (this.user?.role === 'administrator') this.fetchClubs();
+                        }
+                    });
+
+                    window.addEventListener('clubs-updated', () => {
+                        if (this.user?.role === 'administrator') this.fetchClubs();
+                    });
+                },
+
+                openModal(team = null) {
+                    this.error = null;
+                    if(team) {
+                        this.form.id = team.id;
+                        this.form.name = team.name;
+                        this.form.club_id = team.club_id;
+                    } else {
+                        this.form.id = null;
+                        this.form.name = '';
+                        this.form.club_id = '';
+                    }
+                    this.showModal = true;
+                },
+
+                async fetchClubs() {
+                    try {
+                        const res = await fetch('/api/clubs', {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.availableClubs = payload.data;
+                        }
+                    } catch(e) {}
+                },
+
+                async fetchTeams() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams();
+                        if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+
+                        const res = await fetch(`/api/teams?${params.toString()}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            const payload = await res.json();
+                            this.teams = payload.data;
+                        }
+                    } catch (e) { console.error(e); }
+                    this.loading = false;
+                },
+
+                async saveTeam() {
+                    this.saving = true;
+                    this.error = null;
+                    
+                    const isEdit = !!this.form.id;
+                    const url = isEdit ? `/api/teams/${this.form.id}` : '/api/teams';
+                    const method = isEdit ? 'PUT' : 'POST';
+                    
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 
+                                'Accept': 'application/json', 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
+                            },
+                            body: JSON.stringify({ 
+                                name: this.form.name,
+                                club_id: this.form.club_id || null
+                            })
+                        });
+                        
+                        const payload = await res.json();
+                        
+                        if(res.ok) {
+                            this.fetchTeams();
+                            this.showModal = false;
+                        } else {
+                            this.error = payload.message || 'Eroare la salvare.';
+                        }
+                    } catch (e) { this.error = "Eroare de rețea."; }
+                    this.saving = false;
+                },
+
+                async deleteTeam(id) {
+                    if(!confirm('Sigur dorești ștergerea acestei grupe? Acțiunea e ireversibilă!')) return;
+                    
+                    try {
+                        const res = await fetch(`/api/teams/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if(res.ok) {
+                            this.teams = this.teams.filter(t => t.id !== id);
+                        } else {
+                            const data = await res.json();
+                            alert(data.message || 'Eroare la ștergere. Posibil grupa are membri asociați.');
+                        }
+                    } catch (e) { alert('A apărut o eroare de rețea.'); }
                 }
             }));
 
@@ -664,6 +1048,7 @@
                 isLoading: true,
                 token: null,
                 isMobileMenuOpen: false,
+                isImpersonating: false,
                 currentPage: window.location.pathname, // Route Tracker Simplu
 
                 getPageTitle() {
@@ -674,6 +1059,14 @@
                 },
 
                 navigate(path) {
+                    if (this.user) {
+                        if (!['administrator', 'manager'].includes(this.user.role) && path !== '/dash') {
+                            path = '/dash';
+                        }
+                        if (this.user.role === 'manager' && path.startsWith('/dash/cluburi')) {
+                            path = '/dash';
+                        }
+                    }
                     this.currentPage = path;
                     window.history.pushState({}, '', path);
                 },
@@ -691,6 +1084,7 @@
                     }
 
                     this.token = localStorage.getItem('auth_token');
+                    this.isImpersonating = !!localStorage.getItem('original_admin_token');
                     
                     if (!this.token) {
                         window.location.href = '/dash/login';
@@ -709,6 +1103,13 @@
                         if (response.ok) {
                             this.user = await response.json();
                             this.isLoading = false;
+                            
+                            // Security check fallback for deep links
+                            if (!['administrator', 'manager'].includes(this.user.role) && this.currentPage !== '/dash') {
+                                this.navigate('/dash');
+                            } else if (this.user.role === 'manager' && this.currentPage.startsWith('/dash/cluburi')) {
+                                this.navigate('/dash');
+                            }
                         } else {
                             this.logout(false);
                         }
@@ -730,7 +1131,25 @@
                         } catch (e) {}
                     }
                     localStorage.removeItem('auth_token');
+                    localStorage.removeItem('original_admin_token'); // Clear in caz ca era impersonat si da logout manual
                     window.location.href = '/dash/login';
+                },
+
+                async leaveImpersonation() {
+                    try {
+                        const res = await fetch('/api/impersonate-leave', {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${this.token}` }
+                        });
+                        
+                        // Oricum distrugem starea locala chiar dac API da timeout, sa nu ramana blocat
+                        const adminToken = localStorage.getItem('original_admin_token');
+                        localStorage.setItem('auth_token', adminToken);
+                        localStorage.removeItem('original_admin_token');
+                        window.location.reload();
+                    } catch (e) {
+                        alert('Eroare la delogare din impersonare.');
+                    }
                 }
             }));
         });

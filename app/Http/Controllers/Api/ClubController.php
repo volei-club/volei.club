@@ -117,6 +117,14 @@ class ClubController extends Controller
             ], 422);
         }
 
+        // Nu permitem ștergerea dacă există grupe asociate
+        if ($club->teams()->count() > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Acest club nu poate fi șters deoarece are grupe (echipe) asociate. Ștergeți grupele mai întâi.'
+            ], 422);
+        }
+
         $club->delete();
 
         return response()->json([

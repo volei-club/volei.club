@@ -16,6 +16,11 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $role = $request->user()->role;
+
+        if (!in_array($role, ['administrator', 'manager'])) {
+            return response()->json(['status' => 'error', 'message' => 'Acces interzis. Doar administratorii și managerii pot gestiona utilizatori.'], 403);
+        }
+
         $query = User::with('club');
 
         if ($role !== 'administrator') {
@@ -49,13 +54,19 @@ class UserController extends Controller
     {
         $creatorRole = $request->user()->role;
 
+        if (!in_array($creatorRole, ['administrator', 'manager'])) {
+            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'role' => 'required|in:administrator,manager,antrenor,parinte,sportiv',
             'club_id' => 'nullable|exists:clubs,id',
             'password' => 'nullable|string|min:6',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'team_ids' => 'nullable|array',
+            'team_ids.*' => 'exists:teams,id'
         ]);
 
         // Reguli de business
@@ -78,14 +89,41 @@ class UserController extends Controller
             $validated['is_active'] = true;
         }
 
-        $user = User::create($validated);
+        // Validare de securitate la nivel de grupe
+        if (!empty($validated['team_ids'])) {
+            if ($creatorRole !== 'administrator') {
+                $validTeamsCount = \App\Models\Team::whereIn('id', $validated['team_ids'])
+                    ->where('club_id', $validated['club_id'])
+                    ->count();
+                if ($validTeamsCount !== count($validated['team_ids'])) {
+                    return response()->json(['status' => 'error', 'message' => 'Eroare: Se pot asigna doar grupe care aparțin clubului selectat.'], 422);
+                }
+            }
+            else {
+                // Pentru administrator verificăm doar să aparțină clubului ales în request
+                $validTeamsCount = \App\Models\Team::whereIn('id', $validated['team_ids'])
+                    ->where('club_id', $validated['club_id'])
+                    ->count();
+                if ($validTeamsCount !== count($validated['team_ids'])) {
+                    return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
+                }
+            }
+        }
+
+        $userData = $validated;
+        unset($userData['team_ids']);
+        $newUser = User::create($userData);
+
+        if (!empty($validated['team_ids'])) {
+            $newUser->teams()->sync($validated['team_ids']);
+        }
 
         // Aici s-ar putea trimite un mail de bun-venit cu parola $password.
 
         return response()->json([
             'status' => 'success',
             'message' => 'Utilizator adăugat cu succes!',
-            'data' => $user->load('club')
+            'data' => $newUser->load(['club', 'teams'])
         ], 201);
     }
 
@@ -95,6 +133,11 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         $creatorRole = $request->user()->role;
+
+        if (!in_array($creatorRole, ['administrator', 'manager'])) {
+            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+        }
+
         $userToEdit = User::findOrFail($id);
 
         if ($creatorRole !== 'administrator' && $userToEdit->club_id !== $request->user()->club_id) {
@@ -107,7 +150,9 @@ class UserController extends Controller
             'role' => 'required|in:administrator,manager,antrenor,parinte,sportiv',
             'club_id' => 'nullable|exists:clubs,id',
             'password' => 'nullable|string|min:6',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'team_ids' => 'nullable|array',
+            'team_ids.*' => 'exists:teams,id'
         ]);
 
         if ($creatorRole !== 'administrator') {
@@ -128,12 +173,38 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
-        $userToEdit->update($validated);
+        // Sincronizare echipe
+        if ($request->has('team_ids')) {
+            $teamIds = $validated['team_ids'] ?? [];
+            if (!empty($teamIds)) {
+                if ($creatorRole !== 'administrator') {
+                    $validTeamsCount = \App\Models\Team::whereIn('id', $teamIds)
+                        ->where('club_id', $validated['club_id'])
+                        ->count();
+                    if ($validTeamsCount !== count($teamIds)) {
+                        return response()->json(['status' => 'error', 'message' => 'Eroare: Nu puteți asocia grupe care nu aparțin clubului curent.'], 422);
+                    }
+                }
+                else {
+                    $validTeamsCount = \App\Models\Team::whereIn('id', $teamIds)
+                        ->where('club_id', $validated['club_id'] ?? $userToEdit->club_id)
+                        ->count();
+                    if ($validTeamsCount !== count($teamIds)) {
+                        return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
+                    }
+                }
+            }
+            $userToEdit->teams()->sync($teamIds);
+        }
+
+        $updateData = $validated;
+        unset($updateData['team_ids']);
+        $userToEdit->update($updateData);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Utilizator actualizat!',
-            'data' => $userToEdit->load('club')
+            'data' => $userToEdit->load(['club', 'teams'])
         ]);
     }
 
@@ -143,6 +214,10 @@ class UserController extends Controller
     public function destroy(Request $request, string $id)
     {
         $caller = $request->user();
+
+        if (!in_array($caller->role, ['administrator', 'manager'])) {
+            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+        }
 
         if ($caller->id === $id) {
             return response()->json(['status' => 'error', 'message' => 'Nu vă puteți șterge propriul cont.'], 403);

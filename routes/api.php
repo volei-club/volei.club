@@ -23,4 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Rute de Management (Scopingul se face nivel de controllere în funcție de rol)
         Route::apiResource('clubs', \App\Http\Controllers\Api\ClubController::class);
-        Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);    });
+        Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
+        Route::apiResource('teams', \App\Http\Controllers\Api\TeamController::class);
+
+        Route::post('/impersonate/{user}', [\App\Http\Controllers\Api\ImpersonationController::class , 'impersonate']);
+        Route::post('/impersonate-leave', [\App\Http\Controllers\Api\ImpersonationController::class , 'leave']);
+    });
