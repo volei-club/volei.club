@@ -147,13 +147,24 @@ Alpine.data('userManager', () => ({
 
         this.$watch('form.club_id', async (val) => {
             if (this.showModal) {
-                await this.fetchTeamsBasedOnClub();
+                if (this.form.role === 'antrenor') {
+                    await this.fetchSquadsBasedOnClub();
+                } else {
+                    await this.fetchTeamsBasedOnClub();
+                }
                 if (this.form.role === 'parinte') await this.fetchAvailableStudents(val);
             }
         });
         this.$watch('form.role', async (val) => {
-            if (this.showModal && (val === 'sportiv' || val === 'antrenor')) await this.fetchTeamsBasedOnClub();
-            if (this.showModal && val === 'parinte') await this.fetchAvailableStudents(this.form.club_id || this.user?.club_id);
+            if (this.showModal) {
+                if (val === 'antrenor') {
+                    await this.fetchSquadsBasedOnClub();
+                } else if (val === 'sportiv') {
+                    await this.fetchTeamsBasedOnClub();
+                } else if (val === 'parinte') {
+                    await this.fetchAvailableStudents(this.form.club_id || this.user?.club_id);
+                }
+            }
         });
         this.$watch('form.team_ids', async (val) => {
             if (this.showModal) await this.fetchSquadsBasedOnTeams();
@@ -362,6 +373,25 @@ Alpine.data('userManager', () => ({
                 // Curățăm selecțiile care nu mai sunt valide
                 const validIds = this.availableSquads.map(s => s.id);
                 this.form.squad_ids = this.form.squad_ids.filter(id => validIds.includes(id));
+            }
+        } catch (e) {}
+        this.loadingSquads = false;
+    },
+
+    async fetchSquadsBasedOnClub() {
+        const cid = this.form.club_id || (this.user?.role === 'manager' ? this.user.club_id : null);
+        if (!cid) {
+            this.availableSquads = [];
+            return;
+        }
+        this.loadingSquads = true;
+        try {
+            const res = await fetch(`/api/squads?club_id=${cid}`, {
+                headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            });
+            if (res.ok) {
+                const payload = await res.json();
+                this.availableSquads = payload.data;
             }
         } catch (e) {}
         this.loadingSquads = false;

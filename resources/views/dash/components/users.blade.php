@@ -162,7 +162,7 @@
                                                     </div>
                                                 </template>
                                                 
-                                                <template x-if="usr.role === 'sportiv' && usr.squads?.length > 0">
+                                                <template x-if="(usr.role === 'sportiv' || usr.role === 'antrenor') && usr.squads?.length > 0">
                                                     <div class="flex items-center gap-2">
                                                         <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-12 shrink-0">Echipe:</span>
                                                         <div class="flex flex-wrap gap-1">
@@ -317,7 +317,7 @@
                                         </div>
                                     </template>
 
-                                    <template x-if="usr.role === 'sportiv' && usr.squads?.length > 0">
+                                    <template x-if="(usr.role === 'sportiv' || usr.role === 'antrenor') && usr.squads?.length > 0">
                                         <div class="flex items-center gap-2">
                                             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-14 shrink-0">Echipe:</span>
                                             <div class="flex flex-wrap gap-1">
@@ -494,9 +494,16 @@
                             </template>
                             
                             <!-- Squad Association (Checkboxes) -->
-                            <template x-if="(form.role === 'antrenor' || form.role === 'sportiv') && form.team_ids.length > 0">
+                            <template x-if="((form.role === 'antrenor' || form.role === 'sportiv') && form.team_ids.length > 0) || (form.role === 'antrenor' && (form.club_id || user?.role === 'manager'))">
                                 <div class="mb-4">
                                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selectează Echipele</label>
+                                    
+                                    <template x-if="form.role === 'antrenor'">
+                                        <p class="text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-tight mb-2 bg-amber-50 dark:bg-amber-900/20 p-2 rounded-lg border border-amber-100 dark:border-amber-800/50">
+                                            <span class="material-symbols-outlined text-[14px] align-middle mr-1">info</span>
+                                            Antrenorul va fi asociat automat și cu grupele de care aparțin aceste echipe.
+                                        </p>
+                                    </template>
                                     
                                     <template x-if="loadingSquads">
                                         <div class="text-xs text-slate-500 mb-2 flex items-center">

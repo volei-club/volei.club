@@ -169,6 +169,12 @@ class UserController extends Controller
 
         if (!empty($validated['squad_ids'])) {
             $newUser->squads()->sync($validated['squad_ids']);
+
+            // Auto-sync parent teams for squads
+            $parentTeamIds = \App\Models\Squad::whereIn('id', $validated['squad_ids'])->pluck('team_id')->unique()->toArray();
+            if (!empty($parentTeamIds)) {
+                $newUser->teams()->syncWithoutDetaching($parentTeamIds);
+            }
         }
 
         if ($validated['role'] === 'parinte' && !empty($validated['child_ids'])) {
@@ -272,14 +278,26 @@ class UserController extends Controller
             $squadIds = $validated['squad_ids'] ?? [];
             if (!empty($squadIds)) {
                 $validSquads = \App\Models\Squad::whereIn('id', $squadIds)->pluck('team_id')->unique()->toArray();
-                $assignedTeams = $request->has('team_ids') ? ($validated['team_ids'] ?? []) : $userToEdit->teams->pluck('id')->toArray();
 
-                $diff = array_diff($validSquads, $assignedTeams);
-                if (count($diff) > 0) {
-                    return response()->json(['status' => 'error', 'message' => 'Eroare: Echipele selectate aparțin de alte grupe decât cele asociate utilizatorului.'], 422);
+                // For coaches, we don't strictly require they select the teams beforehand in the UI
+                if ($userToEdit->role === 'antrenor' || $validated['role'] === 'antrenor') {
+                    $userToEdit->teams()->syncWithoutDetaching($validSquads);
+                }
+                else {
+                    $assignedTeams = $request->has('team_ids') ? ($validated['team_ids'] ?? []) : $userToEdit->teams->pluck('id')->toArray();
+                    $diff = array_diff($validSquads, $assignedTeams);
+                    if (count($diff) > 0) {
+                        return response()->json(['status' => 'error', 'message' => 'Eroare: Echipele selectate aparțin de alte grupe decât cele asociate utilizatorului.'], 422);
+                    }
                 }
             }
             $userToEdit->squads()->sync($squadIds);
+
+            // Also ensure parent teams are synced if we just added squads
+            if (!empty($squadIds)) {
+                $parentTeamIds = \App\Models\Squad::whereIn('id', $squadIds)->pluck('team_id')->unique()->toArray();
+                $userToEdit->teams()->syncWithoutDetaching($parentTeamIds);
+            }
         }
 
         // Sincronizare copii (pentru parinti)
