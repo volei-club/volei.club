@@ -6,7 +6,6 @@
     <title>Volei.Club / Dashboard</title>
     
     <!-- Alpine Plugins -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/router@1.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Tailwind CSS -->
@@ -78,7 +77,43 @@
 
     </div>
 
+    <!-- Global Toast Notifications -->
+    <div x-data="{ 
+            notifications: [],
+            add(msg, type = 'success') {
+                const id = Date.now();
+                this.notifications.push({ id, msg, type });
+                setTimeout(() => {
+                    this.notifications = this.notifications.filter(n => n.id !== id);
+                }, 5000);
+            }
+         }"
+         @notify.window="add($event.detail.message, $event.detail.type)"
+         class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+        <template x-for="n in notifications" :key="n.id">
+            <div x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-8"
+                 class="pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl border min-w-[300px] max-w-md bg-white dark:bg-slate-800"
+                 :class="n.type === 'success' ? 'border-green-100 dark:border-green-900/30' : 'border-red-100 dark:border-red-900/30'">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                     :class="n.type === 'success' ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'">
+                    <span class="material-symbols-outlined text-[20px]" x-text="n.type === 'success' ? 'check_circle' : 'error'"></span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-slate-800 dark:text-white" x-text="n.type === 'success' ? 'Succes!' : 'Eroare'"></p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400" x-text="n.msg"></p>
+                </div>
+                <button @click="notifications = notifications.filter(notif => notif.id !== n.id)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+        </template>
+    </div>
+
     @include('dash.components.scripts')
-    </script>
 </body>
 </html>

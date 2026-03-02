@@ -1,6 +1,10 @@
     <!-- Alpine App Logic -->
     <script>
         document.addEventListener('alpine:init', () => {
+            // Global Helper for Toasts
+            window.showToast = (message, type = 'success') => {
+                window.dispatchEvent(new CustomEvent('notify', { detail: { message, type } }));
+            };
 
             // ------- Gestiune Cluburi -------
             Alpine.data('clubManager', () => ({
@@ -115,15 +119,21 @@
                             if (isEdit) {
                                 const idx = this.clubs.findIndex(c => c.id === this.form.id);
                                 if (idx !== -1) this.clubs[idx].name = payload.data.name;
+                                window.showToast('Club actualizat cu succes!');
                             } else {
                                 this.clubs.unshift(payload.data);
+                                window.showToast('Club creat cu succes!');
                             }
                             window.dispatchEvent(new CustomEvent('clubs-updated'));
                             this.showModal = false;
                         } else {
                             this.error = payload.message || 'Eroare la salvare.';
+                            window.showToast(this.error, 'error');
                         }
-                    } catch (e) { this.error = "Eroare de rețea."; }
+                    } catch (e) { 
+                        this.error = "Eroare de rețea."; 
+                        window.showToast(this.error, 'error');
+                    }
                     this.saving = false;
                 },
 
@@ -137,11 +147,12 @@
                         });
                         if(res.ok) {
                             this.clubs = this.clubs.filter(c => c.id !== id);
+                            window.showToast('Club șters cu succes!');
                         } else {
                             const data = await res.json();
-                            alert(data.message || 'Eroare la ștergere.');
+                            window.showToast(data.message || 'Eroare la ștergere.', 'error');
                         }
-                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                    } catch (e) { window.showToast('A apărut o eroare de rețea.', 'error'); }
                 }
             }));
 
@@ -512,16 +523,22 @@
                             if(isEdit) {
                                 const idx = this.users.findIndex(u => u.id === this.form.id);
                                 if(idx !== -1) this.users[idx] = payload.data;
+                                window.showToast('Membru actualizat cu succes!');
                             } else {
-                                this.fetchUsers(); // Refresh pt a aduce pe noua pozitie + relatii noi in caz extrem
+                                this.fetchUsers();
+                                window.showToast('Membru creat cu succes!');
                             }
                             this.showModal = false;
                             this.form = { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [] };
                             this.availableSquads = [];
                         } else {
-                            this.error = payload.message || 'Eroare la salvare. Verificați datele (ex: email duplicat).';
+                            this.error = payload.message || 'Eroare la salvare.';
+                            window.showToast(this.error, 'error');
                         }
-                    } catch (e) { this.error = "Eroare rețea."; }
+                    } catch (e) { 
+                        this.error = "Eroare rețea."; 
+                        window.showToast(this.error, 'error');
+                    }
                     
                     this.saving = false;
                 },
@@ -535,12 +552,13 @@
                         });
                         const payload = await res.json();
                         if(!res.ok) {
-                            alert(payload.message || 'Nu poți șterge acest Membru.');
+                            window.showToast(payload.message || 'Nu poți șterge acest Membru.', 'error');
                             return;
                         }
+                        window.showToast('Membru șters cu succes!');
                         this.fetchUsers();
                     } catch(e) {
-                        alert('A apărut o eroare la ștergere.');
+                        window.showToast('A apărut o eroare la ștergere.', 'error');
                     }
                 },
 
@@ -621,18 +639,22 @@
                         const payload = await res.json();
                         
                         if(res.ok) {
-                            this.fetchUsers(); // Refresh to get updated user relations
+                            this.fetchUsers();
                             this.showSubscriptionModal = false;
+                            window.showToast('Abonament alocat cu succes!');
                         } else {
-                            // Extract validation errors if any
                             if (res.status === 422 && payload.errors) {
                                 const errors = Object.values(payload.errors).flat();
                                 this.subscriptionError = errors.join(' ');
                             } else {
                                 this.subscriptionError = payload.message || 'Eroare la alocarea abonamentului.';
                             }
+                            window.showToast(this.subscriptionError, 'error');
                         }
-                    } catch (e) { this.subscriptionError = "Eroare rețea."; }
+                    } catch (e) { 
+                        this.subscriptionError = "Eroare rețea."; 
+                        window.showToast(this.subscriptionError, 'error');
+                    }
                     
                     this.savingSubscription = false;
                 },
@@ -669,12 +691,17 @@
                         const payload = await res.json();
                         
                         if(res.ok) {
-                            this.fetchUsers(); // Refresh to get updated user relations
+                            this.fetchUsers();
                             this.showSubscriptionModal = false;
+                            window.showToast('Status abonament actualizat!');
                         } else {
                             this.subscriptionError = payload.message || 'Eroare la actualizarea statusului.';
+                            window.showToast(this.subscriptionError, 'error');
                         }
-                    } catch (e) { this.subscriptionError = "Eroare rețea."; }
+                    } catch (e) { 
+                        this.subscriptionError = "Eroare rețea."; 
+                        window.showToast(this.subscriptionError, 'error');
+                    }
                     
                     this.savingSubscription = false;
                 }
@@ -862,10 +889,15 @@
                         if(res.ok) {
                             this.fetchTeams();
                             this.showModal = false;
+                            window.showToast(isEdit ? 'Grupă actualizată cu succes!' : 'Grupă creată cu succes!');
                         } else {
                             this.error = payload.message || 'Eroare la salvare.';
+                            window.showToast(this.error, 'error');
                         }
-                    } catch (e) { this.error = "Eroare de rețea."; }
+                    } catch (e) { 
+                        this.error = "Eroare de rețea."; 
+                        window.showToast(this.error, 'error');
+                    }
                     this.saving = false;
                 },
 
@@ -879,11 +911,12 @@
                         });
                         if(res.ok) {
                             this.teams = this.teams.filter(t => t.id !== id);
+                            window.showToast('Grupă ștearsă cu succes!');
                         } else {
                             const data = await res.json();
-                            alert(data.message || 'Eroare la ștergere. Posibil grupa are membri asociați.');
+                            window.showToast(data.message || 'Eroare la ștergere. Posibil grupa are membri asociați.', 'error');
                         }
-                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                    } catch (e) { window.showToast('A apărut o eroare de rețea.', 'error'); }
                 }
             }));
 
@@ -1106,10 +1139,15 @@
                         if(res.ok) {
                             this.fetchSquads();
                             this.showModal = false;
+                            window.showToast(isEdit ? 'Echipă actualizată cu succes!' : 'Echipă creată cu succes!');
                         } else {
                             this.error = payload.message || 'Eroare la salvare.';
+                            window.showToast(this.error, 'error');
                         }
-                    } catch (e) { this.error = "Eroare de rețea."; }
+                    } catch (e) { 
+                        this.error = "Eroare de rețea."; 
+                        window.showToast(this.error, 'error');
+                    }
                     this.saving = false;
                 },
 
@@ -1123,11 +1161,12 @@
                         });
                         if(res.ok) {
                             this.squads = this.squads.filter(s => s.id !== id);
+                            window.showToast('Echipă ștearsă cu succes!');
                         } else {
                             const data = await res.json();
-                            alert(data.message || 'Eroare la ștergere. Posibil echipa are membri asociați.');
+                            window.showToast(data.message || 'Eroare la ștergere. Posibil echipa are membri asociați.', 'error');
                         }
-                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                    } catch (e) { window.showToast('A apărut o eroare de rețea.', 'error'); }
                 }
             }));
 
@@ -1305,10 +1344,15 @@
                         if(res.ok) {
                             this.fetchSubscriptions();
                             this.showModal = false;
+                            window.showToast(isEdit ? 'Abonament actualizat cu succes!' : 'Abonament creat cu succes!');
                         } else {
                             this.error = payload.message || 'Eroare la salvare.';
+                            window.showToast(this.error, 'error');
                         }
-                    } catch (e) { this.error = "Eroare de rețea."; }
+                    } catch (e) { 
+                        this.error = "Eroare de rețea."; 
+                        window.showToast(this.error, 'error');
+                    }
                     this.saving = false;
                 },
 
@@ -1322,11 +1366,12 @@
                         });
                         if(res.ok) {
                             this.subscriptions = this.subscriptions.filter(s => s.id !== id);
+                            window.showToast('Abonament șters cu succes!');
                         } else {
                             const data = await res.json();
-                            alert(data.message || 'Eroare la ștergere. Posibil există membri activi asociați.');
+                            window.showToast(data.message || 'Eroare la ștergere. Posibil există membri activi asociați.', 'error');
                         }
-                    } catch (e) { alert('A apărut o eroare de rețea.'); }
+                    } catch (e) { window.showToast('A apărut o eroare de rețea.', 'error'); }
                 }
             }));
 
@@ -1438,13 +1483,13 @@
                             headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${this.token}` }
                         });
                         
-                        // Oricum distrugem starea locala chiar dac API da timeout, sa nu ramana blocat
                         const adminToken = localStorage.getItem('original_admin_token');
                         localStorage.setItem('auth_token', adminToken);
                         localStorage.removeItem('original_admin_token');
-                        window.location.reload();
+                        window.showToast('Ai revenit la contul tău de administrator.');
+                        setTimeout(() => window.location.reload(), 1500);
                     } catch (e) {
-                        alert('Eroare la delogare din impersonare.');
+                        window.showToast('Eroare la delogare din impersonare.', 'error');
                     }
                 }
             }));
@@ -1685,12 +1730,13 @@
                         if (res.ok) {
                             this.showModal = false;
                             this.fetchLocations();
+                            window.showToast(this.editingId ? 'Locație actualizată!' : 'Locație creată!');
                         } else {
                             const data = await res.json();
-                            alert(data.message || "Eroare la salvarea locației.");
+                            window.showToast(data.message || "Eroare la salvarea locației.", 'error');
                         }
                     } catch (e) {
-                        console.error("Location save error", e);
+                        window.showToast("Eroare de rețea la salvarea locației.", 'error');
                     } finally {
                         this.saving = false;
                     }
@@ -1710,9 +1756,13 @@
 
                         if (res.ok) {
                             this.fetchLocations();
+                            window.showToast('Locație ștearsă cu succes!');
+                        } else {
+                            const data = await res.json();
+                            window.showToast(data.message || "Eroare la ștergerea locației.", 'error');
                         }
                     } catch (e) {
-                        console.error("Location delete error", e);
+                        window.showToast("Eroare de rețea la ștergerea locației.", 'error');
                     }
                 }
             }));
@@ -1893,12 +1943,14 @@
                         if (res.ok) {
                             this.showModal = false;
                             this.fetchTrainings();
+                            window.showToast(this.editingId ? 'Antrenament actualizat!' : 'Antrenament programat!');
                         } else {
                             const data = await res.json();
                             this.error = data.message || "Eroare la salvarea antrenamentului.";
+                            window.showToast(this.error, 'error');
                         }
                     } catch (e) {
-                        console.error("Training save error", e);
+                        window.showToast("Eroare de rețea la salvarea antrenamentului.", 'error');
                     } finally {
                         this.saving = false;
                     }
@@ -1918,10 +1970,15 @@
 
                         if (res.ok) {
                             this.fetchTrainings();
+                            window.showToast('Antrenament șters cu succes!');
+                        } else {
+                            const data = await res.json();
+                            window.showToast(data.message || 'Eroare la ștergere.', 'error');
                         }
                     } catch (e) {
-                        console.error("Training delete error", e);
+                        window.showToast("Eroare de rețea la ștergere.", 'error');
                     }
                 }
             }));
         });
+    </script>
