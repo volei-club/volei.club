@@ -186,6 +186,7 @@
                     'expired': 'Expirat',
                     'cancelled': 'Anulat',
                     'inactive_expired': 'Expirat',
+                    'scheduled': 'Programat',
                     // Fallbacks for uppercase if they ever appear
                     'ACTIVE_PAID': 'Plătit',
                     'ACTIVE_PENDING': 'Așteaptă Plată',

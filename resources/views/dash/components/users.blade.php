@@ -97,7 +97,13 @@
                                                             <span x-text="statusLabels[usr.active_subscription.status]"></span>
                                                         </span>
                                                     </template>
-                                                    <template x-if="!usr.active_subscription">
+                                                    <template x-if="!usr.active_subscription && usr.upcoming_subscription">
+                                                        <span class="inline-flex items-center justify-center px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg text-xs font-bold border border-blue-200 dark:border-blue-800" :title="'Începe pe ' + formatDate(usr.upcoming_subscription.starts_at)">
+                                                            <span class="material-symbols-outlined text-[14px] mr-1">schedule</span>
+                                                            Programat
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="!usr.active_subscription && !usr.upcoming_subscription">
                                                         <span class="inline-flex items-center justify-center px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-xs font-bold border border-red-200 dark:border-red-800" title="Fără Abonament">
                                                             <span class="material-symbols-outlined text-[14px] mr-1">cancel</span>
                                                             Inactiv

@@ -77,11 +77,26 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the currently active subscription (paid or pending) if any.
+     * Get the currently active subscription (paid or pending) that has already started and is not expired.
      */
     public function activeSubscription()
     {
-        return $this->hasOne(UserSubscription::class)->whereIn('status', ['active_paid', 'active_pending'])->latest('id');
+        return $this->hasOne(UserSubscription::class)
+            ->whereIn('status', ['active_paid', 'active_pending'])
+            ->where('starts_at', '<=', now())
+            ->where('expires_at', '>=', now())
+            ->latest('id');
+    }
+
+    /**
+     * Get the next upcoming subscription that starts in the future.
+     */
+    public function upcomingSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->whereIn('status', ['active_paid', 'active_pending'])
+            ->where('starts_at', '>', now())
+            ->orderBy('starts_at', 'asc');
     }
 
     /**
