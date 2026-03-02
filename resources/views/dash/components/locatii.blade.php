@@ -55,8 +55,11 @@
     </div>
 
     <!-- Modal Adaugare/Editare -->
-    <div x-show="showModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-        <div @click.away="showModal = false" class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all transform scale-100">
+    <div x-show="showModal" 
+         @keydown.escape.window="showModal = false"
+         style="display: none;" 
+         class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all transform scale-100">
             <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20">
                 <h3 class="text-xl font-bold text-slate-800 dark:text-white" x-text="editingId ? 'Editează Locație' : 'Adaugă Locație'"></h3>
                 <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">

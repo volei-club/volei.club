@@ -6,17 +6,18 @@ Alpine.data('trainingManager', () => ({
     editingId: null,
     allClubs: [],
     availableLocations: [],
-    availableTeams: [],
+    availableSquads: [],
     availableCoaches: [],
     error: null,
     filters: {
         club_id: '',
-        team_id: ''
+        squad_id: ''
     },
     formData: {
         club_id: '',
         location_id: '',
         team_id: '',
+        squad_id: '',
         coach_id: '',
         day_of_week: 'luni',
         start_time: '18:00',
@@ -24,34 +25,26 @@ Alpine.data('trainingManager', () => ({
     },
 
     async init() {
+        // Watch for page changes
         this.$watch('currentPage', (val) => {
             if (val === '/dash/antrenamente') {
-                this.fetchTrainings().then(() => {
-                    this.processHashActions();
-                });
-                if (this.user?.role === 'administrator') {
-                    this.fetchClubs();
-                } else if (this.user?.club_id) {
-                    this.formData.club_id = this.user.club_id;
-                    this.onClubChange();
-                }
+                this.onPageActive();
             }
         });
 
-        if (this.currentPage === '/dash/antrenamente') {
-            this.fetchTrainings().then(() => {
-                this.processHashActions();
-            });
-            if (this.user?.role === 'administrator') {
-                this.fetchClubs();
-            } else if (this.user?.club_id) {
-                this.formData.club_id = this.user.club_id;
-                this.onClubChange();
+        // Watch for user data being loaded (it's loaded async in dashboard init)
+        this.$watch('user', (val) => {
+            if (val && this.currentPage === '/dash/antrenamente') {
+                this.onPageActive();
             }
+        });
+
+        if (this.currentPage === '/dash/antrenamente' && this.user) {
+            this.onPageActive();
         }
 
-        this.$watch('formData.club_id', () => {
-            this.onClubChange();
+        this.$watch('formData.club_id', (val) => {
+            if (val) this.onClubChange();
         });
 
         this.$watch('showModal', (val) => {
@@ -61,7 +54,19 @@ Alpine.data('trainingManager', () => ({
         });
 
         this.$watch('filters.club_id', () => this.updateHash());
-        this.$watch('filters.team_id', () => this.updateHash());
+        this.$watch('filters.squad_id', () => this.updateHash());
+    },
+
+    onPageActive() {
+        this.fetchTrainings().then(() => {
+            this.processHashActions();
+        });
+        if (this.user?.role === 'administrator') {
+            this.fetchClubs();
+        } else if (this.user?.club_id) {
+            this.formData.club_id = this.user.club_id;
+            // No need to call onClubChange here, the watch will handle it
+        }
     },
 
     async fetchTrainings() {
@@ -72,7 +77,7 @@ Alpine.data('trainingManager', () => ({
             
             const clubId = this.filters.club_id || (this.user?.role === 'manager' ? this.user.club_id : '');
             if (clubId) params.append('club_id', clubId);
-            if (this.filters.team_id) params.append('team_id', this.filters.team_id);
+            if (this.filters.squad_id) params.append('squad_id', this.filters.squad_id);
             
             if (params.toString()) url += '?' + params.toString();
 
@@ -111,31 +116,36 @@ Alpine.data('trainingManager', () => ({
         const clubId = this.formData.club_id || (this.user?.role === 'manager' ? this.user.club_id : '');
         if (!clubId) {
             this.availableLocations = [];
-            this.availableTeams = [];
+            this.availableSquads = [];
             this.availableCoaches = [];
             return;
         }
 
-        // Fetch Locations for club
-        fetch(`/api/locations?club_id=${clubId}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()).then(data => this.availableLocations = data);
+        try {
+            // Fetch Locations for club
+            const locRes = await fetch(`/api/locations?club_id=${clubId}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            });
+            this.availableLocations = await locRes.json();
 
-        // Fetch Teams for club
-        fetch(`/api/teams?club_id=${clubId}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()).then(data => this.availableTeams = data.data || data);
+            // Fetch Squads for club
+            const squadRes = await fetch(`/api/squads?club_id=${clubId}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            });
+            const squadData = await squadRes.json();
+            this.availableSquads = squadData.data || squadData;
 
-        // Fetch Coaches for club (antrenori and managers)
-        fetch(`/api/users?club_id=${clubId}&role=antrenor,manager`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()).then(data => {
-            let coaches = data.data || data;
+            // Fetch Coaches for club (antrenori and managers)
+            const coachRes = await fetch(`/api/users?club_id=${clubId}&role=antrenor,manager`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            });
+            const coachData = await coachRes.json();
+            let coaches = coachData.data || coachData;
+            
             // Manual check: include current user if they have the correct role and are in this club
             if (this.user && (this.user.role === 'manager' || this.user.role === 'antrenor')) {
                 const currentClubId = this.user.club_id;
-                const targetClubId = clubId;
-                if (currentClubId == targetClubId) {
+                if (currentClubId == clubId) {
                     const alreadyPresent = coaches.some(c => c.id === this.user.id);
                     if (!alreadyPresent) {
                         coaches.unshift(this.user);
@@ -143,36 +153,49 @@ Alpine.data('trainingManager', () => ({
                 }
             }
             this.availableCoaches = coaches;
-        });
+        } catch (e) {
+            console.error("Error in onClubChange", e);
+        }
     },
 
-    openModal(t = null) {
+    async openModal(t = null) {
         this.error = null;
+        
+        // Ensure clubs are fetched for admin if they haven't been yet
+        if (this.user?.role === 'administrator' && this.allClubs.length === 0) {
+            await this.fetchClubs();
+        }
+
         if (t) {
             this.editingId = t.id;
-            this.formData = {
-                club_id: t.club_id,
-                location_id: t.location_id,
-                team_id: t.team_id,
-                coach_id: t.coach_id,
-                day_of_week: t.day_of_week,
-                start_time: t.start_time.substring(0,5),
-                end_time: t.end_time.substring(0,5)
-            };
-            this.onClubChange();
+            // First set the club_id to trigger list loading
+            this.formData.club_id = t.club_id;
+            
+            // Wait for all lists (locations, squads, coaches) to load
+            await this.onClubChange();
+
+            // NOW set the dependent values - dropdowns are populated!
+            this.formData.location_id = t.location_id;
+            this.formData.team_id = t.team_id;
+            this.formData.squad_id = t.squad_id;
+            this.formData.coach_id = t.coach_id;
+            this.formData.day_of_week = t.day_of_week;
+            this.formData.start_time = t.start_time.substring(0,5);
+            this.formData.end_time = t.end_time.substring(0,5);
         } else {
             this.editingId = null;
             this.formData = {
                 club_id: this.user?.role === 'manager' ? this.user.club_id : '',
                 location_id: '',
                 team_id: '',
+                squad_id: '',
                 coach_id: '',
                 day_of_week: 'luni',
                 start_time: '18:00',
                 end_time: '20:00'
             };
-            if (this.user?.role === 'manager' || this.formData.club_id) {
-                this.onClubChange();
+            if (this.formData.club_id) {
+                await this.onClubChange();
             }
         }
         this.showModal = true;
@@ -182,7 +205,7 @@ Alpine.data('trainingManager', () => ({
     updateHash() {
         const params = new URLSearchParams();
         if (this.filters.club_id) params.set('club_id', this.filters.club_id);
-        if (this.filters.team_id) params.set('team_id', this.filters.team_id);
+        if (this.filters.squad_id) params.set('squad_id', this.filters.squad_id);
         
         if (this.showModal) {
             params.set('action', this.editingId ? 'edit' : 'add');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Training;
 use App\Models\Location;
 use App\Models\Team;
+use App\Models\Squad;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,7 @@ class TrainingController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Training::with(['club', 'location', 'team', 'coach']);
+        $query = Training::with(['club', 'location', 'team', 'squad', 'coach']);
 
         if ($user->role === 'manager') {
             $query->where('club_id', $user->club_id);
@@ -31,6 +32,10 @@ class TrainingController extends Controller
             $query->where('team_id', $request->team_id);
         }
 
+        if ($request->has('squad_id')) {
+            $query->where('squad_id', $request->squad_id);
+        }
+
         return response()->json($query->orderBy('day_of_week')->orderBy('start_time')->get());
     }
 
@@ -41,7 +46,8 @@ class TrainingController extends Controller
         $validated = $request->validate([
             'club_id' => $user->role === 'administrator' ? 'required|uuid|exists:clubs,id' : 'nullable',
             'location_id' => 'required|uuid|exists:locations,id',
-            'team_id' => 'required|uuid|exists:teams,id',
+            'team_id' => 'nullable|uuid|exists:teams,id',
+            'squad_id' => 'required|uuid|exists:squads,id',
             'coach_id' => 'required|uuid|exists:users,id',
             'day_of_week' => ['required', Rule::in(['luni', 'marti', 'miercuri', 'joi', 'vineri', 'sambata', 'duminica'])],
             'start_time' => 'required|date_format:H:i',
@@ -54,17 +60,27 @@ class TrainingController extends Controller
 
         $club_id = $validated['club_id'];
 
-        // Validate that location, team, and coach belong to the same club
+        // Automatically set team_id from squad
+        $squad = Squad::where('id', $validated['squad_id'])->whereHas('team', function ($q) use ($club_id) {
+            $q->where('club_id', $club_id);
+        })->first();
+
+        if (!$squad) {
+            return response()->json(['message' => 'Echipa nu există sau nu aparține clubului selectat.'], 422);
+        }
+
+        $validated['team_id'] = $squad->team_id;
+
+        // Validate that location and coach belong to the same club
         $location = Location::where('id', $validated['location_id'])->where('club_id', $club_id)->first();
-        $team = Team::where('id', $validated['team_id'])->where('club_id', $club_id)->first();
         $coach = User::where('id', $validated['coach_id'])->where('club_id', $club_id)->first();
 
-        if (!$location || !$team || !$coach) {
-            return response()->json(['message' => 'One or more entities do not belong to the selected club.'], 422);
+        if (!$location || !$coach) {
+            return response()->json(['message' => 'Locația sau antrenorul nu aparțin clubului selectat.'], 422);
         }
 
         $training = Training::create($validated);
-        return response()->json($training->load(['club', 'location', 'team', 'coach']), 201);
+        return response()->json($training->load(['club', 'location', 'team', 'squad', 'coach']), 201);
     }
 
     public function update(Request $request, $id)
@@ -77,27 +93,40 @@ class TrainingController extends Controller
         }
 
         $validated = $request->validate([
+            'club_id' => $user->role === 'administrator' ? 'nullable|uuid|exists:clubs,id' : 'nullable',
             'location_id' => 'required|uuid|exists:locations,id',
-            'team_id' => 'required|uuid|exists:teams,id',
+            'team_id' => 'nullable|uuid|exists:teams,id',
+            'squad_id' => 'required|uuid|exists:squads,id',
             'coach_id' => 'required|uuid|exists:users,id',
             'day_of_week' => ['required', Rule::in(['luni', 'marti', 'miercuri', 'joi', 'vineri', 'sambata', 'duminica'])],
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        $club_id = $training->club_id;
+        $club_id = ($user->role === 'administrator' && !empty($validated['club_id'])) ? $validated['club_id'] : $training->club_id;
+
+        // Automatically set team_id from squad
+        $squad = Squad::where('id', $validated['squad_id'])->whereHas('team', function ($q) use ($club_id) {
+            $q->where('club_id', $club_id);
+        })->first();
+
+        if (!$squad) {
+            return response()->json(['message' => 'Echipa nu există sau nu aparține clubului selectat.'], 422);
+        }
+
+        $validated['team_id'] = $squad->team_id;
+        $validated['club_id'] = $club_id;
 
         // Validate entities
         $location = Location::where('id', $validated['location_id'])->where('club_id', $club_id)->first();
-        $team = Team::where('id', $validated['team_id'])->where('club_id', $club_id)->first();
         $coach = User::where('id', $validated['coach_id'])->where('club_id', $club_id)->first();
 
-        if (!$location || !$team || !$coach) {
-            return response()->json(['message' => 'One or more entities do not belong to the club.'], 422);
+        if (!$location || !$coach) {
+            return response()->json(['message' => 'Locația sau antrenorul nu aparțin clubului.'], 422);
         }
 
         $training->update($validated);
-        return response()->json($training->load(['club', 'location', 'team', 'coach']));
+        return response()->json($training->load(['club', 'location', 'team', 'squad', 'coach']));
     }
 
     public function destroy(Request $request, $id)

@@ -15,6 +15,7 @@ class Training extends Model
         'club_id',
         'location_id',
         'team_id',
+        'squad_id',
         'coach_id',
         'day_of_week',
         'start_time',
@@ -43,6 +44,14 @@ class Training extends Model
     public function team()
     {
         return $this->belongsTo(Team::class);
+    }
+
+    /**
+     * Get the squad for the training.
+     */
+    public function squad()
+    {
+        return $this->belongsTo(Squad::class);
     }
 
     /**

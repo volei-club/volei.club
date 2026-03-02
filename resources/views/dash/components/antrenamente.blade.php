@@ -22,11 +22,11 @@
             </select>
         </div>
         <div class="flex-1 min-w-[200px]">
-            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Grupă (Echipă)</label>
-            <select x-model="filters.team_id" @change="fetchTrainings()" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm">
-                <option value="">Toate Grupele</option>
-                <template x-for="team in availableTeams" :key="team.id">
-                    <option :value="team.id" x-text="team.name"></option>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Echipă</label>
+            <select x-model="filters.squad_id" @change="fetchTrainings()" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm">
+                <option value="">Toate Echipele</option>
+                <template x-for="squad in availableSquads" :key="squad.id">
+                    <option :value="squad.id" x-text="squad.name"></option>
                 </template>
             </select>
         </div>
@@ -41,7 +41,7 @@
                         <th class="px-6 py-4 font-bold">Zi</th>
                         <th class="px-6 py-4 font-bold">Interval Orar</th>
                         <th class="px-6 py-4 font-bold">Locație</th>
-                        <th class="px-6 py-4 font-bold">Grupă</th>
+                        <th class="px-6 py-4 font-bold">Echipă</th>
                         <th class="px-6 py-4 font-bold">Antrenor</th>
                         <th class="px-6 py-4 font-bold text-right">Acțiuni</th>
                     </tr>
@@ -63,7 +63,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="px-2 py-1 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="t.team?.name"></span>
+                                <span class="px-2 py-1 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="t.squad?.name"></span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
@@ -96,8 +96,11 @@
     </div>
 
     <!-- Modal Adaugare/Editare -->
-    <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-        <div @click.away="showModal = false" class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all transform scale-100 flex flex-col max-h-[90vh]">
+    <div x-show="showModal" 
+         @keydown.escape.window="showModal = false"
+         style="display: none;" 
+         class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all transform scale-100 flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20 shrink-0">
                 <h3 class="text-xl font-bold text-slate-800 dark:text-white" x-text="editingId ? 'Editează Antrenament' : 'Adaugă Antrenament'"></h3>
                 <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
@@ -108,7 +111,7 @@
             <form @submit.prevent="saveTraining()" class="flex flex-col overflow-hidden">
                 <div class="p-6 space-y-4 overflow-y-auto">
                     <!-- Club Selector (Admin only) -->
-                    <div x-show="user?.role === 'administrator' && !editingId" class="space-y-1.5">
+                    <div x-show="user?.role === 'administrator'" class="space-y-1.5">
                         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Club</label>
                         <select x-model="formData.club_id" @change="onClubChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
                             <option value="">Selectează Club</option>
@@ -155,11 +158,11 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Grupă (Echipă)</label>
-                            <select x-model="formData.team_id" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
-                                <option value="">Selectează Grupa</option>
-                                <template x-for="team in availableTeams" :key="team.id">
-                                    <option :value="team.id" x-text="team.name"></option>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Echipă</label>
+                            <select x-model="formData.squad_id" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
+                                <option value="">Selectează Echipa</option>
+                                <template x-for="squad in availableSquads" :key="squad.id">
+                                    <option :value="squad.id" x-text="squad.name"></option>
                                 </template>
                             </select>
                         </div>

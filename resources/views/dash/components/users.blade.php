@@ -375,7 +375,10 @@
                 </div>
 
                 <!-- Modal Adăugare User -->
-                <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                <div x-show="showModal" 
+                     @keydown.escape.window="showModal = false"
+                     style="display: none;" 
+                     class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
                         <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
                             <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Membru' : 'Adaugă Membru Nou'"></h3>
@@ -560,7 +563,10 @@
                 </div>
 
                 <!-- Modal Abonament Sportiv -->
-                <div x-show="showSubscriptionModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                <div x-show="showSubscriptionModal" 
+                     @keydown.escape.window="showSubscriptionModal = false"
+                     style="display: none;" 
+                     class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
                         <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
                             <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1" x-text="subscriptionForm.id ? 'Editează Abonament' : 'Abonament Sportiv'"></h3>
@@ -650,6 +656,7 @@
 
                 <!-- Subscription History Modal -->
                 <div x-show="showSubscriptionHistoryModal" 
+                     @keydown.escape.window="showSubscriptionHistoryModal = false"
                      class="fixed inset-0 z-[70] overflow-y-auto" 
                      x-cloak style="display: none;">
                     <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -660,8 +667,7 @@
                              x-transition:leave="ease-in duration-200"
                              x-transition:leave-start="opacity-100"
                              x-transition:leave-end="opacity-0"
-                             class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" 
-                             @click="showSubscriptionHistoryModal = false"></div>
+                             class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm"></div>
 
                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
