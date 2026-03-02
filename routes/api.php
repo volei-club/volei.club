@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('audit', [\App\Http\Controllers\AuditController::class , 'index']);
         Route::apiResource('locations', \App\Http\Controllers\LocationController::class)->except(['show']);
         Route::apiResource('trainings', \App\Http\Controllers\TrainingController::class)->except(['show']);
+        Route::get('dashboard-stats', [\App\Http\Controllers\Api\DashboardController::class , 'stats']);
 
         Route::post('/impersonate/{user}', [\App\Http\Controllers\Api\ImpersonationController::class , 'impersonate']);
         Route::post('/impersonate-leave', [\App\Http\Controllers\Api\ImpersonationController::class , 'leave']);
