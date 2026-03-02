@@ -22,16 +22,7 @@
                 Acasă
             </a>
 
-            <!-- Mesaje -->
-            <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje'); isMobileMenuOpen = false;" 
-               :class="currentPage.startsWith('/dash/mesaje') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
-               class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-4">
-                <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
-                <span class="flex-1">Mesaje</span>
-                <template x-if="unreadMessagesCount > 0">
-                    <span class="ml-2 px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full" x-text="unreadMessagesCount"></span>
-                </template>
-            </a>
+            <!-- Main Navigation Items -->
 
             <!-- Admin Section -->
             <template x-if="user?.role === 'administrator'">
@@ -59,13 +50,6 @@
                         Echipe
                     </a>
 
-                    <a href="/dash/sistem" @click.prevent="navigate('/dash/sistem'); isMobileMenuOpen = false;"
-                       :class="currentPage === '/dash/sistem' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
-                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '/dash/sistem' ? 'fill-1' : ''">settings_suggest</span>
-                        Sistem
-                    </a>
-                </div>
             </template>
 
             <!-- Management Section (Admins & Managers) -->
@@ -114,14 +98,40 @@
                         Echipele Mele
                     </a>
 
+            </template>
+
+            <!-- Alte Opțiuni (Mesaje, Audit, Sistem) -->
+            <div class="mt-8">
+                <div class="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Resurse & Sistem</div>
+                
+                <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje'); isMobileMenuOpen = false;" 
+                    :class="currentPage.startsWith('/dash/mesaje') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                    <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
+                    <span class="flex-1">Mesaje</span>
+                    <template x-if="unreadMessagesCount > 0">
+                        <span class="ml-2 px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full" x-text="unreadMessagesCount"></span>
+                    </template>
+                </a>
+
+                <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
                     <a href="/dash/audit" @click.prevent="navigate('/dash/audit'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/audit') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
-                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mt-1">
+                        :class="currentPage.startsWith('/dash/audit') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/audit') ? 'fill-1' : ''">history_edu</span>
                         Audit
                     </a>
-                </div>
-            </template>
+                </template>
+
+                <template x-if="user?.role === 'administrator'">
+                    <a href="/dash/sistem" @click.prevent="navigate('/dash/sistem'); isMobileMenuOpen = false;"
+                        :class="currentPage === '/dash/sistem' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '/dash/sistem' ? 'fill-1' : ''">settings_suggest</span>
+                        Sistem
+                    </a>
+                </template>
+            </div>
             
             <div class="flex-1"></div>
         </nav>

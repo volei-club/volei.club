@@ -253,116 +253,139 @@
                     <!-- Mobile Cards -->
                     <div class="grid grid-cols-1 gap-4 md:hidden">
                         <template x-for="usr in users" :key="usr.id">
-                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative group" :class="usr.role === 'sportiv' && !usr.active_subscription ? 'border-red-200 dark:border-red-900/50' : ''">
-                                <div class="absolute top-4 right-4 flex gap-1">
-                                    <template x-if="usr.role === 'sportiv'">
-                                        <div class="flex gap-1">
-                                            <button @click="openSubscriptionModal(usr)" class="p-2 text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded-lg transition-colors" title="Gestionează Abonament">
-                                                <span class="material-symbols-outlined text-[20px]">loyalty</span>
-                                            </button>
-                                            <button @click="openSubscriptionHistory(usr)" class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Istoric Abonamente">
-                                                <span class="material-symbols-outlined text-[20px]">history</span>
-                                            </button>
-                                        </div>
-                                    </template>
-                                    <button @click="openModal(usr)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editează Membru">
-                                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                                    </button>
-                                    <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
-                                        <button @click="impersonateUser(usr)" class="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" title="Loghează-te ca">
-                                            <span class="material-symbols-outlined text-[20px]">login</span>
-                                        </button>
-                                    </template>
-                                    <button @click="deleteUser(usr.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge Membru">
-                                        <span class="material-symbols-outlined text-[20px]">delete</span>
-                                    </button>
-                                </div>
+                            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm relative group flex flex-col" :class="usr.role === 'sportiv' && !usr.active_subscription ? 'ring-2 ring-red-500/10 border-red-100 dark:border-red-900/30' : ''">
                                 
-                                <div class="flex items-center gap-3 mb-3 pr-24">
-                                    <template x-if="usr.photo">
-                                        <img :src="'/storage/' + usr.photo" class="w-12 h-12 rounded-2xl object-cover border border-slate-100 dark:border-slate-700 shadow-sm">
-                                    </template>
-                                    <template x-if="!usr.photo">
-                                        <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 font-bold border border-slate-100 dark:border-slate-700 shadow-sm">
-                                            <span class="text-xl" x-text="usr.name.charAt(0)"></span>
+                                <!-- Card Header -->
+                                <div class="flex items-start gap-4 mb-5">
+                                    <div class="relative shrink-0">
+                                        <template x-if="usr.photo">
+                                            <img :src="'/storage/' + usr.photo" class="w-16 h-16 rounded-[1.25rem] object-cover border-2 border-slate-50 dark:border-slate-700 shadow-md">
+                                        </template>
+                                        <template x-if="!usr.photo">
+                                            <div class="w-16 h-16 rounded-[1.25rem] bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 font-bold border-2 border-slate-50 dark:border-slate-700 shadow-md">
+                                                <span class="text-2xl" x-text="usr.name.charAt(0)"></span>
+                                            </div>
+                                        </template>
+                                        <div x-show="usr.is_active" class="absolute -bottom-1 -right-1 w-5 h-5 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm">
+                                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                                         </div>
-                                    </template>
-                                    <div>
-                                        <div class="font-bold text-lg text-slate-900 dark:text-white leading-tight" x-text="usr.name"></div>
-                                        <div class="text-slate-500 text-xs mt-0.5" x-text="usr.email"></div>
+                                    </div>
+                                    
+                                    <div class="flex-1 min-w-0 pt-1">
+                                        <h4 class="font-extrabold text-xl text-slate-900 dark:text-white leading-tight truncate" x-text="usr.name"></h4>
+                                        <p class="text-slate-500 text-xs font-medium truncate mb-3" x-text="usr.email"></p>
+                                        
+                                        <!-- Primary Badges Row -->
+                                        <div class="flex flex-wrap gap-1.5 items-center">
+                                            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-600/50 rounded-lg text-[10px] font-bold uppercase tracking-wider" x-text="usr.role"></span>
+                                            
+                                            <template x-if="usr.role === 'sportiv'">
+                                                <div class="flex items-center">
+                                                    <template x-if="usr.active_subscription">
+                                                        <span :class="{
+                                                            'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200/50': usr.active_subscription.status === 'active_paid',
+                                                            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200/50': usr.active_subscription.status === 'active_pending'
+                                                        }" class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold border">
+                                                            <span class="material-symbols-outlined text-[12px] mr-1" x-text="usr.active_subscription.status === 'active_paid' ? 'check_circle' : 'pending_actions'"></span>
+                                                            <span x-text="usr.active_subscription.status === 'active_paid' ? 'Plătit' : 'În așteptare'"></span>
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="!usr.active_subscription">
+                                                        <span class="inline-flex items-center px-2 py-0.5 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 border border-red-100 rounded-lg text-[10px] font-bold">
+                                                            <span class="material-symbols-outlined text-[12px] mr-1">warning</span> Fără Abonament
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Relationships (Mobile) -->
-                                <div class="space-y-1.5 mb-4">
+                                <!-- Contextual Info (Associations) -->
+                                <div class="space-y-3 mb-5 p-4 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-slate-100/50 dark:border-slate-700/50">
+                                    <template x-if="(usr.role === 'sportiv' || usr.role === 'antrenor') && usr.squads?.length > 0">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-7 h-7 bg-blue-100/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center shrink-0">
+                                                <span class="material-symbols-outlined text-[16px]">groups</span>
+                                            </div>
+                                            <div class="flex flex-wrap gap-1.5 min-w-0">
+                                                <template x-for="s in usr.squads" :key="s.id">
+                                                    <span class="text-[10px] px-2 py-0.5 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 rounded-md font-bold uppercase tracking-tight shadow-sm" x-text="s.name"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+
                                     <template x-if="usr.role === 'parinte' && usr.children?.length > 0">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-14 shrink-0">Copii:</span>
-                                            <div class="flex flex-wrap gap-1">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-7 h-7 bg-indigo-100/50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center shrink-0">
+                                                <span class="material-symbols-outlined text-[16px]">family_restroom</span>
+                                            </div>
+                                            <div class="flex flex-wrap gap-1.5 min-w-0">
                                                 <template x-for="child in usr.children" :key="child.id">
-                                                    <span class="text-[10px] px-1.5 py-0.5 bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-800/50 rounded-md font-bold uppercase tracking-tight" x-text="child.name"></span>
+                                                    <span class="text-[10px] px-2 py-0.5 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded-md font-bold uppercase tracking-tight shadow-sm" x-text="child.name"></span>
                                                 </template>
                                             </div>
                                         </div>
                                     </template>
                                     
                                     <template x-if="usr.role === 'sportiv' && usr.parents?.length > 0">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-14 shrink-0">Părinți:</span>
-                                            <div class="flex flex-wrap gap-1">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-7 h-7 bg-teal-100/50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 rounded-lg flex items-center justify-center shrink-0">
+                                                <span class="material-symbols-outlined text-[16px]">child_care</span>
+                                            </div>
+                                            <div class="flex flex-wrap gap-1.5 min-w-0">
                                                 <template x-for="p in usr.parents" :key="p.id">
-                                                    <span class="text-[10px] px-1.5 py-0.5 bg-teal-50/50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 border border-teal-100/50 dark:border-teal-800/50 rounded-md font-bold uppercase tracking-tight" x-text="p.name"></span>
+                                                    <span class="text-[10px] px-2 py-0.5 bg-white dark:bg-slate-800 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-900 rounded-md font-bold uppercase tracking-tight shadow-sm" x-text="p.name"></span>
                                                 </template>
                                             </div>
                                         </div>
                                     </template>
 
-                                    <template x-if="(usr.role === 'sportiv' || usr.role === 'antrenor') && usr.squads?.length > 0">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-14 shrink-0">Echipe:</span>
-                                            <div class="flex flex-wrap gap-1">
-                                                <template x-for="s in usr.squads" :key="s.id">
-                                                    <span class="text-[10px] px-1.5 py-0.5 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-md font-bold uppercase tracking-tight" x-text="s.name"></span>
-                                                </template>
-                                            </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-7 h-7 bg-slate-100/50 dark:bg-slate-800/50 text-slate-500 rounded-lg flex items-center justify-center shrink-0">
+                                            <span class="material-symbols-outlined text-[16px]">apartment</span>
                                         </div>
-                                    </template>
-                                </div>
-                                
-                                <div class="flex flex-wrap gap-2 mb-4">
-                                    <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border border-slate-200/50 dark:border-slate-600/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="usr.role"></span>
-                                    <span x-show="usr.is_active" class="flex items-center px-2 py-1 bg-green-50 dark:bg-green-900/30 text-xs text-green-600 dark:text-green-400 font-semibold rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>Activ</span>
-                                    <span x-show="!usr.is_active" class="flex items-center px-2 py-1 bg-red-50 dark:bg-red-900/30 text-xs text-red-600 dark:text-red-400 font-semibold rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>Inactiv</span>
-                                </div>
-                                
-                                <template x-if="usr.role === 'sportiv'">
-                                    <div class="mb-4 flex flex-wrap gap-2">
-                                        <template x-if="usr.active_subscription">
-                                            <span :class="{
-                                                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': usr.active_subscription.status === 'active_paid',
-                                                'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': usr.active_subscription.status === 'active_pending'
-                                            }" class="inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-bold mt-1">
-                                                <span class="material-symbols-outlined text-[14px] mr-1" x-text="usr.active_subscription.status === 'active_paid' ? 'check_circle' : 'pending_actions'"></span>
-                                                <span x-text="statusLabels[usr.active_subscription.status]"></span>
-                                            </span>
-                                        </template>
-                                        <template x-if="!usr.active_subscription">
-                                            <span class="inline-flex items-center justify-center px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-xs font-bold mt-1">
-                                                <span class="material-symbols-outlined text-[14px] mr-1">warning</span>
-                                                Fără Abonament Activ
-                                            </span>
-                                        </template>
+                                        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide" x-text="usr.club ? usr.club.name : '-'"></span>
                                     </div>
-                                </template>
-
-                                <div class="flex items-center text-sm font-semibold text-slate-600 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700">
-                                    <span class="material-symbols-outlined text-[18px] mr-2 text-slate-400">domain</span>
-                                    <template x-if="usr.club">
-                                        <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="usr.club.name"></span>
+                                </div>
+                                
+                                <!-- Action Grid -->
+                                <div class="grid grid-cols-3 gap-2 mt-auto">
+                                    <template x-if="usr.role === 'sportiv'">
+                                        <button @click="openSubscriptionModal(usr)" class="aspect-square flex flex-col items-center justify-center bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-2xl border border-orange-100/50 dark:border-orange-800/50 hover:bg-orange-100 transition-all group/btn">
+                                            <span class="material-symbols-outlined text-[20px] mb-1 group-hover/btn:scale-110 transition-transform">loyalty</span>
+                                            <span class="text-[9px] font-bold uppercase tracking-tighter">Abonament</span>
+                                        </button>
                                     </template>
-                                    <template x-if="!usr.club">
-                                        <span class="text-slate-400">-</span>
+                                    <template x-if="usr.role === 'sportiv'">
+                                        <button @click="openSubscriptionHistory(usr)" class="aspect-square flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-2xl border border-blue-100/50 dark:border-blue-800/50 hover:bg-blue-100 transition-all group/btn">
+                                            <span class="material-symbols-outlined text-[20px] mb-1 group-hover/btn:scale-110 transition-transform">history</span>
+                                            <span class="text-[9px] font-bold uppercase tracking-tighter">Istoric</span>
+                                        </button>
                                     </template>
+                                    <button @click="openModal(usr)" 
+                                            :class="usr.role !== 'sportiv' ? 'col-span-1' : ''"
+                                            class="aspect-square flex flex-col items-center justify-center bg-primary/10 text-primary rounded-2xl border border-primary/20 hover:bg-primary/20 transition-all group/btn">
+                                        <span class="material-symbols-outlined text-[20px] mb-1 group-hover/btn:scale-110 transition-transform">edit</span>
+                                        <span class="text-[9px] font-bold uppercase tracking-tighter">Editează</span>
+                                    </button>
+                                    
+                                    <!-- Second row for admins/special actions -->
+                                    <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
+                                        <button @click="impersonateUser(usr)" class="col-span-2 h-10 flex items-center justify-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-2xl border border-indigo-100/50 dark:border-indigo-800/50 hover:bg-indigo-100 transition-all font-bold text-[10px] uppercase tracking-wider">
+                                            <span class="material-symbols-outlined text-[18px]">login</span>
+                                            Impersonare
+                                        </button>
+                                    </template>
+                                    <button @click="deleteUser(usr.id)" 
+                                            :class="user?.role === 'administrator' && usr.id !== user?.id ? 'col-span-1' : 'col-span-2 h-10'"
+                                            class="flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl border border-red-100/50 dark:border-red-800/50 hover:bg-red-100 transition-all h-10">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                        <template x-if="!(user?.role === 'administrator' && usr.id !== user?.id)">
+                                            <span class="text-[10px] font-bold uppercase tracking-wider ml-2">Șterge Membru</span>
+                                        </template>
+                                    </button>
                                 </div>
                             </div>
                         </template>

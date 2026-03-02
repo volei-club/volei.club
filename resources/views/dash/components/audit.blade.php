@@ -35,7 +35,8 @@
 
     <!-- Tabel Audit -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden flex-1 flex flex-col">
-        <div class="overflow-x-auto flex-1">
+        <!-- Desktop Table -->
+        <div class="hidden md:block overflow-x-auto flex-1">
             <table class="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                     <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 uppercase text-xs tracking-wider">
@@ -110,6 +111,63 @@
                     </template>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="md:hidden flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30 dark:bg-slate-900/20">
+            <template x-for="log in logs" :key="log.id">
+                <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex justify-between items-start border-b border-slate-50 dark:border-slate-800 pb-3">
+                        <div class="flex-1">
+                           <template x-if="log.user">
+                               <div>
+                                   <div class="font-bold text-slate-900 dark:text-white text-sm" x-text="log.user.name"></div>
+                                   <div class="text-[10px] text-slate-500" x-text="log.user.email"></div>
+                               </div>
+                           </template>
+                           <template x-if="!log.user">
+                               <span class="text-slate-400 italic text-xs">Sistem / Anonim</span>
+                           </template>
+                        </div>
+                        <span :class="{
+                            'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': log.event === 'created',
+                            'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': log.event === 'updated',
+                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': log.event === 'deleted'
+                        }" class="px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider shrink-0" x-text="log.event === 'created' ? 'Creat' : (log.event === 'updated' ? 'Editat' : 'Șters')"></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Entitate</p>
+                            <div class="font-semibold text-slate-700 dark:text-slate-300" x-text="log.auditable_type.split('\\').pop()"></div>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Dată</p>
+                            <div class="text-slate-600 dark:text-slate-400 font-medium" x-text="new Date(log.created_at).toLocaleString('ro-RO')"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Modificări</p>
+                        <template x-if="log.event === 'updated'">
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <template x-for="(val, key) in log.new_values" :key="key">
+                                    <div class="text-[11px] mb-1 last:mb-0 break-all">
+                                        <span class="font-bold text-slate-600 dark:text-slate-400" x-text="translateAuditKey(key) + ': '"></span>
+                                        <span class="text-green-600 dark:text-green-400 font-medium" x-text="translateAuditValue(key, val)"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <template x-if="log.event === 'created' || log.event === 'deleted'">
+                            <button @click="openLogDetails(log)" class="w-full py-2 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-primary rounded-xl flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]" x-text="log.event === 'created' ? 'visibility' : 'history'"></span>
+                                <span x-text="log.event === 'created' ? 'Vezi date inițiale' : 'Vezi date șterse'"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </template>
         </div>
 
         <!-- Pagination Audit -->
