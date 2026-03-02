@@ -608,22 +608,81 @@
                 openSubscriptionModal(user) {
                     this.subscriptionError = null;
                     this.subscriptionForm = {
+                        id: null, // Pentru editare
                         user_id: user.id,
                         user_name: user.name,
                         subscription_id: '',
+                        starts_at: new Date().toISOString().split('T')[0],
+                        status: 'active_pending',
                         current_subscription: user.active_subscription || null
                     };
                     this.fetchAvailableSubscriptions(user.club_id);
                     this.showSubscriptionModal = true;
                 },
 
+                editUserSubscription(sub) {
+                    this.subscriptionError = null;
+                    
+                    // Formatam data corect pentru inputul de tip date (YYYY-MM-DD)
+                    let startDate = '';
+                    if (sub.starts_at) {
+                        startDate = sub.starts_at.split(' ')[0];
+                    }
+
+                    this.subscriptionForm = {
+                        id: sub.id,
+                        user_id: this.historyUser?.id || this.subscriptionForm.user_id,
+                        user_name: this.historyUser?.name || this.subscriptionForm.user_name,
+                        subscription_id: sub.subscription_id,
+                        starts_at: startDate,
+                        status: sub.status,
+                        current_subscription: null // Ascundem secțiunea de status în editare simplă
+                    };
+                    
+                    if (this.historyUser?.club_id) {
+                        this.fetchAvailableSubscriptions(this.historyUser.club_id);
+                    }
+                    
+                    this.showSubscriptionHistoryModal = false;
+                    this.showSubscriptionModal = true;
+                },
+
+                async deleteUserSubscription(id) {
+                    if(!confirm('Sigur dorești să ștergi acest înregistrare de abonament?')) return;
+                    
+                    try {
+                        const res = await fetch(`/api/user-subscriptions/${id}`, {
+                            method: 'DELETE',
+                            headers: { 
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
+                            }
+                        });
+                        
+                        if(res.ok) {
+                            this.fetchUsers();
+                            this.showSubscriptionHistoryModal = false;
+                            window.showToast('Înregistrare abonament ștearsă.');
+                        } else {
+                            const payload = await res.json();
+                            window.showToast(payload.message || 'Eroare la ștergere.', 'error');
+                        }
+                    } catch (e) {
+                        window.showToast('Eroare rețea.', 'error');
+                    }
+                },
+
                 async saveUserSubscription() {
                     this.savingSubscription = true;
                     this.subscriptionError = null;
                     
+                    const isEdit = !!this.subscriptionForm.id;
+                    const url = isEdit ? `/api/user-subscriptions/${this.subscriptionForm.id}` : '/api/user-subscriptions';
+                    const method = isEdit ? 'PUT' : 'POST';
+
                     try {
-                        const res = await fetch('/api/user-subscriptions', {
-                            method: 'POST',
+                        const res = await fetch(url, {
+                            method: method,
                             headers: { 
                                 'Accept': 'application/json', 'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
@@ -631,8 +690,8 @@
                             body: JSON.stringify({
                                 user_id: this.subscriptionForm.user_id,
                                 subscription_id: this.subscriptionForm.subscription_id,
-                                starts_at: new Date().toISOString().split('T')[0],
-                                status: 'active_pending'
+                                starts_at: this.subscriptionForm.starts_at,
+                                status: this.subscriptionForm.status
                             })
                         });
                         
@@ -641,7 +700,7 @@
                         if(res.ok) {
                             this.fetchUsers();
                             this.showSubscriptionModal = false;
-                            window.showToast('Abonament alocat cu succes!');
+                            window.showToast(isEdit ? 'Abonament actualizat!' : 'Abonament alocat cu succes!');
                         } else {
                             if (res.status === 422 && payload.errors) {
                                 const errors = Object.values(payload.errors).flat();

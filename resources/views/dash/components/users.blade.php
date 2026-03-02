@@ -355,7 +355,7 @@
                 <div x-show="showSubscriptionModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[90vh]">
                         <div class="p-6 border-b border-slate-100 dark:border-slate-700 shrink-0">
-                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Abonament Sportiv</h3>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1" x-text="subscriptionForm.id ? 'Editează Abonament' : 'Abonament Sportiv'"></h3>
                             <p class="text-sm font-semibold text-slate-500" x-text="subscriptionForm.user_name"></p>
                         </div>
                         <form @submit.prevent="saveUserSubscription()" class="flex flex-col overflow-hidden">
@@ -393,15 +393,32 @@
                                 <div class="mb-2">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-3" x-text="subscriptionForm.current_subscription ? 'Generează Perioadă Nouă' : 'Asociază Abonament Nou'"></h4>
                                     
-                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tip Abonament</label>
-                                    <select x-model="subscriptionForm.subscription_id" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
-                                        <option value="" disabled selected>Alege abonamentul...</option>
-                                        <template x-for="sub in availableSubscriptions" :key="sub.id">
-                                            <option :value="sub.id" x-text="sub.name + ' (' + sub.price + ' lei / ' + sub.period.replace('_', ' ') + ')'"></option>
-                                        </template>
-                                    </select>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tip Abonament</label>
+                                            <select x-model="subscriptionForm.subscription_id" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+                                                <option value="" disabled selected>Alege abonamentul...</option>
+                                                <template x-for="sub in availableSubscriptions" :key="sub.id">
+                                                    <option :value="sub.id" x-text="sub.name + ' (' + sub.price + ' lei / ' + sub.period.replace('_', ' ') + ')'"></option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data Început</label>
+                                            <input type="date" x-model="subscriptionForm.starts_at" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Statut</label>
+                                            <select x-model="subscriptionForm.status" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+                                                <option value="active_paid">Plătit (Activ)</option>
+                                                <option value="active_pending">Așteaptă Plată</option>
+                                                <option value="cancelled">Anulat</option>
+                                                <option value="expired">Expirat</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <template x-if="availableSubscriptions.length === 0">
-                                        <p class="text-xs text-red-500 mt-1 mt-1">Acest club nu are niciun tip de abonament definit. Mergeți la meniul "Abonamente" pentru a crea unul.</p>
+                                        <p class="text-xs text-red-500 mt-1">Acest club nu are niciun tip de abonament definit. Mergeți la meniul "Abonamente" pentru a crea unul.</p>
                                     </template>
                                 </div>
 
@@ -415,7 +432,7 @@
                                 <template x-if="subscriptionForm.subscription_id">
                                     <button type="submit" :disabled="savingSubscription" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50">
                                         <span x-show="savingSubscription" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
-                                        Emite Abonament
+                                        <span x-text="subscriptionForm.id ? 'Actualizează Abonament' : 'Emite Abonament'"></span>
                                     </button>
                                 </template>
                             </div>
@@ -488,7 +505,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="text-right">
+                                                    <div class="text-right flex flex-col items-end">
                                                         <span :class="{
                                                             'bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-400 border-green-100 dark:border-green-800': sub.status === 'active_paid',
                                                             'bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-amber-100 dark:border-amber-800': sub.status === 'active_pending',
@@ -496,6 +513,15 @@
                                                             'bg-red-50 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-red-100 dark:border-red-800': sub.status === 'cancelled'
                                                         }" class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shadow-sm" x-text="statusLabels[sub.status] || sub.status"></span>
                                                         <div class="text-[10px] text-slate-400 mt-2">Creat pe <span x-text="formatDate(sub.created_at)"></span></div>
+                                                        
+                                                        <div class="flex items-center gap-3 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button @click="editUserSubscription(sub)" class="text-[10px] font-bold text-blue-500 hover:text-blue-600 uppercase tracking-wider flex items-center transition-colors">
+                                                                <span class="material-symbols-outlined text-[14px] mr-1">edit</span> Editează
+                                                            </button>
+                                                            <button @click="deleteUserSubscription(sub.id)" class="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wider flex items-center transition-colors">
+                                                                <span class="material-symbols-outlined text-[14px] mr-1">delete</span> Șterge
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
