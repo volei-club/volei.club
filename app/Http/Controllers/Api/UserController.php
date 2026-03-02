@@ -21,7 +21,7 @@ class UserController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis. Doar administratorii și managerii pot gestiona utilizatori.'], 403);
         }
 
-        $query = User::with(['club', 'teams', 'squads', 'activeSubscription.subscription', 'upcomingSubscription.subscription', 'subscriptions.subscription']);
+        $query = User::with(['club', 'teams', 'squads', 'activeSubscription.subscription', 'upcomingSubscription.subscription', 'subscriptions.subscription', 'children']);
 
         if ($role !== 'administrator') {
             // Managerii/Antrenorii etc. văd doar userii din clubul lor.
@@ -79,6 +79,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
             'role' => 'required|in:administrator,manager,antrenor,parinte,sportiv',
             'club_id' => 'nullable|exists:clubs,id',
             'password' => 'nullable|string|min:6',
@@ -86,7 +87,9 @@ class UserController extends Controller
             'team_ids' => 'nullable|array',
             'team_ids.*' => 'exists:teams,id',
             'squad_ids' => 'nullable|array',
-            'squad_ids.*' => 'exists:squads,id'
+            'squad_ids.*' => 'exists:squads,id',
+            'child_ids' => 'nullable|array',
+            'child_ids.*' => 'exists:users,id'
         ]);
 
         // Reguli de business
@@ -133,6 +136,7 @@ class UserController extends Controller
         $userData = $validated;
         unset($userData['team_ids']);
         unset($userData['squad_ids']);
+        unset($userData['child_ids']);
         $newUser = User::create($userData);
 
         if (!empty($validated['team_ids'])) {
@@ -143,12 +147,16 @@ class UserController extends Controller
             $newUser->squads()->sync($validated['squad_ids']);
         }
 
+        if ($validated['role'] === 'parinte' && !empty($validated['child_ids'])) {
+            $newUser->children()->sync($validated['child_ids']);
+        }
+
         // Aici s-ar putea trimite un mail de bun-venit cu parola $password.
 
         return response()->json([
             'status' => 'success',
             'message' => 'Utilizator adăugat cu succes!',
-            'data' => $newUser->load(['club', 'teams', 'squads'])
+            'data' => $newUser->load(['club', 'teams', 'squads', 'children'])
         ], 201);
     }
 
@@ -172,6 +180,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $userToEdit->id,
+            'phone' => 'nullable|string|max:20',
             'role' => 'required|in:administrator,manager,antrenor,parinte,sportiv',
             'club_id' => 'nullable|exists:clubs,id',
             'password' => 'nullable|string|min:6',
@@ -179,7 +188,9 @@ class UserController extends Controller
             'team_ids' => 'nullable|array',
             'team_ids.*' => 'exists:teams,id',
             'squad_ids' => 'nullable|array',
-            'squad_ids.*' => 'exists:squads,id'
+            'squad_ids.*' => 'exists:squads,id',
+            'child_ids' => 'nullable|array',
+            'child_ids.*' => 'exists:users,id'
         ]);
 
         if ($creatorRole !== 'administrator') {
@@ -239,15 +250,27 @@ class UserController extends Controller
             $userToEdit->squads()->sync($squadIds);
         }
 
+        // Sincronizare copii (pentru parinti)
+        if ($request->has('child_ids')) {
+            $childIds = $validated['child_ids'] ?? [];
+            if ($validated['role'] === 'parinte') {
+                $userToEdit->children()->sync($childIds);
+            }
+            else {
+                $userToEdit->children()->detach();
+            }
+        }
+
         $updateData = $validated;
         unset($updateData['team_ids']);
         unset($updateData['squad_ids']);
+        unset($updateData['child_ids']);
         $userToEdit->update($updateData);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Utilizator actualizat!',
-            'data' => $userToEdit->load(['club', 'teams', 'squads'])
+            'data' => $userToEdit->load(['club', 'teams', 'squads', 'children'])
         ]);
     }
 

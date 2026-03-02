@@ -237,6 +237,11 @@
                             </div>
 
                             <div class="mb-4">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nr. Telefon (opțional)</label>
+                                <input x-model="form.phone" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Ex: 0722 ..."/>
+                            </div>
+
+                            <div class="mb-4">
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Rol</label>
                                 <select x-model="form.role" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
                                     <option value="" disabled selected>Alege un rol...</option>
@@ -337,6 +342,27 @@
                                     </div>
                                     <template x-if="availableSquads.length > 0 && !loadingSquads">
                                          <p class="text-xs text-slate-500 mt-2">Bifează una sau mai multe echipe pentru a asocia Membruul.</p>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <!-- Student Association for Parents (Checkboxes) -->
+                            <template x-if="form.role === 'parinte' && (user?.role === 'manager' || form.club_id)">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Asociază Jucători</label>
+                                    <div class="space-y-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-xl max-h-48 overflow-y-auto">
+                                        <template x-if="availableStudents.length === 0">
+                                            <div class="text-slate-500 text-sm italic text-center py-4">Niciun jucător găsit în acest club.</div>
+                                        </template>
+                                        <template x-for="s in availableStudents" :key="s.id">
+                                            <label class="flex items-center cursor-pointer hover:bg-white dark:hover:bg-slate-800 p-2 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+                                                <input type="checkbox" :value="s.id" x-model="form.child_ids" class="w-5 h-5 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 dark:bg-slate-800 dark:border-slate-600 transition-all cursor-pointer">
+                                                <span class="ml-3 text-sm font-medium text-slate-700 dark:text-slate-300" x-text="s.name"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                    <template x-if="availableStudents.length > 0">
+                                        <p class="text-xs text-slate-500 mt-2">Selectează unul sau mai mulți copii (jucători) ai acestui părinte.</p>
                                     </template>
                                 </div>
                             </template>

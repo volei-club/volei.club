@@ -170,7 +170,9 @@
                 saving: false,
                 showModal: false,
                 error: null,
-                form: { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [] },
+                form: { id: null, name: '', email: '', phone: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [], child_ids: [] },
+                availableStudents: [],
+                loadingStudents: false,
                 
                 // Subscription properties
                 showSubscriptionModal: false,
@@ -304,10 +306,14 @@
                     });
 
                     this.$watch('form.club_id', async (val) => {
-                        if (this.showModal) await this.fetchTeamsBasedOnClub();
+                        if (this.showModal) {
+                            await this.fetchTeamsBasedOnClub();
+                            if (this.form.role === 'parinte') await this.fetchAvailableStudents(val);
+                        }
                     });
                     this.$watch('form.role', async (val) => {
                         if (this.showModal && (val === 'sportiv' || val === 'antrenor')) await this.fetchTeamsBasedOnClub();
+                        if (this.showModal && val === 'parinte') await this.fetchAvailableStudents(this.form.club_id || this.user?.club_id);
                     });
                     this.$watch('form.team_ids', async (val) => {
                         if (this.showModal) await this.fetchSquadsBasedOnTeams();
@@ -365,11 +371,19 @@
                         this.form.email = userToEdit.email;
                         this.form.role = userToEdit.role;
                         this.form.club_id = userToEdit.club_id || '';
+                        this.form.phone = userToEdit.phone || '';
                         this.form.is_active = !!userToEdit.is_active;
                         this.form.team_ids = userToEdit.teams ? userToEdit.teams.map(t => t.id) : [];
                         this.form.squad_ids = userToEdit.squads ? userToEdit.squads.map(s => s.id) : [];
+                        this.form.child_ids = userToEdit.children ? userToEdit.children.map(c => c.id) : [];
                         this.form.password = ''; // empty default, typed only to override
                         this.updateHash('edit', userToEdit.id);
+                        
+                        // Incarcam datele dependente
+                        if (this.form.role === 'parinte') {
+                            this.fetchAvailableStudents(this.form.club_id);
+                        }
+                        
                         this.fetchTeamsBasedOnClub().then(() => {
                             if (this.form.team_ids.length > 0) this.fetchSquadsBasedOnTeams();
                         });
@@ -377,12 +391,15 @@
                         this.form.id = null;
                         this.form.name = '';
                         this.form.email = '';
+                        this.form.phone = '';
                         this.form.role = '';
                         this.form.club_id = '';
                         this.form.password = '';
                         this.form.team_ids = [];
                         this.form.squad_ids = [];
+                        this.form.child_ids = [];
                         this.availableSquads = [];
+                        this.availableStudents = [];
                         this.form.is_active = true;
                         this.updateHash('add');
                     }
@@ -470,25 +487,44 @@
                 async fetchSquadsBasedOnTeams() {
                     if (this.form.team_ids.length === 0) {
                         this.availableSquads = [];
+                        this.form.squad_ids = [];
                         return;
                     }
                     this.loadingSquads = true;
                     try {
-                        let squadsRaw = [];
-                        for(let tid of this.form.team_ids) {
-                            const res = await fetch(`/api/squads?team_id=${tid}`, {
-                                headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-                            });
-                            if(res.ok) {
-                                const payload = await res.json();
-                                squadsRaw.push(...payload.data);
-                            }
+                        const teamIdsStr = this.form.team_ids.join(',');
+                        const res = await fetch(`/api/squads?team_id=${teamIdsStr}`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if (res.ok) {
+                            const payload = await res.json();
+                            this.availableSquads = payload.data;
+                            // Curățăm selecțiile care nu mai sunt valide
+                            const validIds = this.availableSquads.map(s => s.id);
+                            this.form.squad_ids = this.form.squad_ids.filter(id => validIds.includes(id));
                         }
-                        this.availableSquads = squadsRaw;
                     } catch (e) {}
                     this.loadingSquads = false;
                 },
 
+                async fetchAvailableStudents(clubId) {
+                    const cId = clubId || this.user?.club_id;
+                    if (!cId || this.form.role !== 'parinte') {
+                        this.availableStudents = [];
+                        return;
+                    }
+                    this.loadingStudents = true;
+                    try {
+                        const res = await fetch(`/api/users?club_id=${cId}&role=sportiv`, {
+                            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                        });
+                        if (res.ok) {
+                            const payload = await res.json();
+                            this.availableStudents = payload.data;
+                        }
+                    } catch (e) {}
+                    this.loadingStudents = false;
+                },
                 async saveUser() {
                     this.saving = true;
                     this.error = null;
@@ -500,22 +536,27 @@
                     const method = isEdit ? 'PUT' : 'POST';
                     
                     try {
+                        const body = {
+                            name: this.form.name,
+                            email: this.form.email,
+                            phone: this.form.phone,
+                            role: this.form.role,
+                            club_id: this.form.club_id || null,
+                            is_active: this.form.is_active,
+                            team_ids: this.form.team_ids,
+                            squad_ids: this.form.squad_ids,
+                            child_ids: this.form.child_ids
+                        };
+                        if (this.form.password) body.password = this.form.password;
+
                         const res = await fetch(url, {
                             method: method,
                             headers: { 
-                                'Accept': 'application/json', 'Content-Type': 'application/json',
+                                'Accept': 'application/json', 
+                                'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
                             },
-                            body: JSON.stringify({
-                                name: this.form.name,
-                                email: this.form.email,
-                                role: this.form.role,
-                                password: this.form.password,
-                                is_active: this.form.is_active,
-                                club_id: this.form.club_id || null,
-                                team_ids: this.form.team_ids,
-                                squad_ids: this.form.squad_ids
-                            })
+                            body: JSON.stringify(body)
                         });
                         
                         const payload = await res.json();
