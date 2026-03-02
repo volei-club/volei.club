@@ -10,5 +10,6 @@
         @include('dash.scripts.audit')
         @include('dash.scripts.locations')
         @include('dash.scripts.trainings')
+        @include('dash.scripts.system')
     });
 </script>

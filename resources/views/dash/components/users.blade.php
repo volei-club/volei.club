@@ -127,35 +127,56 @@
                                             <div class="text-slate-500 text-xs mb-1" x-text="usr.email"></div>
                                             
                                             <!-- Relationships (Desktop) -->
-                                            <template x-if="usr.role === 'parinte' && usr.children?.length > 0">
-                                                <div class="flex flex-wrap gap-1 mt-1">
-                                                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Copii:</span>
-                                                    <template x-for="(child, index) in usr.children" :key="child.id">
-                                                        <span class="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-md font-medium">
-                                                            <span x-text="child.name"></span><span x-show="index < usr.children.length - 1">, </span>
-                                                        </span>
-                                                    </template>
-                                                </div>
-                                            </template>
-                                            <template x-if="usr.role === 'sportiv' && usr.parents?.length > 0">
-                                                <div class="flex flex-wrap gap-1 mt-1">
-                                                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Părinți:</span>
-                                                    <template x-for="(p, index) in usr.parents" :key="p.id">
-                                                        <span class="text-[10px] px-1.5 py-0.5 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 rounded-md font-medium">
-                                                            <span x-text="p.name"></span><span x-show="index < usr.parents.length - 1">, </span>
-                                                        </span>
-                                                    </template>
-                                                </div>
-                                            </template>
+                                            <div class="mt-2 space-y-1">
+                                                <template x-if="usr.role === 'parinte' && usr.children?.length > 0">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-12 shrink-0">Copii:</span>
+                                                        <div class="flex flex-wrap gap-1">
+                                                            <template x-for="child in usr.children" :key="child.id">
+                                                                <span class="text-[10px] px-1.5 py-0.5 bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-800/50 rounded-md font-bold uppercase tracking-tight" x-text="child.name"></span>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                
+                                                <template x-if="usr.role === 'sportiv' && usr.parents?.length > 0">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-12 shrink-0">Părinți:</span>
+                                                        <div class="flex flex-wrap gap-1">
+                                                            <template x-for="p in usr.parents" :key="p.id">
+                                                                <span class="text-[10px] px-1.5 py-0.5 bg-teal-50/50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 border border-teal-100/50 dark:border-teal-800/50 rounded-md font-bold uppercase tracking-tight" x-text="p.name"></span>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                
+                                                <template x-if="usr.role === 'sportiv' && usr.squads?.length > 0">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-12 shrink-0">Echipe:</span>
+                                                        <div class="flex flex-wrap gap-1">
+                                                            <template x-for="s in usr.squads" :key="s.id">
+                                                                <span class="text-[10px] px-1.5 py-0.5 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-md font-bold uppercase tracking-tight" x-text="s.name"></span>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-xs font-bold uppercase tracking-wide inline-block mb-1" x-text="usr.role"></span>
+                                            <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border border-slate-200/50 dark:border-slate-600/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="usr.role"></span>
                                             <div class="mt-1">
                                                 <span x-show="usr.is_active" class="flex items-center text-xs text-green-600 dark:text-green-400 font-semibold"><span class="w-2 h-2 rounded-full bg-green-500 mr-1.5"></span>Activ</span>
                                                 <span x-show="!usr.is_active" class="flex items-center text-xs text-red-600 dark:text-red-400 font-semibold"><span class="w-2 h-2 rounded-full bg-red-500 mr-1.5"></span>Inactiv</span>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-slate-500" x-text="usr.club ? usr.club.name : '-'"></td>
+                                        <td class="px-6 py-4">
+                                            <template x-if="usr.club">
+                                                <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="usr.club.name"></span>
+                                            </template>
+                                            <template x-if="!usr.club">
+                                                <span class="text-slate-400 text-xs italic">-</span>
+                                            </template>
+                                        </td>
                                         <td class="px-6 py-4">
                                             <template x-if="usr.role === 'sportiv'">
                                                 <div class="flex items-center gap-2">
@@ -249,25 +270,43 @@
                                 <div class="text-slate-500 text-sm mb-2" x-text="usr.email"></div>
                                 
                                 <!-- Relationships (Mobile) -->
-                                <template x-if="usr.role === 'parinte' && usr.children?.length > 0">
-                                    <div class="flex flex-wrap gap-1 mb-3">
-                                        <span class="text-[10px] text-slate-400 font-semibold uppercase">Copii:</span>
-                                        <template x-for="child in usr.children" :key="child.id">
-                                            <span class="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-md font-medium" x-text="child.name"></span>
-                                        </template>
-                                    </div>
-                                </template>
-                                <template x-if="usr.role === 'sportiv' && usr.parents?.length > 0">
-                                    <div class="flex flex-wrap gap-1 mb-3">
-                                        <span class="text-[10px] text-slate-400 font-semibold uppercase">Părinți:</span>
-                                        <template x-for="p in usr.parents" :key="p.id">
-                                            <span class="text-[10px] px-1.5 py-0.5 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 rounded-md font-medium" x-text="p.name"></span>
-                                        </template>
-                                    </div>
-                                </template>
+                                <div class="space-y-1.5 mb-4">
+                                    <template x-if="usr.role === 'parinte' && usr.children?.length > 0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-14 shrink-0">Copii:</span>
+                                            <div class="flex flex-wrap gap-1">
+                                                <template x-for="child in usr.children" :key="child.id">
+                                                    <span class="text-[10px] px-1.5 py-0.5 bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-800/50 rounded-md font-bold uppercase tracking-tight" x-text="child.name"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    
+                                    <template x-if="usr.role === 'sportiv' && usr.parents?.length > 0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-14 shrink-0">Părinți:</span>
+                                            <div class="flex flex-wrap gap-1">
+                                                <template x-for="p in usr.parents" :key="p.id">
+                                                    <span class="text-[10px] px-1.5 py-0.5 bg-teal-50/50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 border border-teal-100/50 dark:border-teal-800/50 rounded-md font-bold uppercase tracking-tight" x-text="p.name"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <template x-if="usr.role === 'sportiv' && usr.squads?.length > 0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider w-14 shrink-0">Echipe:</span>
+                                            <div class="flex flex-wrap gap-1">
+                                                <template x-for="s in usr.squads" :key="s.id">
+                                                    <span class="text-[10px] px-1.5 py-0.5 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-md font-bold uppercase tracking-tight" x-text="s.name"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
                                 
                                 <div class="flex flex-wrap gap-2 mb-4">
-                                    <span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-xs font-bold uppercase tracking-wide" x-text="usr.role"></span>
+                                    <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border border-slate-200/50 dark:border-slate-600/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="usr.role"></span>
                                     <span x-show="usr.is_active" class="flex items-center px-2 py-1 bg-green-50 dark:bg-green-900/30 text-xs text-green-600 dark:text-green-400 font-semibold rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>Activ</span>
                                     <span x-show="!usr.is_active" class="flex items-center px-2 py-1 bg-red-50 dark:bg-red-900/30 text-xs text-red-600 dark:text-red-400 font-semibold rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>Inactiv</span>
                                 </div>
@@ -293,8 +332,13 @@
                                 </template>
 
                                 <div class="flex items-center text-sm font-semibold text-slate-600 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700">
-                                    <span class="material-symbols-outlined text-[18px] mr-2">domain</span>
-                                    <span x-text="usr.club ? usr.club.name : '-'"></span>
+                                    <span class="material-symbols-outlined text-[18px] mr-2 text-slate-400">domain</span>
+                                    <template x-if="usr.club">
+                                        <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="usr.club.name"></span>
+                                    </template>
+                                    <template x-if="!usr.club">
+                                        <span class="text-slate-400">-</span>
+                                    </template>
                                 </div>
                             </div>
                         </template>

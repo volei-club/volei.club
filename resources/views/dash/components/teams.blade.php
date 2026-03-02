@@ -46,7 +46,7 @@
                                     </td>
                                     <template x-if="user?.role === 'administrator'">
                                         <td class="px-6 py-4">
-                                            <span class="text-slate-500" x-text="availableClubs.find(c => c.id === team.club_id)?.name || 'Necunoscut'"></span>
+                                            <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="availableClubs.find(c => c.id === team.club_id)?.name || 'Necunoscut'"></span>
                                         </td>
                                     </template>
                                     <td class="px-6 py-4 text-right">
@@ -71,7 +71,10 @@
                         <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
                             <h4 class="font-bold text-lg text-slate-800 dark:text-white" x-text="team.name"></h4>
                             <template x-if="user?.role === 'administrator'">
-                                <p class="text-sm text-slate-500 mt-1" x-text="'Club: ' + (availableClubs.find(c => c.id === team.club_id)?.name || 'Necunoscut')"></p>
+                                <div class="flex items-center text-sm font-semibold text-slate-500 mt-2">
+                                    <span class="material-symbols-outlined text-[18px] mr-2 text-slate-400">domain</span>
+                                    <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="availableClubs.find(c => c.id === team.club_id)?.name || 'Necunoscut'"></span>
+                                </div>
                             </template>
                             <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
                                 <button @click="openModal(team)" class="text-sm font-semibold text-primary hover:text-primary-dark px-3 py-1.5 bg-primary/10 rounded-lg">Editează</button>

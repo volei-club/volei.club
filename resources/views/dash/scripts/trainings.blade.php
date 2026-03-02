@@ -26,7 +26,9 @@ Alpine.data('trainingManager', () => ({
     async init() {
         this.$watch('currentPage', (val) => {
             if (val === '/dash/antrenamente') {
-                this.fetchTrainings();
+                this.fetchTrainings().then(() => {
+                    this.processHashActions();
+                });
                 if (this.user?.role === 'administrator') {
                     this.fetchClubs();
                 } else if (this.user?.club_id) {
@@ -37,7 +39,9 @@ Alpine.data('trainingManager', () => ({
         });
 
         if (this.currentPage === '/dash/antrenamente') {
-            this.fetchTrainings();
+            this.fetchTrainings().then(() => {
+                this.processHashActions();
+            });
             if (this.user?.role === 'administrator') {
                 this.fetchClubs();
             } else if (this.user?.club_id) {
@@ -49,6 +53,15 @@ Alpine.data('trainingManager', () => ({
         this.$watch('formData.club_id', () => {
             this.onClubChange();
         });
+
+        this.$watch('showModal', (val) => {
+            if (!val) {
+                this.updateHash();
+            }
+        });
+
+        this.$watch('filters.club_id', () => this.updateHash());
+        this.$watch('filters.team_id', () => this.updateHash());
     },
 
     async fetchTrainings() {
@@ -116,7 +129,21 @@ Alpine.data('trainingManager', () => ({
         // Fetch Coaches for club (antrenori and managers)
         fetch(`/api/users?club_id=${clubId}&role=antrenor,manager`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()).then(data => this.availableCoaches = data.data || data);
+        }).then(r => r.json()).then(data => {
+            let coaches = data.data || data;
+            // Manual check: include current user if they have the correct role and are in this club
+            if (this.user && (this.user.role === 'manager' || this.user.role === 'antrenor')) {
+                const currentClubId = this.user.club_id;
+                const targetClubId = clubId;
+                if (currentClubId == targetClubId) {
+                    const alreadyPresent = coaches.some(c => c.id === this.user.id);
+                    if (!alreadyPresent) {
+                        coaches.unshift(this.user);
+                    }
+                }
+            }
+            this.availableCoaches = coaches;
+        });
     },
 
     openModal(t = null) {
@@ -149,6 +176,45 @@ Alpine.data('trainingManager', () => ({
             }
         }
         this.showModal = true;
+        this.updateHash();
+    },
+
+    updateHash() {
+        const params = new URLSearchParams();
+        if (this.filters.club_id) params.set('club_id', this.filters.club_id);
+        if (this.filters.team_id) params.set('team_id', this.filters.team_id);
+        
+        if (this.showModal) {
+            params.set('action', this.editingId ? 'edit' : 'add');
+            if (this.editingId) params.set('id', this.editingId);
+        }
+
+        const newHash = params.toString() ? '#' + params.toString() : '';
+        if (window.location.hash !== newHash) {
+            if (!newHash) {
+                history.replaceState(null, null, window.location.pathname);
+            } else {
+                window.location.hash = newHash;
+            }
+        }
+    },
+
+    processHashActions() {
+        const hash = window.location.hash.substring(1);
+        if (!hash) return;
+        
+        const params = new URLSearchParams(hash);
+        const action = params.get('action');
+        const id = params.get('id');
+
+        if (action === 'add') {
+            this.openModal();
+        } else if (action === 'edit' && id) {
+            const training = this.trainings.find(t => t.id == id);
+            if (training) {
+                this.openModal(training);
+            }
+        }
     },
 
     async saveTraining() {
@@ -173,6 +239,7 @@ Alpine.data('trainingManager', () => ({
 
             if (res.ok) {
                 this.showModal = false;
+                this.updateHash();
                 this.fetchTrainings();
                 window.showToast(this.editingId ? 'Antrenament actualizat!' : 'Antrenament programat!');
             } else {

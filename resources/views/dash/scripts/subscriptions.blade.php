@@ -88,7 +88,11 @@ Alpine.data('subscriptionManager', () => ({
         
         const newHash = params.toString() ? '#' + params.toString() : '';
         if (window.location.hash !== newHash) {
-            history.replaceState(null, null, newHash || window.location.pathname);
+            if (!newHash) {
+                history.replaceState(null, null, window.location.pathname);
+            } else {
+                window.location.hash = newHash;
+            }
         }
     },
 

@@ -56,14 +56,14 @@
                                     <span x-text="t.start_time.substring(0,5) + ' - ' + t.end_time.substring(0,5)"></span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
+                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
                                     <span class="material-symbols-outlined text-[18px] text-slate-400">location_on</span>
-                                    <span class="text-slate-600 dark:text-slate-400" x-text="t.location?.name"></span>
+                                    <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="t.location?.name"></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded text-[11px] font-bold uppercase tracking-tight" x-text="t.team?.name"></span>
+                                <span class="px-2 py-1 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="t.team?.name"></span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
@@ -110,7 +110,7 @@
                     <!-- Club Selector (Admin only) -->
                     <div x-show="user?.role === 'administrator' && !editingId" class="space-y-1.5">
                         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Club</label>
-                        <select x-model="formData.club_id" @change="onClubChange()" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
+                        <select x-model="formData.club_id" @change="onClubChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
                             <option value="">Selectează Club</option>
                             <template x-for="club in allClubs" :key="club.id">
                                 <option :value="club.id" x-text="club.name"></option>

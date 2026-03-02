@@ -37,4 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/impersonate/{user}', [\App\Http\Controllers\Api\ImpersonationController::class , 'impersonate']);
         Route::post('/impersonate-leave', [\App\Http\Controllers\Api\ImpersonationController::class , 'leave']);
+
+        // System Import/Export (Admin Only)
+        Route::get('/export/{type}', [\App\Http\Controllers\Api\ExportImportController::class , 'export']);
+        Route::post('/import', [\App\Http\Controllers\Api\ExportImportController::class , 'import']);
     });

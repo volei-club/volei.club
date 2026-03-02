@@ -50,9 +50,9 @@
                                 </span>
                             </div>
 
-                            <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 text-sm font-semibold text-slate-500 line-clamp-1 italic flex items-center">
+                            <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 text-[11px] font-bold text-slate-500 uppercase flex items-center">
                                 <span class="material-symbols-outlined text-[18px] mr-1.5 opacity-70">domain</span>
-                                <span x-text="sub.club ? sub.club.name : '-'"></span>
+                                <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="sub.club ? sub.club.name : '-'"></span>
                             </div>
 
                         </div>

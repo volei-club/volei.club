@@ -72,6 +72,7 @@
             @include('dash.components.audit')
             @include('dash.components.locatii')
             @include('dash.components.antrenamente')
+            @include('dash.components.system')
 
         </main>
 

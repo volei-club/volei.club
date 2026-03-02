@@ -45,14 +45,32 @@ class UserController extends Controller
         }
 
         if ($request->filled('team_id')) {
-            $query->whereHas('teams', function ($q) use ($request) {
-                $q->where('teams.id', $request->team_id);
+            $query->where(function ($q) use ($request) {
+                // Direct association
+                $q->whereHas('teams', function ($sq) use ($request) {
+                        $sq->where('teams.id', $request->team_id);
+                    }
+                    )
+                        // Indirect via children (for parents)
+                        ->orWhereHas('children.teams', function ($sq) use ($request) {
+                    $sq->where('teams.id', $request->team_id);
+                }
+                );
             });
         }
 
         if ($request->filled('squad_id')) {
-            $query->whereHas('squads', function ($q) use ($request) {
-                $q->where('squads.id', $request->squad_id);
+            $query->where(function ($q) use ($request) {
+                // Direct association
+                $q->whereHas('squads', function ($sq) use ($request) {
+                        $sq->where('squads.id', $request->squad_id);
+                    }
+                    )
+                        // Indirect via children (for parents)
+                        ->orWhereHas('children.squads', function ($sq) use ($request) {
+                    $sq->where('squads.id', $request->squad_id);
+                }
+                );
             });
         }
 

@@ -28,7 +28,7 @@
                             <td class="px-6 py-4 font-bold text-slate-900 dark:text-white" x-text="loc.name"></td>
                             <td class="px-6 py-4 text-slate-600 dark:text-slate-400" x-text="loc.address"></td>
                             <td x-show="user?.role === 'administrator'" class="px-6 py-4">
-                                <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[10px] font-bold" x-text="loc.club?.name || 'N/A'"></span>
+                                <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="loc.club?.name || 'N/A'"></span>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">

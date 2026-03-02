@@ -24,9 +24,10 @@
                                 <span class="material-symbols-outlined text-2xl">domain</span>
                             </div>
                             <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2" x-text="club.name"></h4>
-                            <p class="text-sm text-slate-500 mb-4">
-                                Creat de: <span class="font-medium" x-text="club.creator ? club.creator.name : 'Sistem'"></span>
-                            </p>
+                            <div class="flex items-center text-sm text-slate-500 mb-4">
+                                <span>Creat de:</span>
+                                <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide ml-2" x-text="club.creator ? club.creator.name : 'Sistem'"></span>
+                            </div>
                         </div>
                     </template>
                 </div>
