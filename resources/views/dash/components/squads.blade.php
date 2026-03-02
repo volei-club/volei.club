@@ -60,6 +60,9 @@
                                     </template>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex justify-end gap-2">
+                                            <button @click="openPreview(squad)" class="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" title="Previzualizează echipa">
+                                                <span class="material-symbols-outlined text-[20px]">groups</span>
+                                            </button>
                                             <button @click="openModal(squad)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editează">
                                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                                             </button>
@@ -96,6 +99,10 @@
                             </div>
 
                             <div class="px-5 py-4 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2">
+                                <button @click="openPreview(squad)" class="flex-1 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">groups</span>
+                                    Echipă
+                                </button>
                                 <button @click="openModal(squad)" class="flex-1 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
                                     <span class="material-symbols-outlined text-[18px]">edit</span>
                                     Editează
@@ -104,7 +111,6 @@
                                     <span class="material-symbols-outlined text-[18px]">delete</span>
                                     Șterge
                                 </button>
-                            </div>
                         </div>
                     </template>
                 </div>
@@ -112,6 +118,46 @@
                 <div x-show="squads.length === 0 && !loading" class="text-center py-12">
                     <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">groups_2</span>
                     <p class="text-slate-500">Nu a fost găsită nicio echipă.</p>
+                </div>
+
+                <!-- Squad Preview Modal -->
+                <div x-show="showPreview" style="display:none" @keydown.escape.window="showPreview = false" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col max-h-[85vh]">
+                        <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="previewSquad?.name"></h3>
+                                <p class="text-sm text-slate-500" x-text="(previewSquad?.users?.length || 0) + ' membri'"></p>
+                            </div>
+                            <button @click="showPreview = false" class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="overflow-y-auto flex-1">
+                            <template x-if="previewSquad?.users?.length === 0">
+                                <div class="py-16 text-center">
+                                    <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3">group_off</span>
+                                    <p class="text-slate-500 text-sm">Niciun membru în această echipă.</p>
+                                </div>
+                            </template>
+                            <template x-for="member in previewSquad?.users" :key="member.id">
+                                <button @click="goToMember(member.id)" class="w-full flex items-center gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors border-b border-slate-100 dark:border-slate-700/50 last:border-0 text-left group">
+                                    <template x-if="member.photo">
+                                        <img :src="'/storage/' + member.photo" class="w-11 h-11 rounded-xl object-cover border-2 border-slate-100 dark:border-slate-700 shrink-0">
+                                    </template>
+                                    <template x-if="!member.photo">
+                                        <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
+                                            <span class="font-bold text-base" x-text="member.name.charAt(0)"></span>
+                                        </div>
+                                    </template>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-bold text-slate-900 dark:text-white truncate" x-text="member.name"></div>
+                                        <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400 mt-0.5" x-text="member.role"></div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-[20px] text-slate-300 group-hover:text-primary transition-colors shrink-0">arrow_forward</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Modal Echipe Formate -->

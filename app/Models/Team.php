@@ -29,8 +29,7 @@ class Team extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot('role'); // Optionally, team_user could store specific roles
+        return $this->belongsToMany(User::class);
     }
 
     public function squads()

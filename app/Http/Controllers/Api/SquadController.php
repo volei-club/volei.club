@@ -42,7 +42,7 @@ class SquadController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $query->latest()->get()
+            'data' => $query->with('users')->latest()->get()
         ]);
     }
 

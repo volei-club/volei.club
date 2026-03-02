@@ -4,6 +4,8 @@ Alpine.data('teamManager', () => ({
     loading: false,
     saving: false,
     showModal: false,
+    showPreview: false,
+    previewTeam: null,
     error: null,
     form: { id: null, name: '', club_id: '' },
     filters: { club_id: '' },
@@ -104,6 +106,17 @@ Alpine.data('teamManager', () => ({
         if (window.location.hash !== newHash) {
             history.replaceState(null, null, newHash || window.location.pathname);
         }
+    },
+
+    openPreview(team) {
+        this.previewTeam = team;
+        this.showPreview = true;
+    },
+
+    goToMember(memberId) {
+        this.showPreview = false;
+        window.history.pushState({}, '', '/dash/membri#action=edit&id=' + memberId);
+        window.dispatchEvent(new PopStateEvent('popstate'));
     },
 
     openModal(team = null) {
