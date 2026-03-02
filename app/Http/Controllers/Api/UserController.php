@@ -35,7 +35,13 @@ class UserController extends Controller
         }
 
         if ($request->filled('role')) {
-            $query->where('role', $request->role);
+            $roles = explode(',', $request->role);
+            if (count($roles) > 1) {
+                $query->whereIn('role', $roles);
+            }
+            else {
+                $query->where('role', $request->role);
+            }
         }
 
         if ($request->filled('team_id')) {
@@ -269,6 +275,20 @@ class UserController extends Controller
             if ($userToDelete->role === 'administrator' || $userToDelete->role === 'manager') {
                 return response()->json(['status' => 'error', 'message' => 'Nu aveți permisiunea de a șterge acest tip de cont.'], 403);
             }
+        }
+
+        if (\App\Models\Training::where('coach_id', $id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Acest utilizator este antrenor pentru unul sau mai multe antrenamente și nu poate fi șters.'
+            ], 422);
+        }
+
+        if ($userToDelete->subscriptions()->count() > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Acest utilizator are abonamente alocate. Anulați sau ștergeți abonamentele înainte de a șterge contul.'
+            ], 422);
         }
 
         $userToDelete->delete();

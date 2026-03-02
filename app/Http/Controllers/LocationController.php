@@ -15,7 +15,12 @@ class LocationController extends Controller
         if ($user->role === 'manager') {
             $query->where('club_id', $user->club_id);
         }
-        elseif ($user->role !== 'administrator') {
+        elseif ($user->role === 'administrator') {
+            if ($request->filled('club_id')) {
+                $query->where('club_id', $request->club_id);
+            }
+        }
+        else {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -64,6 +69,10 @@ class LocationController extends Controller
 
         if ($user->role === 'manager' && $location->club_id !== $user->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if (\App\Models\Training::where('location_id', $id)->exists()) {
+            return response()->json(['message' => 'Această locație este folosită de unul sau mai multe antrenamente și nu poate fi ștearsă.'], 422);
         }
 
         $location->delete();

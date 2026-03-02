@@ -145,6 +145,13 @@ class SquadController extends Controller
             }
         }
 
+        if ($squad->users()->count() > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Această echipă are jucători asociați. Pentru siguranță, eliminați membrii înainte de ștergere.'
+            ], 422);
+        }
+
         $squad->delete();
 
         return response()->json([

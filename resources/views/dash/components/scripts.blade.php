@@ -1764,6 +1764,10 @@
                             this.onClubChange();
                         }
                     }
+
+                    this.$watch('formData.club_id', () => {
+                        this.onClubChange();
+                    });
                 },
 
                 async fetchTrainings() {
@@ -1828,8 +1832,8 @@
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
                     }).then(r => r.json()).then(data => this.availableTeams = data.data || data);
 
-                    // Fetch Coaches for club
-                    fetch(`/api/users?club_id=${clubId}&role=antrenor`, {
+                    // Fetch Coaches for club (antrenori and managers)
+                    fetch(`/api/users?club_id=${clubId}&role=antrenor,manager`, {
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
                     }).then(r => r.json()).then(data => this.availableCoaches = data.data || data);
                 },

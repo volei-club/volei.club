@@ -125,6 +125,20 @@ class ClubController extends Controller
             ], 422);
         }
 
+        if (\App\Models\Location::where('club_id', $id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Acest club are locații asociate. Ștergeți locațiile mai întâi.'
+            ], 422);
+        }
+
+        if (\App\Models\Subscription::where('club_id', $id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Acest club are definiții de abonamente alocate. Ștergeți-le mai întâi.'
+            ], 422);
+        }
+
         $club->delete();
 
         return response()->json([

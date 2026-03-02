@@ -134,6 +134,20 @@ class TeamController extends Controller
             ], 422);
         }
 
+        if ($team->squads()->count() > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Această grupă are sub-echipe asociate. Ștergeți-le mai întâi.'
+            ], 422);
+        }
+
+        if (\App\Models\Training::where('team_id', $id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Această grupă are antrenamente programate. Ștergeți antrenamentele mai întâi.'
+            ], 422);
+        }
+
         $team->delete();
 
         return response()->json([
