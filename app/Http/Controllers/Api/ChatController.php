@@ -8,15 +8,32 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class ChatController extends Controller
 {
     public function index(Request $request)
     {
-        $conversations = $request->user()->conversations()
+        $user = $request->user();
+        $conversations = $user->conversations()
             ->with(['users', 'lastMessage.sender'])
-            ->get()
-            ->sortByDesc(function ($populated) {
+            ->get();
+
+        // Calculate unread status server-side for consistency
+        $conversations->each(function ($conv) use ($user) {
+            $myPivot = $conv->users->first(fn($u) => (string)$u->id === (string)$user->id)?->pivot;
+            $conv->is_unread = false;
+
+            if ($conv->lastMessage && (string)$conv->lastMessage->sender_id !== (string)$user->id) {
+                $lastRead = $myPivot?->last_read_at ? Carbon::parse($myPivot->last_read_at) : null;
+                // If never read or last message is newer than last read (with safe comparison)
+                if (!$lastRead || Carbon::parse($conv->lastMessage->created_at)->gt($lastRead)) {
+                    $conv->is_unread = true;
+                }
+            }
+        });
+
+        $conversations = $conversations->sortByDesc(function ($populated) {
             return $populated->lastMessage ? $populated->lastMessage->created_at : $populated->created_at;
         })
             ->values();
@@ -140,7 +157,7 @@ class ChatController extends Controller
             });
         }
         elseif ($role === 'sportiv') {
-            // Athlete sees: Coaches of their squads, Managers of their club
+            // Athlete sees: Coaches of their squads, Managers of their club, Teammates
             $squadIds = $user->squads->pluck('id');
 
             $query->where(function ($q) use ($clubId, $squadIds) {
@@ -148,19 +165,21 @@ class ChatController extends Controller
                         $sq->where('club_id', $clubId)->where('role', 'manager');
                     }
                     )
-                        ->orWhere(function ($sq) use ($squadIds) {
+                ->orWhere(function ($sq) use ($squadIds) {
                     $sq->where('role', 'antrenor')
                         ->where(function ($qq) use ($squadIds) {
                         $qq->whereHas('squads', fn($q) => $q->whereIn('squads.id', $squadIds))
                             ->orWhereHas('teams', function ($q) use ($squadIds) {
                             $teamIds = \App\Models\Squad::whereIn('id', $squadIds)->pluck('team_id');
                             $q->whereIn('teams.id', $teamIds);
-                        }
-                        );
-                    }
-                    );
-                }
-                );
+                        });
+                    });
+                })
+                ->orWhere(function ($sq) use ($squadIds) {
+                    // Teammates: other athletes in the same squads
+                    $sq->where('role', 'sportiv')
+                       ->whereHas('squads', fn($q) => $q->whereIn('squads.id', $squadIds));
+                });
             });
         }
         elseif ($role === 'parinte') {
@@ -206,16 +225,18 @@ class ChatController extends Controller
     {
         $user = $request->user();
 
-        $count = $user->conversations()
-            ->whereHas('lastMessage', function ($query) use ($user) {
-            $query->where('sender_id', '!=', $user->id)
-                ->where(function ($q) {
+        // Using a more explicit query to avoid relationship issues
+        $count = DB::table('conversations')
+            ->join('conversation_user', 'conversations.id', '=', 'conversation_user.conversation_id')
+            ->join('messages', 'conversations.id', '=', 'messages.conversation_id')
+            ->where('conversation_user.user_id', $user->id)
+            ->where('messages.sender_id', '!=', $user->id)
+            ->where(function ($q) {
                 $q->whereNull('conversation_user.last_read_at')
-                    ->orWhereColumn('messages.created_at', '>', 'conversation_user.last_read_at');
-            }
-            );
-        })
-            ->count();
+                  ->orWhereColumn('messages.created_at', '>', 'conversation_user.last_read_at');
+            })
+            ->distinct('conversations.id')
+            ->count('conversations.id');
 
         return response()->json([
             'status' => 'success',

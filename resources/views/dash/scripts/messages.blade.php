@@ -133,6 +133,7 @@ window.messagesManager = () => {
                 await axios.post(`/api/chat/conversations/${conversationId}/read`);
                 const conv = this.conversations.find(c => c.id === conversationId);
                 if (conv) {
+                    conv.is_unread = false;
                     const myId = this.user.id;
                     const pivot = conv.users.find(u => u.id === myId)?.pivot;
                     if (pivot) pivot.last_read_at = new Date().toISOString();
@@ -183,11 +184,21 @@ window.messagesManager = () => {
 
         hasUnreadMessages(conv) {
             if (!conv.last_message || !this.user) return false;
+            
+            // If I am currently looking at this conversation, it's NOT unread
+            if (this.activeConversationId === conv.id) return false;
+
+            // If server explicitly told us it's unread, believe it
+            if (conv.is_unread !== undefined) return conv.is_unread;
+
+            // Fallback to local calculation logic if flag is not present
+            if (conv.last_message.sender_id === this.user.id) return false;
+
             const myId = this.user.id;
             const myPivot = conv.users.find(u => u.id === myId)?.pivot;
             if (!myPivot || !myPivot.last_read_at) return true;
             
-            return new Date(conv.last_message.created_at) > new Date(myPivot.last_read_at);
+            return new Date(conv.last_message.created_at).getTime() > new Date(myPivot.last_read_at).getTime();
         },
 
         formatMessageTime(dateString) {
