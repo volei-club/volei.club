@@ -10,8 +10,7 @@
      x-transition:leave-end="opacity-0"
      style="display: none;">
     
-    <div @click.away="showModal = false" 
-         class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 scale-95 translate-y-4"
          x-transition:enter-end="opacity-100 scale-100 translate-y-0">
@@ -33,6 +32,25 @@
         </div>
 
         <form @submit.prevent="saveProfile" class="p-6 space-y-4">
+            <!-- Photo Upload -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative group">
+                    <template x-if="photoPreview || user?.photo">
+                        <img :src="photoPreview || '/storage/' + user.photo" class="w-24 h-24 rounded-3xl object-cover border-4 border-slate-50 dark:border-slate-900 shadow-xl">
+                    </template>
+                    <template x-if="!photoPreview && !user?.photo">
+                        <div class="w-24 h-24 rounded-3xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center border-4 border-slate-50 dark:border-slate-900 shadow-xl">
+                            <span class="material-symbols-outlined text-4xl text-slate-300">person</span>
+                        </div>
+                    </template>
+                    <label class="absolute -bottom-2 -right-2 w-10 h-10 bg-primary hover:bg-primary-dark text-white rounded-xl shadow-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110 active:scale-95">
+                        <span class="material-symbols-outlined text-[20px]">add_a_photo</span>
+                        <input type="file" @change="handlePhotoSelect" class="hidden" accept="image/*">
+                    </label>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-wider">Schimbă poza de profil</p>
+            </div>
+
             <!-- Name -->
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Nume Complet</label>

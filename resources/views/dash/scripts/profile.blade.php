@@ -1,6 +1,7 @@
 Alpine.data('profileManager', () => ({
     showModal: false,
     saving: false,
+    photoPreview: null,
     formData: {
         name: '',
         email: '',
@@ -10,6 +11,7 @@ Alpine.data('profileManager', () => ({
 
     openModal() {
         if (!this.user) return;
+        this.photoPreview = null;
         this.formData = {
             name: this.user.name,
             email: this.user.email,
@@ -19,28 +21,60 @@ Alpine.data('profileManager', () => ({
         this.showModal = true;
     },
 
+    handlePhotoSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            window.dispatchEvent(new CustomEvent('open-cropper', {
+                detail: {
+                    file: file,
+                    callback: (croppedFile, previewUrl) => {
+                        this.formData.photo = croppedFile;
+                        this.photoPreview = previewUrl;
+                    }
+                }
+            }));
+        }
+    },
+
     async saveProfile() {
         this.saving = true;
+        
+        const data = new FormData();
+        data.append('_method', 'PUT'); // Laravel spoofing for PUT with FormData
+        data.append('name', this.formData.name);
+        data.append('email', this.formData.email);
+        if (this.formData.password) {
+            data.append('password', this.formData.password);
+            data.append('password_confirmation', this.formData.password_confirmation);
+        }
+        if (this.formData.photo) {
+            // If it's a blob from the cropper, give it a filename
+            if (this.formData.photo instanceof Blob && !(this.formData.photo instanceof File)) {
+                data.append('photo', this.formData.photo, 'avatar.jpg');
+            } else {
+                data.append('photo', this.formData.photo);
+            }
+        }
+
         try {
             const response = await fetch('/api/user/profile', {
-                method: 'PUT',
+                method: 'POST', // Use POST with _method spoofing for files
                 headers: {
-                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                 },
-                body: JSON.stringify(this.formData)
+                body: data
             });
 
-            const data = await response.json();
+            const result = await response.json();
 
             if (response.ok) {
                 // Update global user object
-                this.user = data.data;
+                this.user = result.data;
                 window.showToast('Profil actualizat cu succes!');
                 this.showModal = false;
             } else {
-                window.showToast(data.message || 'Eroare la actualizarea profilului', 'error');
+                window.showToast(result.message || 'Eroare la actualizarea profilului', 'error');
             }
         } catch (e) {
             console.error(e);

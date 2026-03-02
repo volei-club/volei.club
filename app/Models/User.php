@@ -28,6 +28,7 @@ class User extends Authenticatable
         'role',
         'club_id',
         'is_active',
+        'photo',
         'two_factor_code',
         'two_factor_expires_at',
     ];

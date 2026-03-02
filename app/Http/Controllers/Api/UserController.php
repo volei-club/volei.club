@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -107,8 +108,13 @@ class UserController extends Controller
             'squad_ids' => 'nullable|array',
             'squad_ids.*' => 'exists:squads,id',
             'child_ids' => 'nullable|array',
-            'child_ids.*' => 'exists:users,id'
+            'child_ids.*' => 'exists:users,id',
+            'photo' => 'nullable|image|max:2048'
         ]);
+
+        if ($request->hasFile('photo')) {
+            $validated['photo'] = $this->handlePhotoUpload($request->file('photo'));
+        }
 
         // Reguli de business
         if ($creatorRole !== 'administrator') {
@@ -208,8 +214,16 @@ class UserController extends Controller
             'squad_ids' => 'nullable|array',
             'squad_ids.*' => 'exists:squads,id',
             'child_ids' => 'nullable|array',
-            'child_ids.*' => 'exists:users,id'
+            'child_ids.*' => 'exists:users,id',
+            'photo' => 'nullable|image|max:2048'
         ]);
+
+        if ($request->hasFile('photo')) {
+            if ($userToEdit->photo) {
+                Storage::disk('public')->delete($userToEdit->photo);
+            }
+            $validated['photo'] = $this->handlePhotoUpload($request->file('photo'));
+        }
 
         if ($creatorRole !== 'administrator') {
             if ($validated['role'] === 'administrator' || $validated['role'] === 'manager') {
@@ -351,12 +365,20 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
+            'photo' => 'nullable|image|max:2048'
         ]);
 
         $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
         ];
+
+        if ($request->hasFile('photo')) {
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $updateData['photo'] = $this->handlePhotoUpload($request->file('photo'));
+        }
 
         if (!empty($validated['password'])) {
             $updateData['password'] = Hash::make($validated['password']);
@@ -369,5 +391,11 @@ class UserController extends Controller
             'message' => 'Profil actualizat cu succes!',
             'data' => $user->load('club')
         ]);
+    }
+
+    protected function handlePhotoUpload($file)
+    {
+        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        return $file->storeAs('profiles', $filename, 'public');
     }
 }

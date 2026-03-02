@@ -13,6 +13,17 @@ Alpine.data('auditManager', () => ({
     },
     showDetailsModal: false,
     selectedLogData: null,
+    statusLabels: {
+        'active_paid': 'Plătit',
+        'active_pending': 'Așteaptă Plată',
+        'active_overdue': 'Restanță',
+        'expired': 'Expirat',
+        'inactive_expired': 'Expirat',
+        'cancelled': 'Anulat',
+        'scheduled': 'Programat',
+        'ACTIVE_PAID': 'Plătit',
+        'ACTIVE_PENDING': 'Așteaptă Plată'
+    },
 
     async init() {
         this.$watch('currentPage', (val) => {

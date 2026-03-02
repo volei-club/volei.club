@@ -15,6 +15,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -74,6 +78,7 @@
             @include('dash.components.antrenamente')
             @include('dash.components.system')
             @include('dash.components.profile')
+            @include('dash.components.cropper')
 
         </main>
 

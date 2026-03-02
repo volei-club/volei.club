@@ -123,8 +123,20 @@
                                 <template x-for="usr in users" :key="usr.id">
                                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                         <td class="px-6 py-4">
-                                            <div class="font-bold text-slate-900 dark:text-white" x-text="usr.name"></div>
-                                            <div class="text-slate-500 text-xs mb-1" x-text="usr.email"></div>
+                                            <div class="flex items-center gap-3">
+                                                <template x-if="usr.photo">
+                                                    <img :src="'/storage/' + usr.photo" class="w-10 h-10 rounded-xl object-cover border border-slate-100 dark:border-slate-700">
+                                                </template>
+                                                <template x-if="!usr.photo">
+                                                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 font-bold border border-slate-100 dark:border-slate-700">
+                                                        <span x-text="usr.name.charAt(0)"></span>
+                                                    </div>
+                                                </template>
+                                                <div>
+                                                    <div class="font-bold text-slate-900 dark:text-white" x-text="usr.name"></div>
+                                                    <div class="text-slate-500 text-xs mb-1" x-text="usr.email"></div>
+                                                </div>
+                                            </div>
                                             
                                             <!-- Relationships (Desktop) -->
                                             <div class="mt-2 space-y-1">
@@ -266,8 +278,20 @@
                                     </button>
                                 </div>
                                 
-                                <div class="font-bold text-lg text-slate-900 dark:text-white mb-1 pr-24" x-text="usr.name"></div>
-                                <div class="text-slate-500 text-sm mb-2" x-text="usr.email"></div>
+                                <div class="flex items-center gap-3 mb-3 pr-24">
+                                    <template x-if="usr.photo">
+                                        <img :src="'/storage/' + usr.photo" class="w-12 h-12 rounded-2xl object-cover border border-slate-100 dark:border-slate-700 shadow-sm">
+                                    </template>
+                                    <template x-if="!usr.photo">
+                                        <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 font-bold border border-slate-100 dark:border-slate-700 shadow-sm">
+                                            <span class="text-xl" x-text="usr.name.charAt(0)"></span>
+                                        </div>
+                                    </template>
+                                    <div>
+                                        <div class="font-bold text-lg text-slate-900 dark:text-white leading-tight" x-text="usr.name"></div>
+                                        <div class="text-slate-500 text-xs mt-0.5" x-text="usr.email"></div>
+                                    </div>
+                                </div>
                                 
                                 <!-- Relationships (Mobile) -->
                                 <div class="space-y-1.5 mb-4">
@@ -358,6 +382,25 @@
                         </div>
                         <form @submit.prevent="saveUser()" class="flex flex-col overflow-hidden">
                             <div class="p-6 overflow-y-auto">
+                            
+                            <!-- Photo Upload -->
+                            <div class="flex flex-col items-center mb-6">
+                                <div class="relative group">
+                                    <template x-if="photoPreview || form.photo_url">
+                                        <img :src="photoPreview || '/storage/' + form.photo_url" class="w-24 h-24 rounded-3xl object-cover border-4 border-slate-50 dark:border-slate-900 shadow-xl">
+                                    </template>
+                                    <template x-if="!photoPreview && !form.photo_url">
+                                        <div class="w-24 h-24 rounded-3xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center border-4 border-slate-50 dark:border-slate-900 shadow-xl">
+                                            <span class="material-symbols-outlined text-4xl text-slate-300">person</span>
+                                        </div>
+                                    </template>
+                                    <label class="absolute -bottom-2 -right-2 w-10 h-10 bg-primary hover:bg-primary-dark text-white rounded-xl shadow-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110 active:scale-95">
+                                        <span class="material-symbols-outlined text-[20px]">add_a_photo</span>
+                                        <input type="file" @change="handlePhotoSelect" class="hidden" accept="image/*">
+                                    </label>
+                                </div>
+                                <p class="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-wider">Poză Profil</p>
+                            </div>
                             
                             <div class="mb-4">
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nume Complet</label>

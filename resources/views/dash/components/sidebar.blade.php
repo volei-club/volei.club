@@ -1,6 +1,6 @@
     <!-- Sidebar Layout -->
     <aside :class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
-           class="w-64 bg-sidebar-light dark:bg-sidebar-dark border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 fixed md:relative z-40 inset-y-0 left-0 md:translate-x-0" 
+           class="w-64 bg-sidebar-light dark:bg-sidebar-dark border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 fixed md:sticky md:top-0 md:h-screen shrink-0 z-40 inset-y-0 left-0 md:translate-x-0" 
            x-show="!isLoading" style="display: none;">
         
         <!-- Logo Area -->
@@ -112,14 +112,20 @@
                 </div>
             </template>
             
+            <div class="flex-1"></div>
         </nav>
 
         <!-- User Profile Area (Bottom of Sidebar) -->
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-sidebar-light dark:bg-sidebar-dark">
             <div class="flex items-center w-full">
-                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold shrink-0">
-                    <span x-text="user?.name.charAt(0)"></span>
-                </div>
+                <template x-if="user?.photo">
+                    <img :src="'/storage/' + user.photo" class="w-10 h-10 rounded-full object-cover shrink-0">
+                </template>
+                <template x-if="!user?.photo">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold shrink-0">
+                        <span x-text="user?.name.charAt(0)"></span>
+                    </div>
+                </template>
                 <div class="ml-3 truncate flex-1">
                     <p class="text-sm font-semibold text-slate-900 dark:text-white truncate" x-text="user?.name"></p>
                     <p class="text-xs text-slate-500 capitalize truncate" x-text="user?.role"></p>
@@ -132,5 +138,4 @@
                 </button>
             </div>
         </div>
-
     </aside>

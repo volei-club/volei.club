@@ -11,7 +11,8 @@ Alpine.data('userManager', () => ({
     saving: false,
     showModal: false,
     error: null,
-    form: { id: null, name: '', email: '', phone: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [], child_ids: [] },
+    photoPreview: null,
+    form: { id: null, name: '', email: '', phone: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [], child_ids: [], photo: null, photo_url: null },
     availableStudents: [],
     loadingStudents: false,
     
@@ -204,6 +205,7 @@ Alpine.data('userManager', () => ({
 
     openModal(userToEdit = null) {
         this.error = null;
+        this.photoPreview = null;
         if(userToEdit) {
             this.form.id = userToEdit.id;
             this.form.name = userToEdit.name;
@@ -215,7 +217,9 @@ Alpine.data('userManager', () => ({
             this.form.team_ids = userToEdit.teams ? userToEdit.teams.map(t => t.id) : [];
             this.form.squad_ids = userToEdit.squads ? userToEdit.squads.map(s => s.id) : [];
             this.form.child_ids = userToEdit.children ? userToEdit.children.map(c => c.id) : [];
-            this.form.password = ''; // empty default, typed only to override
+            this.form.password = ''; 
+            this.form.photo = null;
+            this.form.photo_url = userToEdit.photo;
             this.updateHash('edit', userToEdit.id);
             
             // Incarcam datele dependente
@@ -237,12 +241,29 @@ Alpine.data('userManager', () => ({
             this.form.team_ids = [];
             this.form.squad_ids = [];
             this.form.child_ids = [];
+            this.form.photo = null;
+            this.form.photo_url = null;
             this.availableSquads = [];
             this.availableStudents = [];
             this.form.is_active = true;
             this.updateHash('add');
         }
         this.showModal = true;
+    },
+
+    handlePhotoSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            window.dispatchEvent(new CustomEvent('open-cropper', {
+                detail: {
+                    file: file,
+                    callback: (croppedFile, previewUrl) => {
+                        this.form.photo = croppedFile;
+                        this.photoPreview = previewUrl;
+                    }
+                }
+            }));
+        }
     },
 
     async fetchUsers() {
@@ -375,27 +396,36 @@ Alpine.data('userManager', () => ({
         const method = isEdit ? 'PUT' : 'POST';
         
         try {
-            const body = {
-                name: this.form.name,
-                email: this.form.email,
-                phone: this.form.phone,
-                role: this.form.role,
-                club_id: this.form.club_id || null,
-                is_active: this.form.is_active,
-                team_ids: this.form.team_ids,
-                squad_ids: this.form.squad_ids,
-                child_ids: this.form.child_ids
-            };
-            if (this.form.password) body.password = this.form.password;
+            const data = new FormData();
+            if (isEdit) data.append('_method', 'PUT');
+            
+            data.append('name', this.form.name);
+            data.append('email', this.form.email);
+            data.append('phone', this.form.phone || '');
+            data.append('role', this.form.role);
+            if (this.form.club_id) data.append('club_id', this.form.club_id);
+            data.append('is_active', this.form.is_active ? '1' : '0');
+            
+            this.form.team_ids.forEach(id => data.append('team_ids[]', id));
+            this.form.squad_ids.forEach(id => data.append('squad_ids[]', id));
+            this.form.child_ids.forEach(id => data.append('child_ids[]', id));
+            
+            if (this.form.password) data.append('password', this.form.password);
+            if (this.form.photo) {
+                if (this.form.photo instanceof Blob && !(this.form.photo instanceof File)) {
+                    data.append('photo', this.form.photo, 'avatar.jpg');
+                } else {
+                    data.append('photo', this.form.photo);
+                }
+            }
 
             const res = await fetch(url, {
-                method: method,
+                method: isEdit ? 'POST' : 'POST', // Use POST for both, with _method if PUT
                 headers: { 
                     'Accept': 'application/json', 
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
                 },
-                body: JSON.stringify(body)
+                body: data
             });
             
             const payload = await res.json();

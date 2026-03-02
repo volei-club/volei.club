@@ -1,6 +1,7 @@
 <script>
     document.addEventListener('alpine:init', () => {
         @include('dash.scripts.common')
+        @include('dash.scripts.cropper')
         @include('dash.scripts.dashboard')
         @include('dash.scripts.clubs')
         @include('dash.scripts.users')
