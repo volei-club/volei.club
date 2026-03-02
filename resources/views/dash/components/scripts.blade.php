@@ -230,16 +230,14 @@
 
                         // Break Alpine cache by forcefully mutating the native DOM element.
                         setTimeout(() => {
-                            const rSelect = document.getElementById('userFilterRole');
                             const cSelect = document.getElementById('userFilterClub');
                             const tSelect = document.getElementById('userFilterTeam');
                             const sSelect = document.getElementById('userFilterSquad');
-                            if (rSelect) rSelect.value = h.role;
                             if (cSelect) cSelect.value = h.club;
                             if (tSelect) tSelect.value = h.team;
                             if (sSelect) sSelect.value = h.squad;
-                            this.fetchUsers();
                         }, 50);
+                        this.fetchUsers();
                     };
 
                     this.$watch('currentPage', value => {

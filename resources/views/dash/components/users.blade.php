@@ -9,21 +9,70 @@
                 </div>
 
                 <!-- Filtre -->
-                <div class="mb-6 flex flex-col md:flex-row gap-4">
-                    <div class="w-full md:w-64">
-                        <select id="userFilterRole" x-model="filters.role" @change="fetchUsers(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
-                            <option value="">Toate Rolurile</option>
-                            <template x-if="user?.role === 'administrator'">
-                                <option value="administrator">Administrator</option>
-                            </template>
-                            <template x-if="user?.role === 'administrator'">
-                                <option value="manager">Manager de Club</option>
-                            </template>
-                            <option value="antrenor">Antrenor</option>
-                            <option value="parinte">Părinte</option>
-                            <option value="sportiv">Sportiv</option>
-                        </select>
+                <div class="mb-6 space-y-4">
+                    <!-- Visual Role Filter -->
+                    <div class="flex flex-wrap gap-2">
+                        <button 
+                            @click="filters.role = ''; fetchUsers(); updateHash()"
+                            :class="filters.role === '' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                            class="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">group</span>
+                            <span>Toți</span>
+                        </button>
+
+                        <template x-if="user?.role === 'administrator'">
+                            <button 
+                                @click="filters.role = 'administrator'; fetchUsers(); updateHash()"
+                                :class="filters.role === 'administrator' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                                class="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                            >
+                                <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                                <span>Admin</span>
+                            </button>
+                        </template>
+
+                        <template x-if="user?.role === 'administrator'">
+                            <button 
+                                @click="filters.role = 'manager'; fetchUsers(); updateHash()"
+                                :class="filters.role === 'manager' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                                class="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                            >
+                                <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+                                <span>Manager</span>
+                            </button>
+                        </template>
+
+                        <button 
+                            @click="filters.role = 'antrenor'; fetchUsers(); updateHash()"
+                            :class="filters.role === 'antrenor' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                            class="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">psychology_alt</span>
+                            <span>Antrenor</span>
+                        </button>
+
+                        <button 
+                            @click="filters.role = 'parinte'; fetchUsers(); updateHash()"
+                            :class="filters.role === 'parinte' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                            class="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">family_restroom</span>
+                            <span>Părinte</span>
+                        </button>
+
+                        <button 
+                            @click="filters.role = 'sportiv'; fetchUsers(); updateHash()"
+                            :class="filters.role === 'sportiv' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                            class="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">fitness_center</span>
+                            <span>Sportiv</span>
+                        </button>
                     </div>
+
+                    <!-- Dropdown Filters (Club, Team) -->
+                    <div class="flex flex-col md:flex-row gap-4">
 
                     <template x-if="user?.role === 'administrator'">
                         <div class="w-full md:w-64">
@@ -75,7 +124,29 @@
                                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                         <td class="px-6 py-4">
                                             <div class="font-bold text-slate-900 dark:text-white" x-text="usr.name"></div>
-                                            <div class="text-slate-500" x-text="usr.email"></div>
+                                            <div class="text-slate-500 text-xs mb-1" x-text="usr.email"></div>
+                                            
+                                            <!-- Relationships (Desktop) -->
+                                            <template x-if="usr.role === 'parinte' && usr.children?.length > 0">
+                                                <div class="flex flex-wrap gap-1 mt-1">
+                                                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Copii:</span>
+                                                    <template x-for="(child, index) in usr.children" :key="child.id">
+                                                        <span class="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-md font-medium">
+                                                            <span x-text="child.name"></span><span x-show="index < usr.children.length - 1">, </span>
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                            <template x-if="usr.role === 'sportiv' && usr.parents?.length > 0">
+                                                <div class="flex flex-wrap gap-1 mt-1">
+                                                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Părinți:</span>
+                                                    <template x-for="(p, index) in usr.parents" :key="p.id">
+                                                        <span class="text-[10px] px-1.5 py-0.5 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 rounded-md font-medium">
+                                                            <span x-text="p.name"></span><span x-show="index < usr.parents.length - 1">, </span>
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </template>
                                         </td>
                                         <td class="px-6 py-4">
                                             <span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-xs font-bold uppercase tracking-wide inline-block mb-1" x-text="usr.role"></span>
@@ -175,7 +246,25 @@
                                 </div>
                                 
                                 <div class="font-bold text-lg text-slate-900 dark:text-white mb-1 pr-24" x-text="usr.name"></div>
-                                <div class="text-slate-500 text-sm mb-4" x-text="usr.email"></div>
+                                <div class="text-slate-500 text-sm mb-2" x-text="usr.email"></div>
+                                
+                                <!-- Relationships (Mobile) -->
+                                <template x-if="usr.role === 'parinte' && usr.children?.length > 0">
+                                    <div class="flex flex-wrap gap-1 mb-3">
+                                        <span class="text-[10px] text-slate-400 font-semibold uppercase">Copii:</span>
+                                        <template x-for="child in usr.children" :key="child.id">
+                                            <span class="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-md font-medium" x-text="child.name"></span>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="usr.role === 'sportiv' && usr.parents?.length > 0">
+                                    <div class="flex flex-wrap gap-1 mb-3">
+                                        <span class="text-[10px] text-slate-400 font-semibold uppercase">Părinți:</span>
+                                        <template x-for="p in usr.parents" :key="p.id">
+                                            <span class="text-[10px] px-1.5 py-0.5 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 rounded-md font-medium" x-text="p.name"></span>
+                                        </template>
+                                    </div>
+                                </template>
                                 
                                 <div class="flex flex-wrap gap-2 mb-4">
                                     <span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-xs font-bold uppercase tracking-wide" x-text="usr.role"></span>
@@ -581,3 +670,4 @@
                 </div>
 
             </div>
+        </div>
