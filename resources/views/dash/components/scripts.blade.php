@@ -11,5 +11,6 @@
         @include('dash.scripts.locations')
         @include('dash.scripts.trainings')
         @include('dash.scripts.system')
+        @include('dash.scripts.profile')
     });
 </script>

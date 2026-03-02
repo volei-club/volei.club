@@ -339,4 +339,35 @@ class UserController extends Controller
             'message' => 'Utilizatorul a fost șters.'
         ]);
     }
+
+    /**
+     * Update the authenticated user's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        $updateData = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ];
+
+        if (!empty($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($updateData);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profil actualizat cu succes!',
+            'data' => $user->load('club')
+        ]);
+    }
 }

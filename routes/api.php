@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json($request->user()->load('club'));
         }
         );
+        Route::put('/user/profile', [\App\Http\Controllers\Api\UserController::class , 'updateProfile']);
 
         Route::post('/logout', [ApiAuthController::class , 'logout']);
 

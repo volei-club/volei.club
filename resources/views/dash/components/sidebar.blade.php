@@ -124,6 +124,9 @@
                     <p class="text-sm font-semibold text-slate-900 dark:text-white truncate" x-text="user?.name"></p>
                     <p class="text-xs text-slate-500 capitalize truncate" x-text="user?.role"></p>
                 </div>
+                <button @click="$dispatch('open-profile-modal')" class="ml-2 text-slate-400 hover:text-primary transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-lg" title="Setări Profil">
+                    <span class="material-symbols-outlined text-[20px]">person_edit</span>
+                </button>
                 <button @click="logout()" class="ml-2 text-slate-400 hover:text-red-500 transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-lg" title="Deconectare">
                     <span class="material-symbols-outlined text-[20px]">logout</span>
                 </button>
