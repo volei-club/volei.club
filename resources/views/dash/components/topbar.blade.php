@@ -1,5 +1,5 @@
         <!-- Topbar -->
-        <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 md:px-6 justify-between shrink-0">
+        <header class="fixed top-0 left-0 right-0 md:sticky md:relative md:left-auto md:right-auto z-40 h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 md:px-6 justify-between shrink-0">
             <div class="flex items-center">
                 <button @click="isMobileMenuOpen = true" class="md:hidden mr-4 text-slate-500 hover:text-slate-900 dark:hover:text-white focus:outline-none">
                     <span class="material-symbols-outlined text-2xl">menu</span>

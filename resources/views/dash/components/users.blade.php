@@ -359,42 +359,41 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Action Grid -->
-                                <div class="grid grid-cols-3 gap-2 mt-auto">
+                                <!-- Action Buttons -->
+                                <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50 space-y-2">
+                                    <!-- Sportiv-only actions -->
                                     <template x-if="usr.role === 'sportiv'">
-                                        <button @click="openSubscriptionModal(usr)" class="aspect-square flex flex-col items-center justify-center bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-2xl border border-orange-100/50 dark:border-orange-800/50 hover:bg-orange-100 transition-all group/btn">
-                                            <span class="material-symbols-outlined text-[20px] mb-1 group-hover/btn:scale-110 transition-transform">loyalty</span>
-                                            <span class="text-[9px] font-bold uppercase tracking-tighter">Abonament</span>
-                                        </button>
+                                        <div class="flex gap-2">
+                                            <button @click="openSubscriptionModal(usr)" class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-xl font-bold text-sm transition-colors hover:bg-orange-100 dark:hover:bg-orange-900/40 border border-orange-100/50 dark:border-orange-800/50">
+                                                <span class="material-symbols-outlined text-[18px]">loyalty</span>
+                                                Abonament
+                                            </button>
+                                            <button @click="openSubscriptionHistory(usr)" class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl font-bold text-sm transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-100/50 dark:border-blue-800/50">
+                                                <span class="material-symbols-outlined text-[18px]">history</span>
+                                                Istoric
+                                            </button>
+                                        </div>
                                     </template>
-                                    <template x-if="usr.role === 'sportiv'">
-                                        <button @click="openSubscriptionHistory(usr)" class="aspect-square flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-2xl border border-blue-100/50 dark:border-blue-800/50 hover:bg-blue-100 transition-all group/btn">
-                                            <span class="material-symbols-outlined text-[20px] mb-1 group-hover/btn:scale-110 transition-transform">history</span>
-                                            <span class="text-[9px] font-bold uppercase tracking-tighter">Istoric</span>
-                                        </button>
-                                    </template>
-                                    <button @click="openModal(usr)" 
-                                            :class="usr.role !== 'sportiv' ? 'col-span-1' : ''"
-                                            class="aspect-square flex flex-col items-center justify-center bg-primary/10 text-primary rounded-2xl border border-primary/20 hover:bg-primary/20 transition-all group/btn">
-                                        <span class="material-symbols-outlined text-[20px] mb-1 group-hover/btn:scale-110 transition-transform">edit</span>
-                                        <span class="text-[9px] font-bold uppercase tracking-tighter">Editează</span>
-                                    </button>
-                                    
-                                    <!-- Second row for admins/special actions -->
+
+                                    <!-- Admin impersonate -->
                                     <template x-if="user?.role === 'administrator' && usr.id !== user?.id">
-                                        <button @click="impersonateUser(usr)" class="col-span-2 h-10 flex items-center justify-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-2xl border border-indigo-100/50 dark:border-indigo-800/50 hover:bg-indigo-100 transition-all font-bold text-[10px] uppercase tracking-wider">
+                                        <button @click="impersonateUser(usr)" class="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl font-bold text-sm transition-colors hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border border-indigo-100/50 dark:border-indigo-800/50">
                                             <span class="material-symbols-outlined text-[18px]">login</span>
                                             Impersonare
                                         </button>
                                     </template>
-                                    <button @click="deleteUser(usr.id)" 
-                                            :class="user?.role === 'administrator' && usr.id !== user?.id ? 'col-span-1' : 'col-span-2 h-10'"
-                                            class="flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl border border-red-100/50 dark:border-red-800/50 hover:bg-red-100 transition-all h-10">
-                                        <span class="material-symbols-outlined text-[20px]">delete</span>
-                                        <template x-if="!(user?.role === 'administrator' && usr.id !== user?.id)">
-                                            <span class="text-[10px] font-bold uppercase tracking-wider ml-2">Șterge Membru</span>
-                                        </template>
-                                    </button>
+
+                                    <!-- Edit + Delete row -->
+                                    <div class="flex gap-2">
+                                        <button @click="openModal(usr)" class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-sm transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                                            Editează
+                                        </button>
+                                        <button @click="deleteUser(usr.id)" class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl font-bold text-sm transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                            Șterge
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </template>
