@@ -70,6 +70,13 @@ class User extends Authenticatable
         return $this->belongsToMany(Squad::class);
     }
 
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class)
+            ->withPivot('last_read_at')
+            ->withTimestamps();
+    }
+
     /**
      * Get all subscriptions associated with this user.
      */

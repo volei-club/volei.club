@@ -17,9 +17,20 @@
             <!-- Home -->
             <a href="/dash" @click.prevent="navigate('/dash'); isMobileMenuOpen = false;" 
                :class="currentPage === '/dash' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
-               class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-4">
+               class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                 <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '/dash' ? 'fill-1' : ''">dashboard</span>
                 Acasă
+            </a>
+
+            <!-- Mesaje -->
+            <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje'); isMobileMenuOpen = false;" 
+               :class="currentPage.startsWith('/dash/mesaje') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+               class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-4">
+                <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
+                <span class="flex-1">Mesaje</span>
+                <template x-if="unreadMessagesCount > 0">
+                    <span class="ml-2 px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full" x-text="unreadMessagesCount"></span>
+                </template>
             </a>
 
             <!-- Admin Section -->

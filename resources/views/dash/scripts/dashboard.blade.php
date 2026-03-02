@@ -5,6 +5,7 @@ Alpine.data('dashboard', () => ({
     isMobileMenuOpen: false,
     isImpersonating: false,
     currentPage: window.location.pathname, // Route Tracker Simplu
+    unreadMessagesCount: 0,
 
         getPageTitle() {
             if(this.currentPage === '/dash') return 'Acasă';
@@ -17,7 +18,7 @@ Alpine.data('dashboard', () => ({
 
     navigate(path) {
         if (this.user) {
-            if (!['administrator', 'manager'].includes(this.user.role) && path !== '/dash') {
+            if (!['administrator', 'manager'].includes(this.user.role) && path !== '/dash' && !path.startsWith('/dash/mesaje')) {
                 path = '/dash';
             }
             if (this.user.role === 'manager' && path.startsWith('/dash/cluburi')) {
@@ -39,6 +40,11 @@ Alpine.data('dashboard', () => ({
         window.addEventListener('popstate', () => {
             this.currentPage = window.location.pathname;
         });
+
+        // Listen for unread count refresh events
+        window.addEventListener('refresh-unread-count', () => {
+            this.fetchUnreadCount();
+        });
         
         // Suport fallback SPA imediat după încărcarea paginii dacă URL-ul este pe vreo subrută
         const currentPath = window.location.pathname;
@@ -52,6 +58,12 @@ Alpine.data('dashboard', () => ({
         if (!this.token) {
             window.location.href = '/dash/login';
             return;
+        }
+
+        // Configure global Axios headers
+        if (window.axios) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+            axios.defaults.headers.common['Accept'] = 'application/json';
         }
 
         try {
@@ -68,11 +80,15 @@ Alpine.data('dashboard', () => ({
                 this.isLoading = false;
                 
                 // Security check fallback for deep links
-                if (!['administrator', 'manager'].includes(this.user.role) && this.currentPage !== '/dash') {
+                if (!['administrator', 'manager'].includes(this.user.role) && this.currentPage !== '/dash' && !this.currentPage.startsWith('/dash/mesaje')) {
                     this.navigate('/dash');
                 } else if (this.user.role === 'manager' && this.currentPage.startsWith('/dash/cluburi')) {
                     this.navigate('/dash');
                 }
+
+                this.fetchUnreadCount();
+                // Poll for unread count every 30 seconds
+                setInterval(() => this.fetchUnreadCount(), 30000);
             } else {
                 this.logout(false);
             }
@@ -112,6 +128,18 @@ Alpine.data('dashboard', () => ({
             setTimeout(() => window.location.reload(), 1500);
         } catch (e) {
             window.showToast('Eroare la delogare din impersonare.', 'error');
+        }
+    },
+
+    async fetchUnreadCount() {
+        if (!this.token) return;
+        try {
+            const response = await axios.get('/api/chat/unread-count');
+            if (response.data.status === 'success') {
+                this.unreadMessagesCount = response.data.count;
+            }
+        } catch (error) {
+            console.error('Error fetching unread count:', error);
         }
     }
 }));

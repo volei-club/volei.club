@@ -42,4 +42,12 @@ Route::middleware('auth:sanctum')->group(function () {
         // System Import/Export (Admin Only)
         Route::get('/export/{type}', [\App\Http\Controllers\Api\ExportImportController::class , 'export']);
         Route::post('/import', [\App\Http\Controllers\Api\ExportImportController::class , 'import']);
+
+        // Internal Messaging System
+        Route::get('/chat/conversations', [\App\Http\Controllers\Api\ChatController::class , 'index']);
+        Route::get('/chat/conversations/{conversation}', [\App\Http\Controllers\Api\ChatController::class , 'show']);
+        Route::post('/chat/messages', [\App\Http\Controllers\Api\ChatController::class , 'store']);
+        Route::get('/chat/contacts', [\App\Http\Controllers\Api\ChatController::class , 'getContacts']);
+        Route::get('/chat/unread-count', [\App\Http\Controllers\Api\ChatController::class , 'unreadCount']);
+        Route::post('/chat/conversations/{conversation}/read', [\App\Http\Controllers\Api\ChatController::class , 'markAsRead']);
     });
