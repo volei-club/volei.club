@@ -1,8 +1,11 @@
             <!-- TEAMS (GRUPE) VIEW -->
-            <div x-show="currentPage.startsWith('/dash/grupe')" x-data="teamManager()" class="h-full flex flex-col">
+            <div x-show="currentPage.startsWith('/dash/grupe')" x-data="teamManager()" class="h-full flex flex-col relative">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Grupe</h3>
-                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none flex items-center justify-center sm:justify-start gap-2">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Grupe</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Gestionează grupele de antrenament ale clubului</p>
+                    </div>
+                    <button @click="openModal()" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none">
                         <span class="material-symbols-outlined text-[20px]">group_add</span>
                         <span>Adaugă Grupă</span>
                     </button>
@@ -21,9 +24,11 @@
                     </div>
                 </template>
 
-                <div x-show="loading" class="text-center py-12">
+
+                <!-- Loading Overlay -->
+                <div x-show="loading" style="display:none" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl">
                     <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
-                    <p class="text-slate-500">Se încarcă grupele...</p>
+                    <p class="text-slate-500 font-medium">Se încarcă grupele...</p>
                 </div>
 
                 <!-- Desktop Table -->
@@ -76,9 +81,15 @@
                                     <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="availableClubs.find(c => c.id === team.club_id)?.name || 'Necunoscut'"></span>
                                 </div>
                             </template>
-                            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
-                                <button @click="openModal(team)" class="text-sm font-semibold text-primary hover:text-primary-dark px-3 py-1.5 bg-primary/10 rounded-lg">Editează</button>
-                                <button @click="deleteTeam(team.id)" class="text-sm font-semibold text-red-500 hover:text-red-700 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 rounded-lg">Șterge</button>
+                            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex gap-2">
+                                <button @click="openModal(team)" class="flex-1 flex items-center justify-center gap-2 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-sm transition-colors">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    Editează
+                                </button>
+                                <button @click="deleteTeam(team.id)" class="flex-1 flex items-center justify-center gap-2 py-2 bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl font-bold text-sm transition-colors">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    Șterge
+                                </button>
                             </div>
                         </div>
                     </template>

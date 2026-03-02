@@ -1,10 +1,13 @@
             <!-- SQUADS (ECHIPE) VIEW -->
-            <div x-show="currentPage.startsWith('/dash/echipe')" x-data="squadManager()" class="h-full flex flex-col">
+            <div x-show="currentPage.startsWith('/dash/echipe')" x-data="squadManager()" class="h-full flex flex-col relative">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Echipe Formate</h3>
-                    <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center sm:justify-start">
-                        <span class="material-symbols-outlined mr-2">groups_2</span>
-                        Adaugă Echipă
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Echipe Formate</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Echipele de competiție ale clubului</p>
+                    </div>
+                    <button @click="openModal()" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none">
+                        <span class="material-symbols-outlined text-[20px]">groups_2</span>
+                        <span>Adaugă Echipă</span>
                     </button>
                 </div>
 
@@ -21,9 +24,11 @@
                     </div>
                 </template>
 
-                <div x-show="loading" class="text-center py-12">
+
+                <!-- Loading Overlay -->
+                <div x-show="loading" style="display:none" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl">
                     <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
-                    <p class="text-slate-500">Se încarcă echipele...</p>
+                    <p class="text-slate-500 font-medium">Se încarcă echipele...</p>
                 </div>
 
                 <!-- Desktop Table -->
@@ -54,12 +59,14 @@
                                         </td>
                                     </template>
                                     <td class="px-6 py-4 text-right">
-                                        <button @click="openModal(squad)" class="text-slate-400 hover:text-primary transition-colors p-2" title="Editează">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                        <button @click="deleteSquad(squad.id)" class="text-slate-400 hover:text-red-500 transition-colors p-2 ml-1" title="Șterge">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
+                                        <div class="flex justify-end gap-2">
+                                            <button @click="openModal(squad)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editează">
+                                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                                            </button>
+                                            <button @click="deleteSquad(squad.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge">
+                                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             </template>

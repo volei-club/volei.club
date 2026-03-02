@@ -1,13 +1,22 @@
             <!-- ABONAMENTE VIEW -->
-            <div x-show="currentPage.startsWith('/dash/abonamente')" x-data="subscriptionManager()" class="h-full flex flex-col">
+            <div x-show="currentPage.startsWith('/dash/abonamente')" x-data="subscriptionManager()" class="h-full flex flex-col relative">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Tipuri Abonamente</h3>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Tipuri Abonamente</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Planuri de abonament disponibile pentru sportivi</p>
+                    </div>
                     <template x-if="user?.role === 'manager' || user?.role === 'administrator'">
-                        <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none flex items-center justify-center sm:justify-start gap-2">
+                        <button @click="openModal()" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none">
                             <span class="material-symbols-outlined text-[20px]">add_card</span>
                             <span>Adaugă Abonament</span>
                         </button>
                     </template>
+                </div>
+
+                <!-- Loading Overlay -->
+                <div x-show="loading" style="display:none" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl">
+                    <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
+                    <p class="text-slate-500 font-medium">Se încarcă abonamentele...</p>
                 </div>
 
                 <template x-if="user?.role === 'administrator'">
@@ -23,53 +32,101 @@
                     </div>
                 </template>
 
-                <!-- Cards Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <template x-for="sub in subscriptions" :key="sub.id">
-                        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all relative group flex flex-col">
-                            
-                            <div class="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center mb-4 shrink-0">
-                                <span class="material-symbols-outlined text-2xl">loyalty</span>
-                            </div>
+                <!-- Desktop Table -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden flex-1 flex flex-col">
+                    <div class="hidden md:block overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 uppercase text-xs tracking-wider">
+                                    <th class="px-6 py-4 font-bold">Nume Abonament</th>
+                                    <th class="px-6 py-4 font-bold">Preț</th>
+                                    <th class="px-6 py-4 font-bold">Perioadă</th>
+                                    <th x-show="user?.role === 'administrator'" class="px-6 py-4 font-bold">Club</th>
+                                    <th class="px-6 py-4 font-bold text-right">Acțiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
+                                <template x-for="sub in subscriptions" :key="sub.id">
+                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center shrink-0">
+                                                    <span class="material-symbols-outlined text-[20px]">loyalty</span>
+                                                </div>
+                                                <span class="font-bold text-slate-900 dark:text-white" x-text="sub.name"></span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="font-extrabold text-primary text-lg" x-text="sub.price"></span>
+                                            <span class="text-slate-500 text-sm ml-1">lei</span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="sub.period.replace(/_/g, ' ')"></span>
+                                        </td>
+                                        <td x-show="user?.role === 'administrator'" class="px-6 py-4">
+                                            <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="sub.club?.name || 'N/A'"></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button @click="openModal(sub)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editează">
+                                                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                                                </button>
+                                                <button @click="deleteSubscription(sub.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge">
+                                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
 
-                            <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2" x-text="sub.name"></h4>
-                            
-                            <div class="flex items-baseline mb-6">
-                                <span class="text-3xl font-extrabold text-primary" x-text="sub.price"></span>
-                                <span class="text-sm font-bold text-slate-500 ml-1">lei / 
-                                    <span x-text="sub.period.replace('_', ' ')"></span>
-                                </span>
-                            </div>
-
-                            <div class="mt-auto">
-                                <div class="pt-4 pb-4 border-t border-slate-100 dark:border-slate-700 text-[11px] font-bold text-slate-500 uppercase flex items-center">
-                                    <span class="material-symbols-outlined text-[18px] mr-1.5 opacity-70">domain</span>
-                                    <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="sub.club ? sub.club.name : '-'"></span>
+                    <!-- Mobile Cards -->
+                    <div class="md:hidden flex-1 overflow-y-auto p-4 space-y-4">
+                        <template x-for="sub in subscriptions" :key="sub.id">
+                            <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 shadow-sm space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-[22px]">loyalty</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 dark:text-white" x-text="sub.name"></h4>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="font-extrabold text-primary text-lg" x-text="sub.price"></span>
+                                            <span class="text-slate-500 text-xs">lei / <span x-text="sub.period.replace(/_/g, ' ')"></span></span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
-                                    <button @click="openModal(sub)" class="flex-1 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 border border-primary/20">
+
+                                <template x-if="user?.role === 'administrator'">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-[18px] text-slate-400">domain</span>
+                                        <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="sub.club?.name || 'N/A'"></span>
+                                    </div>
+                                </template>
+
+                                <div class="pt-3 border-t border-slate-50 dark:border-slate-800 flex gap-2">
+                                    <button @click="openModal(sub)" class="flex-1 flex items-center justify-center gap-2 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-sm transition-colors">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
                                         Editează
                                     </button>
-                                    <button @click="deleteSubscription(sub.id)" class="px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 rounded-xl font-bold transition-colors flex items-center justify-center border border-red-100/50 dark:border-red-800/50" title="Șterge">
+                                    <button @click="deleteSubscription(sub.id)" class="flex-1 flex items-center justify-center gap-2 py-2 bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl font-bold text-sm transition-colors">
                                         <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        Șterge
                                     </button>
                                 </div>
                             </div>
+                        </template>
+                    </div>
 
+                    <template x-if="subscriptions.length === 0 && !loading">
+                        <div class="py-20 text-center border-t border-slate-100 dark:border-slate-700 border-dashed">
+                            <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700 mb-4">payments</span>
+                            <p class="text-slate-500">Acest club nu are definit niciun plan de abonament.</p>
                         </div>
                     </template>
                 </div>
-
-                <template x-if="subscriptions.length === 0 && !loading">
-                    <div class="col-span-full w-full py-20 text-center bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 border-dashed">
-                        <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-700/50 mx-auto flex items-center justify-center mb-4">
-                            <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700">payments</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Niciun abonament</h4>
-                        <p class="text-slate-500 mb-6 max-w-sm mx-auto">Acest club nu are definit niciun plan de abonament pentru sportivi.</p>
-                    </div>
-                </template>
 
                 <!-- Modal Abonament -->
                 <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">

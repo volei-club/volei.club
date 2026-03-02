@@ -1,4 +1,4 @@
-<div x-show="currentPage === '/dash/locatii'" x-data="locationManager()" class="h-full flex flex-col">
+<div x-show="currentPage === '/dash/locatii'" x-data="locationManager()" class="h-full flex flex-col relative">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>
             <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Locații</h3>
@@ -8,6 +8,12 @@
             <span class="material-symbols-outlined text-[20px]">add_location</span>
             <span>Adaugă Locație</span>
         </button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div x-show="loading" style="display:none" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl">
+        <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
+        <p class="text-slate-500 font-medium">Se încarcă locațiile...</p>
     </div>
 
     <!-- Lista Locatii -->

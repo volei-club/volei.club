@@ -1,11 +1,20 @@
             <!-- USERS VIEW -->
-            <div x-show="currentPage.startsWith('/dash/membri')" x-data="userManager()" class="h-full flex flex-col">
+            <div x-show="currentPage.startsWith('/dash/membri')" x-data="userManager()" class="h-full flex flex-col relative">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Membri</h3>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Membri</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Gestionează membrii clubului și rolurile lor</p>
+                    </div>
                     <button @click="openModal()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none flex items-center justify-center sm:justify-start gap-2">
                         <span class="material-symbols-outlined text-[20px]">person_add</span>
                         <span>Adaugă Membru</span>
                     </button>
+                </div>
+
+                <!-- Loading Overlay -->
+                <div x-show="loading" style="display:none" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl">
+                    <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
+                    <p class="text-slate-500 font-medium">Se încarcă membrii...</p>
                 </div>
 
                 <!-- Filtre -->
