@@ -1,3 +1,8 @@
+// Initialize global auth store early
+if (!Alpine.store('auth')) {
+    Alpine.store('auth', { user: null });
+}
+
 Alpine.data('dashboard', () => ({
     user: null,
     isLoading: true,
@@ -88,6 +93,13 @@ Alpine.data('dashboard', () => ({
             
             if (response.ok) {
                 this.user = await response.json();
+                
+                // Publish to global store for access from other stores (like gameModal)
+                if (!Alpine.store('auth')) {
+                    Alpine.store('auth', { user: null });
+                }
+                Alpine.store('auth').user = this.user;
+
                 this.isLoading = false;
                 
                 // Security check fallback for deep links

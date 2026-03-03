@@ -152,7 +152,8 @@ Alpine.data('calendarManager', () => ({
     },
 
     canMarkAttendance() {
-        return ['antrenor', 'manager', 'administrator'].includes(this.user?.role);
+        const user = Alpine.store('auth')?.user;
+        return ['antrenor', 'manager', 'administrator'].includes(user?.role);
     },
 
     // --- Attendance Modal ---

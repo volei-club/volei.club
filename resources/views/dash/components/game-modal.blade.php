@@ -5,7 +5,7 @@
         
         {{-- Header --}}
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
-            <h2 class="text-lg font-bold text-slate-800 dark:text-white" x-text="!$store.gameModal.canModifyMatches() ? 'Deltalii Meci' : ($store.gameModal.editingId ? 'Editează Meci' : 'Adaugă Meci Nou')"></h2>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-white" x-text="!$store.gameModal.canModifyMatches() ? 'Detalii Meci' : ($store.gameModal.editingId ? 'Editează Meci' : 'Adaugă Meci Nou')"></h2>
             <button @click="$store.gameModal.show = false" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>

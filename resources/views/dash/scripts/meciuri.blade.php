@@ -66,7 +66,8 @@ Alpine.data('gameManager', () => ({
     },
 
     canModifyMatches() {
-        return ['administrator', 'manager', 'antrenor'].includes(this.user?.role);
+        const user = Alpine.store('auth')?.user;
+        return ['administrator', 'manager', 'antrenor'].includes(user?.role);
     },
 
     openGameModal(game = null) {
