@@ -28,7 +28,10 @@ Alpine.data('dashboard', () => ({
         const calendarRoles = ['antrenor', 'sportiv', 'parinte'];
         if (this.user) {
             const calendarRoles = ['antrenor', 'sportiv', 'parinte'];
-            const isCalendarOrPerf = path.startsWith('/dash/calendar') || path.startsWith('/dash/performanta') || path.startsWith('/dash/meciuri');
+            const isCalendarOrPerf = path.startsWith('/dash/calendar') || 
+                                    path.startsWith('/dash/performanta') || 
+                                    path.startsWith('/dash/meciuri') || 
+                                    path.startsWith('/dash/abonamente');
             
             if (!['administrator', 'manager'].includes(this.user.role)
                 && path !== '/dash'
@@ -107,7 +110,12 @@ Alpine.data('dashboard', () => ({
                 if (!['administrator', 'manager'].includes(this.user.role)
                     && this.currentPage !== '/dash'
                     && !this.currentPage.startsWith('/dash/mesaje')
-                    && !(calendarRoles.includes(this.user.role) && (this.currentPage.startsWith('/dash/calendar') || this.currentPage.startsWith('/dash/performanta')))
+                    && !(calendarRoles.includes(this.user.role) && (
+                        this.currentPage.startsWith('/dash/calendar') || 
+                        this.currentPage.startsWith('/dash/performanta') ||
+                        this.currentPage.startsWith('/dash/meciuri') ||
+                        this.currentPage.startsWith('/dash/abonamente')
+                    ))
                 ) {
                     this.navigate('/dash/calendar');
                 } else if (this.user.role === 'manager' && this.currentPage.startsWith('/dash/cluburi')) {

@@ -10,6 +10,8 @@ use App\Models\Training;
 use App\Models\UserSubscription;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\PerformanceLog;
+use App\Models\Game;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -53,7 +55,7 @@ class DashboardController extends Controller
         $userId  = $request->user()->id;
         $isAdmin = $role === 'administrator';
 
-        // ── KPI counts ────────────────────────────────────────────────
+        // KPI counts
         $clubsCount = $isAdmin ? Club::count() : 1;
 
         $sportiviCount = User::where('role', 'sportiv')
@@ -72,7 +74,7 @@ class DashboardController extends Controller
             ->when(!$isAdmin, fn($q) => $q->whereHas('user', fn($uq) => $uq->where('club_id', $clubId)))
             ->count();
 
-        // ── Monthly trends (last 6 months) ────────────────────────────
+        // Monthly trends (last 6 months)
         $clubsTrend = $this->monthlyTrendEloquent(Club::class, 'created_at');
 
         $sportiviTrend = $this->monthlyTrendEloquent(User::class, 'created_at', function($q) use ($isAdmin, $clubId) {
@@ -92,7 +94,7 @@ class DashboardController extends Controller
             if (!$isAdmin) $q->whereHas('team', fn($tq) => $tq->where('club_id', $clubId));
         });
 
-        // ── Recent subscriptions (last 5) ────────────────────────────
+        // Recent subscriptions (last 5)
         $recentSubscriptions = UserSubscription::with(['user:id,name,photo', 'subscription:id,name,price'])
             ->when(!$isAdmin, fn($q) => $q->whereHas('user', fn($uq) => $uq->where('club_id', $clubId)))
             ->latest()
@@ -108,7 +110,7 @@ class DashboardController extends Controller
                 'created_at' => $s->created_at?->format('d M Y'),
             ]);
 
-        // ── Recent conversations ──────────────────────────────────────
+        // Recent conversations
         $recentConversations = Conversation::whereHas('users', fn($q) => $q->where('users.id', $userId))
             ->with([
                 'lastMessage.sender:id,name,photo',
@@ -139,7 +141,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // ── Recent clubs / members ──────────────────────────────────
+        // Recent clubs / members
         $recentClubs = $isAdmin
             ? Club::latest()->limit(5)->get(['id', 'name', 'created_at'])->map(fn($c) => [
                 'id'         => $c->id,
@@ -160,28 +162,134 @@ class DashboardController extends Controller
                 ])
             : collect([]);
 
+        $data = [
+            'kpi' => [
+                'clubs'        => $clubsCount,
+                'sportivi'     => $sportiviCount,
+                'grupe'        => $teamsCount,
+                'antrenamente' => $trainingsCount,
+                'abonamente'   => $subsCount,
+            ],
+            'trends' => [
+                'clubs'        => $clubsTrend,
+                'sportivi'     => $sportiviTrend,
+                'grupe'        => $teamsTrend,
+                'abonamente'   => $subsTrend,
+                'antrenamente' => $trainingsTrend,
+            ],
+            'recent_clubs'         => $recentClubs,
+            'recent_members'       => $recentMembers,
+            'recent_subscriptions' => $recentSubscriptions,
+            'recent_conversations' => $recentConversations,
+        ];
+
+        // Athlete / Parent Specifics
+        if (in_array($role, ['sportiv', 'parinte'])) {
+            if ($role === 'parinte') {
+                $athletes = $request->user()->children()->get();
+            } else {
+                $athletes = collect([$request->user()]);
+            }
+
+            $squadIds = [];
+            foreach ($athletes as $athlete) {
+                foreach ($athlete->squads()->pluck('squads.id')->toArray() as $sid) {
+                    $squadIds[] = $sid;
+                }
+            }
+            $squadIds = array_unique($squadIds);
+
+            $sessions = collect();
+
+            // 1. Recurring Trainings (compute next occurrence)
+            $dayMap = [
+                'luni' => 1, 'marti' => 2, 'miercuri' => 3, 'joi' => 4,
+                'vineri' => 5, 'sambata' => 6, 'duminica' => 0
+            ];
+
+            $trainings = Training::with(['location', 'team', 'squad'])
+                ->whereIn('squad_id', $squadIds)
+                ->get()
+                ->map(function($t) use ($dayMap) {
+                    $targetDow = $dayMap[strtolower($t->day_of_week)] ?? 1;
+                    $now = Carbon::now();
+                    $next = $now->copy()->next($targetDow === 0 ? Carbon::SUNDAY : $targetDow);
+                    // If today's the day and session hasn't started yet, use today
+                    if ($now->dayOfWeek === $targetDow && $now->format('H:i:s') < $t->start_time) {
+                        $next = $now->copy()->startOfDay();
+                    }
+                    $sortKey = $next->format('Y-m-d') . ' ' . $t->start_time;
+                    return [
+                        'type'     => 'training',
+                        'title'    => 'Antrenament ' . ($t->team?->name ?: ($t->squad?->name ?: '')),
+                        'sort_key' => $sortKey,
+                        'date'     => $next->format('d M Y'),
+                        'time'     => substr($t->start_time, 0, 5),
+                        'location' => $t->location?->name,
+                    ];
+                });
+            $sessions = $sessions->concat($trainings);
+
+            // 2. Upcoming Matches (by squad OR directly added as player)
+            $athleteIds = $athletes->pluck('id')->toArray();
+            $games = Game::with(['squad', 'team'])
+                ->where(function($q) use ($squadIds, $athleteIds) {
+                    $q->whereIn('squad_id', $squadIds)
+                      ->orWhereHas('players', fn($pq) => $pq->whereIn('users.id', $athleteIds));
+                })
+                ->where('match_date', '>=', Carbon::now())
+                ->orderBy('match_date')
+                ->get()
+                ->map(function($g) {
+                    return [
+                        'type'     => 'match',
+                        'title'    => 'Meci vs ' . $g->opponent_name,
+                        'sort_key' => $g->match_date->format('Y-m-d H:i:s'),
+                        'date'     => $g->match_date->format('d M Y'),
+                        'time'     => $g->match_date->format('H:i'),
+                        'location' => $g->location,
+                    ];
+                });
+            $sessions = $sessions->concat($games);
+
+            $nextSession = $sessions->sortBy('sort_key')->values()->first();
+
+            // Latest Performance Log
+            $latestPerformance = PerformanceLog::whereIn('user_id', $athleteIds)
+                ->orderByDesc('log_date')
+                ->orderByDesc('created_at')
+                ->first();
+
+            // Active Subscription
+            $activeSub = UserSubscription::with('subscription')
+                ->whereIn('user_id', $athleteIds)
+                ->whereIn('status', ['ACTIVE', 'activ', 'ACTIVE_PAID', 'active_paid', 'active_pending'])
+                ->orderByRaw("FIELD(status, 'active_paid', 'ACTIVE_PAID', 'ACTIVE', 'activ', 'active_pending')")
+                ->first();
+
+            $data['athlete_stats'] = [
+                'next_session'       => $nextSession,
+                'latest_performance' => $latestPerformance ? [
+                    'vertical_jump' => $latestPerformance->vertical_jump,
+                    'serve_speed'   => $latestPerformance->serve_speed,
+                    'weight'        => $latestPerformance->weight,
+                    'date'          => $latestPerformance->log_date
+                        ? Carbon::parse($latestPerformance->log_date)->format('d M Y')
+                        : null,
+                ] : null,
+                'subscription'       => $activeSub ? [
+                    'plan_name' => $activeSub->subscription?->name ?: ($activeSub->plan_name ?? 'Abonament Activ'),
+                    'status'    => $activeSub->status,
+                    'expiry'    => $activeSub->expires_at
+                        ? Carbon::parse($activeSub->expires_at)->format('d M Y')
+                        : 'N/A',
+                ] : null,
+            ];
+        }
+
         return response()->json([
             'status' => 'success',
-            'data'   => [
-                'kpi' => [
-                    'clubs'        => $clubsCount,
-                    'sportivi'     => $sportiviCount,
-                    'grupe'        => $teamsCount,
-                    'antrenamente' => $trainingsCount,
-                    'abonamente'   => $subsCount,
-                ],
-                'trends' => [
-                    'clubs'        => $clubsTrend,
-                    'sportivi'     => $sportiviTrend,
-                    'grupe'        => $teamsTrend,
-                    'abonamente'   => $subsTrend,
-                    'antrenamente' => $trainingsTrend,
-                ],
-                'recent_clubs'         => $recentClubs,
-                'recent_members'       => $recentMembers,
-                'recent_subscriptions' => $recentSubscriptions,
-                'recent_conversations' => $recentConversations,
-            ],
+            'data'   => $data,
         ]);
     }
 }

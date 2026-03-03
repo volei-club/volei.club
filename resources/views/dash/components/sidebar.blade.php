@@ -142,8 +142,43 @@
             
             <div class="flex-1"></div>
 
-            <!-- Calendar Section (Antrenori, Sportivi, Parinti, Manageri, Admini) -->
-            <template x-if="['administrator', 'manager', 'antrenor','sportiv','parinte'].includes(user?.role)">
+            <!-- Athlete / Parent Section (Activitatea Mea) -->
+            <template x-if="['sportiv', 'parinte'].includes(user?.role)">
+                <div class="mt-4">
+                    <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Activitatea Mea</div>
+                    
+                    <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/calendar') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">calendar_month</span>
+                        Calendar
+                    </a>
+
+                    <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/performanta') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">monitoring</span>
+                        Performanță
+                    </a>
+                    
+                    <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
+                        Meciuri
+                    </a>
+
+                    <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/abonamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
+                        Abonamente
+                    </a>
+                </div>
+            </template>
+
+            <!-- Calendar Section (Antrenori, Manageri, Admini) -->
+            <template x-if="['administrator', 'manager', 'antrenor'].includes(user?.role)">
                 <div class="mt-4">
                     <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Activitate</div>
                     <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
@@ -160,7 +195,7 @@
                     </a>
                     
                     <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
-                       x-show="['antrenor','sportiv','parinte'].includes(user?.role)"
+                       x-show="['antrenor'].includes(user?.role)"
                        :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>

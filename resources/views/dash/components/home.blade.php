@@ -21,263 +21,379 @@
                     Se încarcă datele...
                 </div>
 
-                <!-- KPI Cards -->
-                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                <!-- KPI Cards for Administrators/Managers -->
+                <template x-if="['administrator', 'manager', 'antrenor'].includes(user?.role)">
+                    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
 
-                    <!-- Card 1: Cluburi (admin) sau Grupe (manager) -->
-                    <template x-if="user?.role === `administrator`">
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Cluburi</p>
-                                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.clubs ?? `-`"></h3>
-                                </div>
-                                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                    <span class="material-symbols-outlined text-[22px]">apartment</span>
-                                </div>
-                            </div>
-                            <div class="h-10 w-full flex items-end gap-0.5">
-                                <template x-for="(val, idx) in (stats.trends?.clubs ?? [0,0,0,0,0,0])" :key="idx">
-                                    <div class="flex-1 rounded-t transition-all duration-500"
-                                         :class="idx === (stats.trends?.clubs ?? []).length - 1 ? `bg-primary` : `bg-primary/30`"
-                                         :style="`height: ${barHeightPct(stats.trends?.clubs ?? [], idx)}%`"></div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                    <template x-if="user?.role !== `administrator`">
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grupe</p>
-                                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.grupe ?? `-`"></h3>
-                                </div>
-                                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                    <span class="material-symbols-outlined text-[22px]">groups</span>
-                                </div>
-                            </div>
-                            <div class="h-10 w-full flex items-end gap-0.5">
-                                <template x-for="(val, idx) in (stats.trends?.grupe ?? [0,0,0,0,0,0])" :key="idx">
-                                    <div class="flex-1 rounded-t transition-all duration-500"
-                                         :class="idx === (stats.trends?.grupe ?? []).length - 1 ? `bg-primary` : `bg-primary/30`"
-                                         :style="`height: ${barHeightPct(stats.trends?.grupe ?? [], idx)}%`"></div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- Card 2: Sportivi -->
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Sportivi</p>
-                                <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.sportivi ?? `-`"></h3>
-                            </div>
-                            <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600">
-                                <span class="material-symbols-outlined text-[22px]">sports_handball</span>
-                            </div>
-                        </div>
-                        <div class="h-10 w-full flex items-end gap-0.5">
-                            <template x-for="(val, idx) in (stats.trends?.sportivi ?? [0,0,0,0,0,0])" :key="idx">
-                                <div class="flex-1 rounded-t transition-all duration-500"
-                                     :class="idx === (stats.trends?.sportivi ?? []).length - 1 ? `bg-emerald-500` : `bg-emerald-300/60`"
-                                     :style="`height: ${barHeightPct(stats.trends?.sportivi ?? [], idx)}%`"></div>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Grupe (admin) sau Antrenamente (manager) -->
-                    <template x-if="user?.role === `administrator`">
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grupe</p>
-                                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.grupe ?? `-`"></h3>
-                                </div>
-                                <div class="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-600">
-                                    <span class="material-symbols-outlined text-[22px]">diversity_3</span>
-                                </div>
-                            </div>
-                            <div class="h-10 w-full flex items-end gap-0.5">
-                                <template x-for="(val, idx) in (stats.trends?.grupe ?? [0,0,0,0,0,0])" :key="idx">
-                                    <div class="flex-1 rounded-t transition-all duration-500"
-                                         :class="idx === (stats.trends?.grupe ?? []).length - 1 ? `bg-violet-500` : `bg-violet-300/50`"
-                                         :style="`height: ${barHeightPct(stats.trends?.grupe ?? [], idx)}%`"></div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                    <template x-if="user?.role !== `administrator`">
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Antrenamente</p>
-                                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.antrenamente ?? `-`"></h3>
-                                </div>
-                                <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600">
-                                    <span class="material-symbols-outlined text-[22px]">sports</span>
-                                </div>
-                            </div>
-                            <div class="h-10 w-full flex items-end gap-0.5">
-                                <template x-for="(val, idx) in (stats.trends?.antrenamente ?? [0,0,0,0,0,0])" :key="idx">
-                                    <div class="flex-1 rounded-t transition-all duration-500"
-                                         :class="idx === (stats.trends?.antrenamente ?? []).length - 1 ? `bg-amber-500` : `bg-amber-300/50`"
-                                         :style="`height: ${barHeightPct(stats.trends?.antrenamente ?? [], idx)}%`"></div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- Card 4: Abonamente -->
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Abonamente</p>
-                                <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.abonamente ?? `-`"></h3>
-                            </div>
-                            <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500">
-                                <span class="material-symbols-outlined text-[22px]">payments</span>
-                            </div>
-                        </div>
-                        <div class="h-10 w-full flex items-end gap-0.5">
-                            <template x-for="(val, idx) in (stats.trends?.abonamente ?? [0,0,0,0,0,0])" :key="idx">
-                                <div class="flex-1 rounded-t transition-all duration-500"
-                                     :class="idx === (stats.trends?.abonamente ?? []).length - 1 ? `bg-rose-500` : `bg-rose-300/50`"
-                                     :style="`height: ${barHeightPct(stats.trends?.abonamente ?? [], idx)}%`"></div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Main grid -->
-                <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-
-                    <!-- Left: Recent Clubs (admin) or Recent Members (manager) -->
-                    <section class="xl:col-span-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
-                        <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                            <div>
-                                <h2 class="text-base font-bold text-slate-900 dark:text-white" x-text="user?.role === `administrator` ? `Cluburi Recente` : `Membri Recenți`"></h2>
-                                <p class="text-xs text-slate-500 mt-0.5" x-text="user?.role === `administrator` ? `Ultimele cluburi înregistrate în platformă` : `Ultimii sportivi și antrenori adăugați`"></p>
-                            </div>
-                            <button
-                                @click="user?.role === `administrator` ? navigate(`/dash/cluburi`) : navigate(`/dash/membri`)"
-                                class="px-3 py-1.5 text-xs font-bold text-primary bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors">
-                                Vezi Toate
-                            </button>
-                        </div>
-
-                        <!-- Admin: Clubs table -->
+                        <!-- Card 1: Cluburi (admin) sau Grupe (manager) -->
                         <template x-if="user?.role === `administrator`">
-                            <div class="overflow-x-auto flex-1">
-                                <table class="w-full text-left border-collapse text-sm">
-                                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase text-slate-500 font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
-                                        <tr>
-                                            <th class="px-5 py-3">Club</th>
-                                            <th class="px-5 py-3 text-right">Înreg.</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                                        <template x-if="!stats.recent_clubs?.length">
-                                            <tr><td colspan="2" class="text-center py-10 text-slate-400 text-sm">Niciun club înregistrat</td></tr>
-                                        </template>
-                                        <template x-for="club in stats.recent_clubs" :key="club.id">
-                                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                                                <td class="px-5 py-3.5 font-semibold text-slate-900 dark:text-white" x-text="club.name"></td>
-                                                <td class="px-5 py-3.5 text-right text-slate-500" x-text="club.created_at"></td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Cluburi</p>
+                                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.clubs ?? `-`"></h3>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                        <span class="material-symbols-outlined text-[22px]">apartment</span>
+                                    </div>
+                                </div>
+                                <div class="h-10 w-full flex items-end gap-0.5">
+                                    <template x-for="(val, idx) in (stats.trends?.clubs ?? [0,0,0,0,0,0])" :key="idx">
+                                        <div class="flex-1 rounded-t transition-all duration-500"
+                                            :class="idx === (stats.trends?.clubs ?? []).length - 1 ? `bg-primary` : `bg-primary/30`"
+                                            :style="`height: ${barHeightPct(stats.trends?.clubs ?? [], idx)}%`"></div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="['manager', 'antrenor'].includes(user?.role)">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grupe</p>
+                                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.grupe ?? `-`"></h3>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                        <span class="material-symbols-outlined text-[22px]">groups</span>
+                                    </div>
+                                </div>
+                                <div class="h-10 w-full flex items-end gap-0.5">
+                                    <template x-for="(val, idx) in (stats.trends?.grupe ?? [0,0,0,0,0,0])" :key="idx">
+                                        <div class="flex-1 rounded-t transition-all duration-500"
+                                            :class="idx === (stats.trends?.grupe ?? []).length - 1 ? `bg-primary` : `bg-primary/30`"
+                                            :style="`height: ${barHeightPct(stats.trends?.grupe ?? [], idx)}%`"></div>
+                                    </template>
+                                </div>
                             </div>
                         </template>
 
-                        <!-- Manager: Members table -->
-                        <template x-if="user?.role !== `administrator`">
-                            <div class="overflow-x-auto flex-1">
-                                <table class="w-full text-left border-collapse text-sm">
-                                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase text-slate-500 font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
-                                        <tr>
-                                            <th class="px-5 py-3">Membru</th>
-                                            <th class="px-5 py-3">Rol</th>
-                                            <th class="px-5 py-3 text-right">Adăugat</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                                        <template x-if="!stats.recent_members?.length">
-                                            <tr><td colspan="3" class="text-center py-10 text-slate-400 text-sm">Niciun membru adăugat</td></tr>
-                                        </template>
-                                        <template x-for="m in stats.recent_members" :key="m.id">
-                                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer" @click="navigate(`/dash/membri`)">
-                                                <td class="px-5 py-3.5">
-                                                    <div class="flex items-center gap-3">
-                                                        <template x-if="m.photo">
-                                                            <img :src="`/storage/` + m.photo" class="w-8 h-8 rounded-lg object-cover border border-slate-100 dark:border-slate-700 shrink-0">
-                                                        </template>
-                                                        <template x-if="!m.photo">
-                                                            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0" x-text="m.name?.charAt(0)"></div>
-                                                        </template>
-                                                        <span class="font-semibold text-slate-900 dark:text-white" x-text="m.name"></span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-5 py-3.5">
-                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
-                                                        :class="m.role === `antrenor` ? `bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400` : `bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400`"
-                                                        x-text="m.role === `antrenor` ? `Antrenor` : `Sportiv`"></span>
-                                                </td>
-                                                <td class="px-5 py-3.5 text-right text-slate-500" x-text="m.created_at"></td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
+                        <!-- Card 2: Sportivi -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Sportivi</p>
+                                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.sportivi ?? `-`"></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600">
+                                    <span class="material-symbols-outlined text-[22px]">sports_handball</span>
+                                </div>
+                            </div>
+                            <div class="h-10 w-full flex items-end gap-0.5">
+                                <template x-for="(val, idx) in (stats.trends?.sportivi ?? [0,0,0,0,0,0])" :key="idx">
+                                    <div class="flex-1 rounded-t transition-all duration-500"
+                                        :class="idx === (stats.trends?.sportivi ?? []).length - 1 ? `bg-emerald-500` : `bg-emerald-300/60`"
+                                        :style="`height: ${barHeightPct(stats.trends?.sportivi ?? [], idx)}%`"></div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Grupe (admin) sau Antrenamente (manager) -->
+                        <template x-if="user?.role === `administrator`">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grupe</p>
+                                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.grupe ?? `-`"></h3>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-600">
+                                        <span class="material-symbols-outlined text-[22px]">diversity_3</span>
+                                    </div>
+                                </div>
+                                <div class="h-10 w-full flex items-end gap-0.5">
+                                    <template x-for="(val, idx) in (stats.trends?.grupe ?? [0,0,0,0,0,0])" :key="idx">
+                                        <div class="flex-1 rounded-t transition-all duration-500"
+                                            :class="idx === (stats.trends?.grupe ?? []).length - 1 ? `bg-violet-500` : `bg-violet-300/50`"
+                                            :style="`height: ${barHeightPct(stats.trends?.grupe ?? [], idx)}%`"></div>
+                                    </template>
+                                </div>
                             </div>
                         </template>
-                    </section>
-
-                    <!-- Right: Recent Subscriptions -->
-                    <section class="xl:col-span-4 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <h2 class="text-base font-bold text-slate-900 dark:text-white">Abonamente Recente</h2>
-                                <p class="text-xs text-slate-500 mt-0.5">Ultimele plăți înregistrate</p>
+                        <template x-if="['manager', 'antrenor'].includes(user?.role)">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Antrenamente</p>
+                                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.antrenamente ?? `-`"></h3>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600">
+                                        <span class="material-symbols-outlined text-[22px]">sports</span>
+                                    </div>
+                                </div>
+                                <div class="h-10 w-full flex items-end gap-0.5">
+                                    <template x-for="(val, idx) in (stats.trends?.antrenamente ?? [0,0,0,0,0,0])" :key="idx">
+                                        <div class="flex-1 rounded-t transition-all duration-500"
+                                            :class="idx === (stats.trends?.antrenamente ?? []).length - 1 ? `bg-amber-500` : `bg-amber-300/50`"
+                                            :style="`height: ${barHeightPct(stats.trends?.antrenamente ?? [], idx)}%`"></div>
+                                    </template>
+                                </div>
                             </div>
-                            <button @click="navigate(`/dash/abonamente`)" class="px-3 py-1.5 text-xs font-bold text-primary bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors">
-                                Vezi Toate
-                            </button>
+                        </template>
+
+                        <!-- Card 4: Abonamente -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Abonamente</p>
+                                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1" x-text="stats.kpi?.abonamente ?? `-`"></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500">
+                                    <span class="material-symbols-outlined text-[22px]">payments</span>
+                                </div>
+                            </div>
+                            <div class="h-10 w-full flex items-end gap-0.5">
+                                <template x-for="(val, idx) in (stats.trends?.abonamente ?? [0,0,0,0,0,0])" :key="idx">
+                                    <div class="flex-1 rounded-t transition-all duration-500"
+                                        :class="idx === (stats.trends?.abonamente ?? []).length - 1 ? `bg-rose-500` : `bg-rose-300/50`"
+                                        :style="`height: ${barHeightPct(stats.trends?.abonamente ?? [], idx)}%`"></div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- KPI Cards for Athletes / Parents -->
+                <template x-if="['sportiv', 'parinte'].includes(user?.role)">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        
+                        <!-- Next Session Card -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col justify-between">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Următoarea Sesiune</p>
+                                    <template x-if="stats.athlete_stats?.next_session">
+                                        <div class="mt-2">
+                                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="stats.athlete_stats.next_session.title"></h3>
+                                            <div class="flex items-center gap-2 text-primary font-bold mt-1">
+                                                <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                                                <span x-text="stats.athlete_stats.next_session.date"></span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-slate-500 text-sm mt-1">
+                                                <span class="material-symbols-outlined text-[18px]">schedule</span>
+                                                <span x-text="stats.athlete_stats.next_session.time"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!stats.athlete_stats?.next_session">
+                                        <p class="mt-2 text-slate-400 italic">Nicio sesiune programată</p>
+                                    </template>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined text-[28px]" x-text="stats.athlete_stats?.next_session?.type === 'match' ? 'sports_volleyball' : 'sports'"></span>
+                                </div>
+                            </div>
+                            <template x-if="stats.athlete_stats?.next_session">
+                                <div class="pt-3 border-t border-slate-50 dark:border-slate-700 flex items-center gap-2 text-xs text-slate-500 truncate">
+                                    <span class="material-symbols-outlined text-[16px]">location_on</span>
+                                    <span class="truncate" x-text="stats.athlete_stats.next_session.location || 'Locație nespecificată'"></span>
+                                </div>
+                            </template>
                         </div>
 
-                        <div class="space-y-3 flex-1">
-                            <template x-if="!stats.recent_subscriptions?.length">
-                                <div class="py-12 text-center text-slate-400 text-sm">
-                                    <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">payments</span>
-                                    <p>Niciun abonament recent</p>
+                        <!-- Latest Performance Card -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ultima Performanță</p>
+                                    <template x-if="stats.athlete_stats?.latest_performance">
+                                        <div class="mt-3 space-y-3">
+                                            <div class="flex items-center justify-between gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Detentă</span>
+                                                </div>
+                                                <span class="font-bold text-slate-900 dark:text-white" x-text="stats.athlete_stats.latest_performance.vertical_jump + ' cm'"></span>
+                                            </div>
+                                            <div class="flex items-center justify-between gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Viteză S.</span>
+                                                </div>
+                                                <span class="font-bold text-slate-900 dark:text-white" x-text="stats.athlete_stats.latest_performance.serve_speed + ' km/h'"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!stats.athlete_stats?.latest_performance">
+                                        <p class="mt-2 text-slate-400 italic">Nicio dată disponibilă</p>
+                                    </template>
                                 </div>
-                            </template>
-                            <template x-for="sub in stats.recent_subscriptions" :key="sub.id">
-                                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/50">
-                                    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                                         :class="isActiv(sub.status) ? `bg-emerald-100 dark:bg-emerald-900/30` : sub.status === `CANCELLED` || sub.status === `anulat` ? `bg-red-100 dark:bg-red-900/30` : `bg-amber-100 dark:bg-amber-900/30`">
-                                        <span class="material-symbols-outlined text-[18px]"
-                                              :class="isActiv(sub.status) ? `text-emerald-600` : sub.status === `CANCELLED` || sub.status === `anulat` ? `text-red-500` : `text-amber-600`"
-                                              x-text="isActiv(sub.status) ? `check_circle` : sub.status === `CANCELLED` || sub.status === `anulat` ? `cancel` : `schedule`"></span>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-bold text-slate-900 dark:text-white truncate" x-text="sub.plan_name"></p>
-                                        <p class="text-xs text-slate-500 truncate" x-text="sub.user_name"></p>
-                                    </div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0"
-                                          :class="isActiv(sub.status) ? `bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400` : sub.status === `CANCELLED` || sub.status === `anulat` ? `bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400` : `bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400`"
-                                          x-text="statusLabel(sub.status)"></span>
+                                <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500">
+                                    <span class="material-symbols-outlined text-[28px]">monitoring</span>
+                                </div>
+                            </div>
+                            <template x-if="stats.athlete_stats?.latest_performance">
+                                <div class="pt-3 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+                                    <span>Înregistrat la:</span>
+                                    <span x-text="stats.athlete_stats.latest_performance.date"></span>
                                 </div>
                             </template>
                         </div>
-                    </section>
-                </div>
+
+                        <!-- Subscription Status Card -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stare Abonament</p>
+                                    <template x-if="stats.athlete_stats?.subscription">
+                                        <div class="mt-2">
+                                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="stats.athlete_stats.subscription.plan_name"></h3>
+                                            <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 uppercase tracking-wide">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                                                Activ
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!stats.athlete_stats?.subscription">
+                                        <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 uppercase tracking-wide">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                                            Fără Abonament Activ
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500">
+                                    <span class="material-symbols-outlined text-[28px]">loyalty</span>
+                                </div>
+                            </div>
+                            <template x-if="stats.athlete_stats?.subscription">
+                                <div class="pt-3 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+                                    <span>Expiră la:</span>
+                                    <span x-text="stats.athlete_stats.subscription.expiry"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Main grid for Admins/Managers -->
+                <template x-if="['administrator', 'manager', 'antrenor'].includes(user?.role)">
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+                        <!-- Left: Recent Clubs (admin) or Recent Members (manager) -->
+                        <section class="xl:col-span-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
+                            <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-900 dark:text-white" x-text="user?.role === `administrator` ? `Cluburi Recente` : `Membri Recenți`"></h2>
+                                    <p class="text-xs text-slate-500 mt-0.5" x-text="user?.role === `administrator` ? `Ultimele cluburi înregistrate în platformă` : `Ultimii sportivi și antrenori adăugați`"></p>
+                                </div>
+                                <button
+                                    @click="user?.role === `administrator` ? navigate(`/dash/cluburi`) : navigate(`/dash/membri`)"
+                                    class="px-3 py-1.5 text-xs font-bold text-primary bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors">
+                                    Vezi Toate
+                                </button>
+                            </div>
+
+                            <!-- Admin: Clubs table -->
+                            <template x-if="user?.role === `administrator`">
+                                <div class="overflow-x-auto flex-1">
+                                    <table class="w-full text-left border-collapse text-sm">
+                                        <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase text-slate-500 font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                            <tr>
+                                                <th class="px-5 py-3">Club</th>
+                                                <th class="px-5 py-3 text-right">Înreg.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                            <template x-if="!stats.recent_clubs?.length">
+                                                <tr><td colspan="2" class="text-center py-10 text-slate-400 text-sm">Niciun club înregistrat</td></tr>
+                                            </template>
+                                            <template x-for="club in stats.recent_clubs" :key="club.id">
+                                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                                                    <td class="px-5 py-3.5 font-semibold text-slate-900 dark:text-white" x-text="club.name"></td>
+                                                    <td class="px-5 py-3.5 text-right text-slate-500" x-text="club.created_at"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+
+                            <!-- Manager: Members table -->
+                            <template x-if="user?.role !== `administrator`">
+                                <div class="overflow-x-auto flex-1">
+                                    <table class="w-full text-left border-collapse text-sm">
+                                        <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase text-slate-500 font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                            <tr>
+                                                <th class="px-5 py-3">Membru</th>
+                                                <th class="px-5 py-3">Rol</th>
+                                                <th class="px-5 py-3 text-right">Adăugat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                            <template x-if="!stats.recent_members?.length">
+                                                <tr><td colspan="3" class="text-center py-10 text-slate-400 text-sm">Niciun membru adăugat</td></tr>
+                                            </template>
+                                            <template x-for="m in stats.recent_members" :key="m.id">
+                                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer" @click="navigate(`/dash/membri`)">
+                                                    <td class="px-5 py-3.5">
+                                                        <div class="flex items-center gap-3">
+                                                            <template x-if="m.photo">
+                                                                <img :src="`/storage/` + m.photo" class="w-8 h-8 rounded-lg object-cover border border-slate-100 dark:border-slate-700 shrink-0">
+                                                            </template>
+                                                            <template x-if="!m.photo">
+                                                                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0" x-text="m.name?.charAt(0)"></div>
+                                                            </template>
+                                                            <span class="font-semibold text-slate-900 dark:text-white" x-text="m.name"></span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-5 py-3.5">
+                                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
+                                                            :class="m.role === `antrenor` ? `bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400` : `bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400`"
+                                                            x-text="m.role === `antrenor` ? `Antrenor` : `Sportiv`"></span>
+                                                    </td>
+                                                    <td class="px-5 py-3.5 text-right text-slate-500" x-text="m.created_at"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                        </section>
+
+                        <!-- Right: Recent Subscriptions -->
+                        <section class="xl:col-span-4 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Abonamente Recente</h2>
+                                    <p class="text-xs text-slate-500 mt-0.5">Ultimele plăți înregistrate</p>
+                                </div>
+                                <button @click="navigate(`/dash/abonamente`)" class="px-3 py-1.5 text-xs font-bold text-primary bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors">
+                                    Vezi Toate
+                                </button>
+                            </div>
+
+                            <div class="space-y-3 flex-1">
+                                <template x-if="!stats.recent_subscriptions?.length">
+                                    <div class="py-12 text-center text-slate-400 text-sm">
+                                        <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">payments</span>
+                                        <p>Niciun abonament recent</p>
+                                    </div>
+                                </template>
+                                <template x-for="sub in stats.recent_subscriptions" :key="sub.id">
+                                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/50">
+                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                                            :class="isActiv(sub.status) ? `bg-emerald-100 dark:bg-emerald-900/30` : sub.status === `CANCELLED` || sub.status === `anulat` ? `bg-red-100 dark:bg-red-900/30` : `bg-amber-100 dark:bg-amber-900/30`">
+                                            <span class="material-symbols-outlined text-[18px]"
+                                                :class="isActiv(sub.status) ? `text-emerald-600` : sub.status === `CANCELLED` || sub.status === `anulat` ? `text-red-500` : `text-amber-600`"
+                                                x-text="isActiv(sub.status) ? `check_circle` : sub.status === `CANCELLED` || sub.status === `anulat` ? `cancel` : `schedule`"></span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-bold text-slate-900 dark:text-white truncate" x-text="sub.plan_name"></p>
+                                            <p class="text-xs text-slate-500 truncate" x-text="sub.user_name"></p>
+                                        </div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0"
+                                            :class="isActiv(sub.status) ? `bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400` : sub.status === `CANCELLED` || sub.status === `anulat` ? `bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400` : `bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400`"
+                                            x-text="statusLabel(sub.status)"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </section>
+                    </div>
+                </template>
 
                 <!-- Bottom grid -->
                 <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
                     <!-- Recent Conversations -->
-                    <section class="xl:col-span-6 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <section :class="['administrator', 'manager', 'antrenor'].includes(user?.role) ? 'xl:col-span-6' : 'xl:col-span-12'" class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
                         <div class="flex items-center justify-between mb-4">
                             <div>
                                 <h2 class="text-base font-bold text-slate-900 dark:text-white">Mesaje Recente</h2>
@@ -319,43 +435,45 @@
                         </div>
                     </section>
 
-                    <!-- Quick Actions -->
-                    <section class="xl:col-span-6 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                        <div class="mb-4">
-                            <h2 class="text-base font-bold text-slate-900 dark:text-white">Acțiuni Rapide</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Navigare rapidă la secțiunile principale</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <template x-if="user?.role === `administrator`">
-                                <button @click="navigate(`/dash/cluburi`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all group text-center">
-                                    <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-primary transition-colors">apartment</span>
-                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Cluburi</span>
-                                </button>
-                            </template>
-                            <button @click="navigate(`/dash/membri`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all group text-center">
-                                <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-emerald-600 transition-colors">group</span>
-                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-emerald-600 transition-colors">Membri</span>
-                            </button>
-                            <button @click="navigate(`/dash/grupe`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all group text-center">
-                                <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-violet-600 transition-colors">diversity_3</span>
-                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-violet-600 transition-colors">Grupe</span>
-                            </button>
-                            <button @click="navigate(`/dash/antrenamente`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all group text-center">
-                                <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-amber-600 transition-colors">sports</span>
-                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-amber-600 transition-colors">Antrenamente</span>
-                            </button>
-                            <button @click="navigate(`/dash/abonamente`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all group text-center">
-                                <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-rose-500 transition-colors">payments</span>
-                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-rose-500 transition-colors">Abonamente</span>
-                            </button>
-                            <button @click="navigate(`/dash/mesaje`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group text-center relative">
-                                <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-blue-600 transition-colors">chat</span>
-                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-blue-600 transition-colors">Mesaje</span>
-                                <template x-if="unreadMessagesCount > 0">
-                                    <span class="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center font-bold" x-text="unreadMessagesCount"></span>
+                    <!-- Quick Actions - Only for Admins/Managers/Coaches -->
+                    <template x-if="['administrator', 'manager', 'antrenor'].includes(user?.role)">
+                        <section class="xl:col-span-6 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="mb-4">
+                                <h2 class="text-base font-bold text-slate-900 dark:text-white">Acțiuni Rapide</h2>
+                                <p class="text-xs text-slate-500 mt-0.5">Navigare rapidă la secțiunile principale</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <template x-if="user?.role === `administrator`">
+                                    <button @click="navigate(`/dash/cluburi`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all group text-center">
+                                        <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-primary transition-colors">apartment</span>
+                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Cluburi</span>
+                                    </button>
                                 </template>
-                            </button>
-                        </div>
-                    </section>
+                                <button @click="navigate(`/dash/membri`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all group text-center">
+                                    <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-emerald-600 transition-colors">group</span>
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-emerald-600 transition-colors">Membri</span>
+                                </button>
+                                <button @click="navigate(`/dash/grupe`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all group text-center">
+                                    <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-violet-600 transition-colors">diversity_3</span>
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-violet-600 transition-colors">Grupe</span>
+                                </button>
+                                <button @click="navigate(`/dash/antrenamente`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all group text-center">
+                                    <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-amber-600 transition-colors">sports</span>
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-amber-600 transition-colors">Antrenamente</span>
+                                </button>
+                                <button @click="navigate(`/dash/abonamente`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all group text-center">
+                                    <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-rose-500 transition-colors">payments</span>
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-rose-500 transition-colors">Abonamente</span>
+                                </button>
+                                <button @click="navigate(`/dash/mesaje`)" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group text-center relative">
+                                    <span class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-blue-600 transition-colors">chat</span>
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-blue-600 transition-colors">Mesaje</span>
+                                    <template x-if="unreadMessagesCount > 0">
+                                        <span class="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center font-bold" x-text="unreadMessagesCount"></span>
+                                    </template>
+                                </button>
+                            </div>
+                        </section>
+                    </template>
                 </div>
             </div>

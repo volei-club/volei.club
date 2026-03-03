@@ -27,6 +27,11 @@ class Squad extends Model
         return $this->belongsToMany(User::class);
     }
 
+    public function trainings()
+    {
+        return $this->hasMany(Training::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class , 'created_by');
