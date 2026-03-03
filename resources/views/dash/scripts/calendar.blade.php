@@ -19,6 +19,10 @@ Alpine.data('calendarManager', () => ({
         this.currentWeekStart = this.getMonday(today);
         await this.loadChildren();
         await this.fetchSessions();
+        
+        // Listen for refresh events
+        window.addEventListener('game-saved', () => this.fetchSessions());
+        window.addEventListener('refresh-calendar', () => this.fetchSessions());
     },
 
     async loadChildren() {
@@ -53,6 +57,18 @@ Alpine.data('calendarManager', () => ({
             }
         } catch(e) { console.error(e); }
         this.loading = false;
+    },
+
+    async fetchAvailableSquads() {
+        try {
+            const res = await fetch('/api/squads', {
+                headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                this.availableSquads = data.data || data;
+            }
+        } catch(e) {}
     },
 
     // --- Week helpers ---
@@ -111,7 +127,10 @@ Alpine.data('calendarManager', () => ({
         return this.sessions.filter(s => s.date === dateStr);
     },
 
-    statusColor(status) {
+    statusColor(session) {
+        if (session.type === 'game') return 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-400';
+        
+        const status = session.status;
         if (status === 'prezent') return 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400';
         if (status === 'absent') return 'bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-700 dark:text-red-400';
         if (status === 'motivat') return 'bg-amber-50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400';
@@ -186,5 +205,9 @@ Alpine.data('calendarManager', () => ({
             }
         } catch(e) { console.error(e); }
         this.savingAttendance = { ...this.savingAttendance, [member.user_id]: false };
+    },
+
+    openGameModal(game = null) {
+        Alpine.store('gameModal').open(game);
     },
 }));

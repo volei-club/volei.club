@@ -80,11 +80,13 @@
             @include('dash.components.locatii')
             @include('dash.components.antrenamente')
             @include('dash.components.calendar')
+            @include('dash.components.meciuri')
             @include('dash.components.performanta')
             @include('dash.components.mesaje')
             @include('dash.components.system')
             @include('dash.components.profile')
             @include('dash.components.cropper')
+            @include('dash.components.game-modal')
 
         </main>
 

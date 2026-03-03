@@ -14,16 +14,25 @@
         </div>
 
         {{-- Parent: child selector --}}
-        <template x-if="user?.role === 'parinte' && children.length > 1">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-slate-400">child_care</span>
-                <select x-model="selectedChildId" @change="fetchSessions()" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary">
-                    <template x-for="child in children" :key="child.id">
-                        <option :value="child.id" x-text="child.name"></option>
-                    </template>
-                </select>
-            </div>
-        </template>
+        <div class="flex items-center gap-3">
+            <template x-if="user?.role === 'parinte' && children.length > 1">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400">child_care</span>
+                    <select x-model="selectedChildId" @change="fetchSessions()" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary">
+                        <template x-for="child in children" :key="child.id">
+                            <option :value="child.id" x-text="child.name"></option>
+                        </template>
+                    </select>
+                </div>
+            </template>
+
+            <template x-if="canMarkAttendance()">
+                <button @click="openGameModal()" class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-[18px]">sports_volleyball</span>
+                    Adaugă Meci
+                </button>
+            </template>
+        </div>
     </div>
 
     {{-- Week Navigation --}}
@@ -63,37 +72,47 @@
                         <p class="text-xs text-slate-300 dark:text-slate-600 text-center py-3">—</p>
                     </template>
 
-                    <template x-for="session in sessionsForDay(day.date)" :key="session.training_id + session.date">
+                    <template x-for="session in sessionsForDay(day.date)" :key="session.id">
                         <div
-                            @click="canMarkAttendance() && openAttendance(session)"
+                            @click="if (canMarkAttendance()) { if (session.type === 'game') { openGameModal(session); } else { openAttendance(session); } } else if (session.type === 'game') { openGameModal(session); }"
                             class="rounded-xl border px-2 py-2 text-xs transition-all"
-                            :class="[statusColor(session.status), canMarkAttendance() ? 'cursor-pointer hover:shadow-md hover:scale-[1.02]' : '']"
+                            :class="[statusColor(session), (canMarkAttendance() || session.type === 'game') ? 'cursor-pointer hover:shadow-md hover:scale-[1.02]' : '']"
                         >
-                            {{-- Time --}}
+                            <div x-show="session.type === 'game'" class="px-1.5 py-0.5 bg-indigo-500 text-white rounded text-[8px] font-black uppercase tracking-tighter w-fit mb-1">MECI</div>
+
                             <div class="flex items-center gap-1 font-bold mb-1">
                                 <span class="material-symbols-outlined text-[14px]">schedule</span>
-                                <span x-text="session.start_time.slice(0,5) + ' – ' + session.end_time.slice(0,5)"></span>
+                                <span x-text="(session.start_time || '').slice(0,5) + (session.type !== 'game' ? ' – ' + (session.end_time || '').slice(0,5) : '')"></span>
                             </div>
 
-                            {{-- Squad / Team --}}
-                            <p class="font-semibold truncate" x-text="session.squad ?? session.team ?? 'Antrenament'"></p>
+                            <div x-show="session.type === 'game'">
+                                <p class="font-black text-indigo-900 dark:text-indigo-200 uppercase truncate">VS <span x-text="session.opponent"></span></p>
+                                <div x-show="session.score" class="mt-1 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[14px] text-indigo-500">analytics</span>
+                                    <span class="font-black text-indigo-700 bg-white/50 px-1.5 rounded" x-text="session.score"></span>
+                                </div>
+                            </div>
+                            
+                            <div x-show="session.type !== 'game'">
+                                <p class="font-semibold truncate" x-text="session.squad ?? session.team ?? 'Antrenament'"></p>
+                            </div>
+
                             <p class="text-[10px] opacity-70 truncate" x-text="session.location ?? ''"></p>
 
-                            {{-- Status badge for athletes --}}
-                            <template x-if="!canMarkAttendance()">
-                                <div class="mt-1.5 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[14px]" x-text="statusIcon(session.status)"></span>
-                                    <span class="font-bold" x-text="statusLabel(session.status)"></span>
-                                </div>
-                            </template>
+                            <div x-show="!canMarkAttendance() && session.type === 'training'" class="mt-1.5 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]" x-text="statusIcon(session.status)"></span>
+                                <span class="font-bold" x-text="statusLabel(session.status)"></span>
+                            </div>
 
-                            {{-- Coach indicator --}}
-                            <template x-if="canMarkAttendance()">
-                                <div class="mt-1.5 flex items-center gap-1 text-[10px] opacity-60">
-                                    <span class="material-symbols-outlined text-[12px]">how_to_reg</span>
-                                    Bifează prezența
-                                </div>
-                            </template>
+                            <div x-show="!canMarkAttendance() && session.type === 'game' && session.role" class="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-indigo-600">
+                                <span class="material-symbols-outlined text-[14px]">person</span>
+                                <span x-text="session.role === 'titular' ? 'Titular' : 'Rezervă'"></span>
+                            </div>
+
+                            <div x-show="canMarkAttendance()" class="mt-1.5 flex items-center gap-1 text-[10px] opacity-60">
+                                <span class="material-symbols-outlined text-[12px]" x-text="session.type === 'game' ? 'edit' : 'how_to_reg'"></span>
+                                <span x-text="session.type === 'game' ? 'Detalii meci' : 'Bifează prezența'"></span>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -104,7 +123,7 @@
     {{-- Empty state --}}
     <div x-show="!loading && sessions.length === 0" class="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
         <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">calendar_today</span>
-        <p class="text-slate-500">Nu există antrenamente programate.</p>
+        <p class="text-slate-500">Nu există activități programate.</p>
         <p class="text-slate-400 text-sm mt-1">Contactează-ți antrenorul sau managerul.</p>
     </div>
 
@@ -227,4 +246,5 @@
             </div>
         </div>
     </div>
+
 </div>

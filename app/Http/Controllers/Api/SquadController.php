@@ -14,18 +14,28 @@ class SquadController extends Controller
     public function index(Request $request)
     {
         $role = $request->user()->role;
-
-        if (!in_array($role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
-        }
-
         $query = Squad::with(['team', 'team.club', 'creator']);
 
-        if ($role !== 'administrator') {
-            // Un manager vede doar echipele din grupele (teams) clubului său
+        if ($role === 'manager') {
             $query->whereHas('team', function ($q) use ($request) {
                 $q->where('club_id', $request->user()->club_id);
             });
+        }
+        elseif (in_array($role, ['antrenor', 'sportiv'])) {
+            $query->whereHas('users', function ($q) use ($request) {
+                $q->where('users.id', $request->user()->id);
+            });
+        }
+        elseif ($role === 'parinte') {
+            $query->whereHas('users', function ($q) use ($request) {
+                $q->whereHas('parents', function ($pq) use ($request) {
+                        $pq->where('parent_id', $request->user()->id);
+                    }
+                    );
+                });
+        }
+        elseif ($role !== 'administrator') {
+            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
         // Filtru opțional de listare UI bazat strict pe Club (for admins)
@@ -95,6 +105,12 @@ class SquadController extends Controller
             'message' => 'Echipă adăugată cu succes!',
             'data' => $squad->load(['team', 'team.club'])
         ], 201);
+    }
+
+    public function show(string $id)
+    {
+        $squad = Squad::with('users')->findOrFail($id);
+        return response()->json($squad);
     }
 
     /**

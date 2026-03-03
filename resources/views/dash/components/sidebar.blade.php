@@ -77,6 +77,13 @@
                         Antrenamente
                     </a>
 
+                    <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
+                        Meciuri
+                    </a>
+
                     <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/abonamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
@@ -150,6 +157,14 @@
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">monitoring</span>
                         Performanță
+                    </a>
+                    
+                    <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
+                       x-show="['antrenor','sportiv','parinte'].includes(user?.role)"
+                       :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
+                        Meciuri
                     </a>
                    
                 </div>

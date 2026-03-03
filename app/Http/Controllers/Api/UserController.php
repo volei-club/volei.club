@@ -18,14 +18,19 @@ class UserController extends Controller
     {
         $role = $request->user()->role;
 
-        if (!in_array($role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis. Doar administratorii și managerii pot gestiona utilizatori.'], 403);
+        if (!in_array($role, ['administrator', 'manager', 'antrenor', 'parinte'])) {
+            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
         $query = User::with(['club', 'teams', 'squads', 'activeSubscription.subscription', 'upcomingSubscription.subscription', 'subscriptions.subscription', 'children', 'parents']);
 
-        if ($role !== 'administrator') {
-            // Managerii/Antrenorii etc. văd doar userii din clubul lor.
+        if ($role === 'parinte') {
+            $query->whereHas('parents', function ($q) use ($request) {
+                $q->where('users.id', $request->user()->id);
+            });
+        }
+        elseif ($role !== 'administrator') {
+            // Managerii/Antrenorii văd userii din clubul lor.
             $query->where('club_id', $request->user()->club_id);
         }
         else {
