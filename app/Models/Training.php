@@ -61,4 +61,12 @@ class Training extends Model
     {
         return $this->belongsTo(User::class , 'coach_id');
     }
+
+    /**
+     * Get attendance records for this training.
+     */
+    public function attendances()
+    {
+        return $this->hasMany(\App\Models\Attendance::class);
+    }
 }

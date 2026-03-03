@@ -11,21 +11,33 @@ Alpine.data('locationManager', () => ({
         club_id: ''
     },
 
-    async init() {
+    init() {
+        // Watch for page changes
         this.$watch('currentPage', (val) => {
             if (val === '/dash/locatii') {
-                this.fetchLocations();
-                if (this.user?.role === 'administrator') {
-                    this.fetchClubs();
-                }
+                this.onPageActive();
             }
         });
 
-        if (this.currentPage === '/dash/locatii') {
-            this.fetchLocations();
-            if (this.user?.role === 'administrator') {
-                this.fetchClubs();
+        // Watch for user data being loaded
+        this.$watch('user', (val) => {
+            if (val && this.currentPage === '/dash/locatii') {
+                this.onPageActive();
             }
+        });
+
+        // If page is already active on init
+        if (this.currentPage === '/dash/locatii' && this.user) {
+            this.onPageActive();
+        }
+    },
+
+    onPageActive() {
+        this.fetchLocations();
+        if (this.user?.role === 'administrator') {
+            this.fetchClubs();
+        } else if (this.user?.role === 'manager') {
+            this.formData.club_id = this.user.club_id;
         }
     },
 
@@ -39,7 +51,8 @@ Alpine.data('locationManager', () => ({
                 }
             });
             if (res.ok) {
-                this.locations = await res.json();
+                const data = await res.json();
+                this.locations = Array.isArray(data) ? data : (data.data || []);
             }
         } catch (e) {
             console.error("Location fetch error", e);
@@ -76,17 +89,38 @@ Alpine.data('locationManager', () => ({
             this.formData = {
                 name: '',
                 address: '',
-                club_id: this.user?.role === 'manager' ? this.user.club_id : ''
+                club_id: (this.user?.role === 'manager') ? this.user.club_id : ''
             };
         }
         this.showModal = true;
     },
 
     async saveLocation() {
+        if (!this.formData.name || !this.formData.address) {
+            window.showToast("Toate câmpurile sunt obligatorii.", 'error');
+            return;
+        }
+
+        if (!this.user) {
+            window.showToast("Eroare: Utilizator neidentificat.", 'error');
+            return;
+        }
+
         this.saving = true;
         try {
             const method = this.editingId ? 'PUT' : 'POST';
             const url = this.editingId ? `/api/locations/${this.editingId}` : '/api/locations';
+
+            const payload = { ...this.formData };
+            if (this.user.role === 'manager') {
+                payload.club_id = this.user.club_id;
+            }
+
+            if (!payload.club_id && this.user.role === 'administrator') {
+                window.showToast("Vă rugăm selectați un club.", 'error');
+                this.saving = false;
+                return;
+            }
 
             const res = await fetch(url, {
                 method: method,
@@ -95,7 +129,7 @@ Alpine.data('locationManager', () => ({
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                 },
-                body: JSON.stringify(this.formData)
+                body: JSON.stringify(payload)
             });
 
             if (res.ok) {

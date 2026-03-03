@@ -35,6 +35,7 @@ Route::prefix('dash')->group(function () {
     Route::get('/audit', [DashAuthController::class , 'index']);
     Route::get('/locatii', [DashAuthController::class , 'index']);
     Route::get('/antrenamente', [DashAuthController::class , 'index']);
+    Route::get('/calendar', [DashAuthController::class , 'index']);
     Route::get('/sistem', [DashAuthController::class , 'index']);
 
     // Catch-all for any other dash sub-paths (SPA fallback)

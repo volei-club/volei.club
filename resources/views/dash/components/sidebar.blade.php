@@ -134,6 +134,20 @@
             </div>
             
             <div class="flex-1"></div>
+
+            <!-- Calendar Section (Antrenori, Jucatoare, Parinti, Manageri, Admini) -->
+            <template x-if="['administrator', 'manager', 'antrenor','jucatoare','parinte'].includes(user?.role)">
+                <div class="mt-4">
+                    <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Activitate</div>
+                    <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('/dash/calendar') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">calendar_month</span>
+                        Calendar
+                    </a>
+                   
+                </div>
+            </template>
         </nav>
 
         <!-- User Profile Area (Bottom of Sidebar) -->

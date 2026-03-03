@@ -79,6 +79,7 @@
             @include('dash.components.audit')
             @include('dash.components.locatii')
             @include('dash.components.antrenamente')
+            @include('dash.components.calendar')
             @include('dash.components.mesaje')
             @include('dash.components.system')
             @include('dash.components.profile')

@@ -13,12 +13,18 @@ Alpine.data('dashboard', () => ({
             if(this.currentPage.startsWith('/dash/membri')) return 'Membri';
             if(this.currentPage.startsWith('/dash/echipe')) return 'Echipe';
             if(this.currentPage.startsWith('/dash/abonamente')) return 'Abonamente';
+            if(this.currentPage.startsWith('/dash/calendar')) return 'Calendar';
             return 'Dashboard';
         },
 
     navigate(path) {
+        const calendarRoles = ['antrenor', 'jucatoare', 'parinte'];
         if (this.user) {
-            if (!['administrator', 'manager'].includes(this.user.role) && path !== '/dash' && !path.startsWith('/dash/mesaje')) {
+            if (!['administrator', 'manager'].includes(this.user.role)
+                && path !== '/dash'
+                && !path.startsWith('/dash/mesaje')
+                && !(calendarRoles.includes(this.user.role) && path.startsWith('/dash/calendar'))
+            ) {
                 path = '/dash';
             }
             if (this.user.role === 'manager' && path.startsWith('/dash/cluburi')) {
@@ -80,8 +86,13 @@ Alpine.data('dashboard', () => ({
                 this.isLoading = false;
                 
                 // Security check fallback for deep links
-                if (!['administrator', 'manager'].includes(this.user.role) && this.currentPage !== '/dash' && !this.currentPage.startsWith('/dash/mesaje')) {
-                    this.navigate('/dash');
+                const calendarRoles = ['antrenor', 'jucatoare', 'parinte'];
+                if (!['administrator', 'manager'].includes(this.user.role)
+                    && this.currentPage !== '/dash'
+                    && !this.currentPage.startsWith('/dash/mesaje')
+                    && !(calendarRoles.includes(this.user.role) && this.currentPage.startsWith('/dash/calendar'))
+                ) {
+                    this.navigate('/dash/calendar');
                 } else if (this.user.role === 'manager' && this.currentPage.startsWith('/dash/cluburi')) {
                     this.navigate('/dash');
                 }

@@ -37,6 +37,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('trainings', \App\Http\Controllers\TrainingController::class)->except(['show']);
         Route::get('dashboard-stats', [\App\Http\Controllers\Api\DashboardController::class , 'stats']);
 
+        // Attendance & Calendar
+        Route::get('attendances', [\App\Http\Controllers\Api\AttendanceController::class , 'index']);
+        Route::post('attendances', [\App\Http\Controllers\Api\AttendanceController::class , 'store']);
+        Route::delete('attendances/{id}', [\App\Http\Controllers\Api\AttendanceController::class , 'destroy']);
+        Route::get('my-calendar', [\App\Http\Controllers\Api\AttendanceController::class , 'myCalendar']);
+
         Route::post('/impersonate/{user}', [\App\Http\Controllers\Api\ImpersonationController::class , 'impersonate']);
         Route::post('/impersonate-leave', [\App\Http\Controllers\Api\ImpersonationController::class , 'leave']);
 

@@ -111,7 +111,7 @@
             <form @submit.prevent="saveLocation()" class="p-6 space-y-4">
                 <div x-show="user?.role === 'administrator' && !editingId" class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Club</label>
-                    <select x-model="formData.club_id" required class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
+                    <select x-model="formData.club_id" :required="user?.role === 'administrator' && !editingId" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
                         <option value="">Selectează Club</option>
                         <template x-for="club in allClubs" :key="club.id">
                             <option :value="club.id" x-text="club.name"></option>
