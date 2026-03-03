@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Club;
 use App\Models\Location;
 use App\Models\Team;
+use App\Models\Squad;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,6 +20,7 @@ class TrainingApiTest extends TestCase
     protected $club;
     protected $location;
     protected $team;
+    protected $squad;
     protected $coach;
 
     protected function setUp(): void
@@ -44,6 +46,12 @@ class TrainingApiTest extends TestCase
             'name' => 'Test Team'
         ]);
 
+        $this->squad = Squad::create([
+            'team_id' => $this->team->id,
+            'name' => 'Test Squad',
+            'created_by' => $this->admin->id
+        ]);
+
         $this->coach = User::factory()->create([
             'role' => 'antrenor',
             'club_id' => $this->club->id
@@ -56,6 +64,7 @@ class TrainingApiTest extends TestCase
             'club_id' => $this->club->id,
             'location_id' => $this->location->id,
             'team_id' => $this->team->id,
+            'squad_id' => $this->squad->id,
             'coach_id' => $this->coach->id,
             'day_of_week' => 'luni',
             'start_time' => '10:00',
@@ -72,10 +81,13 @@ class TrainingApiTest extends TestCase
     public function test_manager_can_only_list_their_club_trainings()
     {
         $otherClub = Club::create(['name' => 'Other Club']);
+        $otherTeam = Team::create(['club_id' => $otherClub->id, 'name' => 'Other Team']);
+        $otherSquad = Squad::create(['team_id' => $otherTeam->id, 'name' => 'Other Squad', 'created_by' => $this->admin->id]);
         Training::create([
             'club_id' => $otherClub->id,
             'location_id' => Location::create(['club_id' => $otherClub->id, 'name' => 'Other Hall', 'address' => 'Other St'])->id,
-            'team_id' => Team::create(['club_id' => $otherClub->id, 'name' => 'Other Team'])->id,
+            'team_id' => $otherTeam->id,
+            'squad_id' => $otherSquad->id,
             'coach_id' => User::factory()->create(['club_id' => $otherClub->id, 'role' => 'antrenor'])->id,
             'day_of_week' => 'marti',
             'start_time' => '14:00',
@@ -86,6 +98,7 @@ class TrainingApiTest extends TestCase
             'club_id' => $this->club->id,
             'location_id' => $this->location->id,
             'team_id' => $this->team->id,
+            'squad_id' => $this->squad->id,
             'coach_id' => $this->coach->id,
             'day_of_week' => 'luni',
             'start_time' => '10:00',
@@ -105,7 +118,7 @@ class TrainingApiTest extends TestCase
         $response = $this->actingAs($this->manager, 'sanctum')
             ->postJson('/api/trainings', [
             'location_id' => $this->location->id,
-            'team_id' => $this->team->id,
+            'squad_id' => $this->squad->id,
             'coach_id' => $this->coach->id,
             'day_of_week' => 'miercuri',
             'start_time' => '18:00',
@@ -123,11 +136,12 @@ class TrainingApiTest extends TestCase
     {
         $otherClub = Club::create(['name' => 'Other Club']);
         $otherTeam = Team::create(['club_id' => $otherClub->id, 'name' => 'Other Team']);
+        $otherSquad = Squad::create(['team_id' => $otherTeam->id, 'name' => 'Other Squad', 'created_by' => $this->admin->id]);
 
         $response = $this->actingAs($this->manager, 'sanctum')
             ->postJson('/api/trainings', [
             'location_id' => $this->location->id,
-            'team_id' => $otherTeam->id,
+            'squad_id' => $otherSquad->id,
             'coach_id' => $this->coach->id,
             'day_of_week' => 'joi',
             'start_time' => '18:00',
@@ -140,10 +154,13 @@ class TrainingApiTest extends TestCase
     public function test_manager_cannot_delete_other_club_training()
     {
         $otherClub = Club::create(['name' => 'Other Club']);
+        $otherTeam = Team::create(['club_id' => $otherClub->id, 'name' => 'Other Team']);
+        $otherSquad = Squad::create(['team_id' => $otherTeam->id, 'name' => 'Other Squad', 'created_by' => $this->admin->id]);
         $training = Training::create([
             'club_id' => $otherClub->id,
             'location_id' => Location::create(['club_id' => $otherClub->id, 'name' => 'Other Hall', 'address' => 'Other St'])->id,
-            'team_id' => Team::create(['club_id' => $otherClub->id, 'name' => 'Other Team'])->id,
+            'team_id' => $otherTeam->id,
+            'squad_id' => $otherSquad->id,
             'coach_id' => User::factory()->create(['club_id' => $otherClub->id, 'role' => 'antrenor'])->id,
             'day_of_week' => 'vineri',
             'start_time' => '14:00',
