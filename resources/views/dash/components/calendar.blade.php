@@ -109,6 +109,11 @@
                                 <span x-text="session.role === 'titular' ? 'Titular' : 'Rezervă'"></span>
                             </div>
 
+                            <div x-show="!canMarkAttendance() && session.type === 'game'" class="mt-1.5 flex items-center gap-1 text-[10px] opacity-60">
+                                <span class="material-symbols-outlined text-[12px]">visibility</span>
+                                <span>Detalii meci</span>
+                            </div>
+
                             <div x-show="canMarkAttendance()" class="mt-1.5 flex items-center gap-1 text-[10px] opacity-60">
                                 <span class="material-symbols-outlined text-[12px]" x-text="session.type === 'game' ? 'edit' : 'how_to_reg'"></span>
                                 <span x-text="session.type === 'game' ? 'Detalii meci' : 'Bifează prezența'"></span>

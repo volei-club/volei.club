@@ -77,10 +77,10 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-1">
-                                    <button @click="openGameModal(g)" class="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" title="Editează">
-                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    <button @click="openGameModal(g)" class="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" :title="canModifyMatches() ? 'Editează' : 'Detalii'">
+                                        <span class="material-symbols-outlined text-[20px]" x-text="canModifyMatches() ? 'edit' : 'visibility'"></span>
                                     </button>
-                                    <button @click="deleteGame(g.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge">
+                                    <button x-show="canModifyMatches()" @click="deleteGame(g.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge">
                                         <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>
                                 </div>
@@ -122,10 +122,10 @@
 
                     <div class="pt-4 border-t border-slate-50 dark:border-slate-800 flex justify-end gap-2">
                         <button @click="openGameModal(g)" class="flex-1 py-2.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-[18px]">edit</span>
-                            Editează
+                            <span class="material-symbols-outlined text-[18px]" x-text="canModifyMatches() ? 'edit' : 'visibility'"></span>
+                            <span x-text="canModifyMatches() ? 'Editează' : 'Detalii'"></span>
                         </button>
-                        <button @click="deleteGame(g.id)" class="flex-1 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                        <button x-show="canModifyMatches()" @click="deleteGame(g.id)" class="flex-1 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[18px]">delete</span>
                             Șterge
                         </button>

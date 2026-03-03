@@ -62,6 +62,10 @@ Alpine.data('gameManager', () => ({
     },
 
     canAddGame() {
+        return this.canModifyMatches();
+    },
+
+    canModifyMatches() {
         return ['administrator', 'manager', 'antrenor'].includes(this.user?.role);
     },
 

@@ -1,6 +1,10 @@
 Alpine.store('gameModal', {
     show: false,
     editingId: null,
+    canModifyMatches() {
+        const user = Alpine.raw(Alpine.store('auth')?.user || {});
+        return ['administrator', 'manager', 'antrenor'].includes(user.role);
+    },
     loadingMembers: false,
     saving: false,
     members: [],
