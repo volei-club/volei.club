@@ -7,6 +7,8 @@ Alpine.data('teamManager', () => ({
     showPreview: false,
     previewTeam: null,
     error: null,
+    search: '',
+    pagination: { current_page: 1, last_page: 1, total: 0, per_page: 50 },
     form: { id: null, name: '', club_id: '' },
     filters: { club_id: '' },
 
@@ -147,11 +149,15 @@ Alpine.data('teamManager', () => ({
         } catch(e) {}
     },
 
-    async fetchTeams() {
+    async fetchTeams(resetPage = true) {
+        if (resetPage) this.pagination.current_page = 1;
         this.loading = true;
         try {
             const params = new URLSearchParams();
             if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+            if (this.search) params.append('search', this.search);
+            params.append('page', this.pagination.current_page);
+            params.append('per_page', this.pagination.per_page);
 
             const res = await fetch(`/api/teams?${params.toString()}`, {
                 headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
@@ -159,10 +165,19 @@ Alpine.data('teamManager', () => ({
             if(res.ok) {
                 const payload = await res.json();
                 this.teams = payload.data;
+                if (payload.meta) {
+                    this.pagination = payload.meta;
+                }
                 this.processHashActions();
             }
         } catch (e) { console.error(e); }
         this.loading = false;
+    },
+
+    changePage(p) {
+        if (p < 1 || p > this.pagination.last_page) return;
+        this.pagination.current_page = p;
+        this.fetchTeams(false);
     },
 
     async saveTeam() {

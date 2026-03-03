@@ -25,9 +25,23 @@ class TeamController extends Controller
             }
         }
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $perPage = $request->input('per_page', 50);
+        $paginator = $query->with('users')->latest()->paginate($perPage);
+
         return response()->json([
             'status' => 'success',
-            'data' => $query->with('users')->latest()->get()
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ]
         ]);
     }
 

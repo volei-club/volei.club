@@ -11,18 +11,29 @@
                     </button>
                 </div>
 
-                <template x-if="user?.role === 'administrator'">
-                    <div class="mb-6 flex flex-col md:flex-row gap-4">
+                <div class="mb-6 flex flex-col md:flex-row gap-4 items-center">
+                    <div class="w-full md:flex-1 relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input 
+                            type="text" 
+                            x-model="search" 
+                            @input.debounce.500ms="fetchSquads()" 
+                            placeholder="Caută după numele echipei..." 
+                            class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                        >
+                    </div>
+
+                    <template x-if="user?.role === 'administrator'">
                         <div class="w-full md:w-64">
-                            <select x-model="filters.club_id" @change="fetchSquads(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
+                            <select x-model="filters.club_id" @change="fetchSquads(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focusring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
                                 <option value="">Toate Echipele din Toate Cluburile</option>
                                 <template x-for="c in availableClubs" :key="c.id">
                                     <option :value="c.id" x-text="c.name"></option>
                                 </template>
                             </select>
                         </div>
-                    </div>
-                </template>
+                    </template>
+                </div>
 
 
                 <!-- Loading Overlay -->
@@ -98,6 +109,9 @@
                                 </div>
                             </div>
 
+                                </div>
+                            </div>
+
                             <div class="px-5 py-4 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2">
                                 <button @click="openPreview(squad)" class="flex-1 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
                                     <span class="material-symbols-outlined text-[18px]">groups</span>
@@ -111,13 +125,53 @@
                                     <span class="material-symbols-outlined text-[18px]">delete</span>
                                     Șterge
                                 </button>
+                            </div>
                         </div>
                     </template>
                 </div>
 
-                <div x-show="squads.length === 0 && !loading" class="text-center py-12">
+                <div x-show="squads.length === 0 && !loading" class="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 border-dashed">
                     <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">groups_2</span>
                     <p class="text-slate-500">Nu a fost găsită nicio echipă.</p>
+                </div>
+
+                <!-- Pagination -->
+                <div x-show="pagination.last_page > 1" class="mt-4 px-6 py-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                        Pagina <span x-text="pagination.current_page"></span> din <span x-text="pagination.last_page"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button 
+                            @click="changePage(pagination.current_page - 1)" 
+                            :disabled="pagination.current_page === 1"
+                            class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
+                        >
+                            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                        </button>
+                        
+                        <template x-for="p in Array.from({length: Math.min(5, pagination.last_page)}, (_, i) => {
+                            if (pagination.last_page <= 5) return i + 1;
+                            let start = Math.max(1, pagination.current_page - 2);
+                            let end = Math.min(pagination.last_page, start + 4);
+                            if (end === pagination.last_page) start = Math.max(1, end - 4);
+                            return start + i;
+                        })" :key="p">
+                            <button 
+                                @click="changePage(p)" 
+                                :class="p === pagination.current_page ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                                class="w-10 h-10 rounded-xl border font-bold text-sm transition-all shadow-sm"
+                                x-text="p"
+                            ></button>
+                        </template>
+
+                        <button 
+                            @click="changePage(pagination.current_page + 1)" 
+                            :disabled="pagination.current_page === pagination.last_page"
+                            class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
+                        >
+                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Squad Preview Modal -->

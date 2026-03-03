@@ -28,7 +28,7 @@ class SquadController extends Controller
             });
         }
 
-        // Filtru opțional de listare UI bazat strict pe Club (pentru admini)
+        // Filtru opțional de listare UI bazat strict pe Club (for admins)
         if ($request->filled('club_id')) {
             $query->whereHas('team', function ($q) use ($request) {
                 $q->where('club_id', $request->club_id);
@@ -40,9 +40,23 @@ class SquadController extends Controller
             $query->where('team_id', $request->team_id);
         }
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $perPage = $request->input('per_page', 50);
+        $paginator = $query->with('users')->latest()->paginate($perPage);
+
         return response()->json([
             'status' => 'success',
-            'data' => $query->with('users')->latest()->get()
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ]
         ]);
     }
 

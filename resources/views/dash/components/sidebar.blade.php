@@ -27,7 +27,7 @@
             <!-- Admin Section -->
             <template x-if="user?.role === 'administrator'">
                 <div>
-                    <div class="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Administrare</div>
+                    <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Administrare</div>
                     
                     <a href="/dash/cluburi" @click.prevent="navigate('/dash/cluburi'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/cluburi') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
@@ -55,7 +55,7 @@
             <!-- Management Section (Admins & Managers) -->
             <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
                 <div :class="user?.role === 'administrator' ? 'mt-4' : ''">
-                    <div x-show="user?.role === 'manager'" class="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Clubul Meu</div>
+                    <div x-show="user?.role === 'manager'" class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Clubul Meu</div>
                     <a href="/dash/membri" @click.prevent="navigate('/dash/membri'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/membri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
@@ -102,7 +102,7 @@
 
             <!-- Alte Opțiuni (Mesaje, Audit, Sistem) -->
             <div class="mt-8">
-                <div class="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Resurse & Sistem</div>
+                <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Resurse & Sistem</div>
                 
                 <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje'); isMobileMenuOpen = false;" 
                     :class="currentPage.startsWith('/dash/mesaje') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"

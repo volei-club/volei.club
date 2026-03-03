@@ -162,12 +162,10 @@ Alpine.data('subscriptionManager', () => ({
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}` 
                 },
-                body: JSON.stringify({ 
-                    name: this.form.name,
-                    price: this.form.price,
-                    period: this.form.period,
-                    club_id: this.form.club_id
-                })
+                body: JSON.stringify(Object.assign(
+                    { name: this.form.name, price: this.form.price, period: this.form.period },
+                    this.form.club_id ? { club_id: this.form.club_id } : {}
+                ))
             });
             
             const payload = await res.json();

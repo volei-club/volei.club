@@ -12,6 +12,8 @@ Alpine.data('userManager', () => ({
     showModal: false,
     error: null,
     photoPreview: null,
+    search: '',
+    pagination: { current_page: 1, last_page: 1, total: 0, per_page: 50 },
     form: { id: null, name: '', email: '', phone: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [], child_ids: [], photo: null, photo_url: null },
     availableStudents: [],
     loadingStudents: false,
@@ -277,7 +279,8 @@ Alpine.data('userManager', () => ({
         }
     },
 
-    async fetchUsers() {
+    async fetchUsers(resetPage = true) {
+        if (resetPage) this.pagination.current_page = 1;
         this.loading = true;
         try {
             const params = new URLSearchParams();
@@ -285,6 +288,9 @@ Alpine.data('userManager', () => ({
             if (this.filters.club_id) params.append('club_id', this.filters.club_id);
             if (this.filters.team_id) params.append('team_id', this.filters.team_id);
             if (this.filters.squad_id) params.append('squad_id', this.filters.squad_id);
+            if (this.search) params.append('search', this.search);
+            params.append('page', this.pagination.current_page);
+            params.append('per_page', this.pagination.per_page);
 
             const res = await fetch(`/api/users?${params.toString()}`, {
                 headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
@@ -292,10 +298,19 @@ Alpine.data('userManager', () => ({
             if(res.ok) {
                 const payload = await res.json();
                 this.users = payload.data;
+                if (payload.meta) {
+                    this.pagination = payload.meta;
+                }
                 this.processHashActions();
             }
         } catch (e) {}
         this.loading = false;
+    },
+
+    changePage(p) {
+        if (p < 1 || p > this.pagination.last_page) return;
+        this.pagination.current_page = p;
+        this.fetchUsers(false);
     },
 
     async fetchDependentData() {
@@ -405,7 +420,7 @@ Alpine.data('userManager', () => ({
         }
         this.loadingStudents = true;
         try {
-            const res = await fetch(`/api/users?club_id=${cId}&role=sportiv`, {
+            const res = await fetch(`/api/users?club_id=${cId}&role=sportiv&per_page=1000`, {
                 headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
             });
             if (res.ok) {

@@ -78,9 +78,27 @@ class UserController extends Controller
         // Ascunde utilizatorul apelant din lista proprie
         $query->where('id', '!=', $request->user()->id);
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 50);
+        $paginator = $query->latest()->paginate($perPage);
+
         return response()->json([
             'status' => 'success',
-            'data' => $query->latest()->get()
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ]
         ]);
     }
 

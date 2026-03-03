@@ -8,6 +8,8 @@ Alpine.data('squadManager', () => ({
     showPreview: false,
     previewSquad: null,
     error: null,
+    search: '',
+    pagination: { current_page: 1, last_page: 1, total: 0, per_page: 50 },
     form: { id: null, name: '', club_id: '', team_id: '' },
     filters: { club_id: '' },
 
@@ -184,11 +186,15 @@ Alpine.data('squadManager', () => ({
         } catch(e) {}
     },
 
-    async fetchSquads() {
+    async fetchSquads(resetPage = true) {
+        if (resetPage) this.pagination.current_page = 1;
         this.loading = true;
         try {
             const params = new URLSearchParams();
             if (this.filters.club_id) params.append('club_id', this.filters.club_id);
+            if (this.search) params.append('search', this.search);
+            params.append('page', this.pagination.current_page);
+            params.append('per_page', this.pagination.per_page);
 
             const res = await fetch(`/api/squads?${params.toString()}`, {
                 headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
@@ -196,10 +202,19 @@ Alpine.data('squadManager', () => ({
             if(res.ok) {
                 const payload = await res.json();
                 this.squads = payload.data;
+                if (payload.meta) {
+                    this.pagination = payload.meta;
+                }
                 this.processHashActions();
             }
         } catch(e) {}
         this.loading = false;
+    },
+
+    changePage(p) {
+        if (p < 1 || p > this.pagination.last_page) return;
+        this.pagination.current_page = p;
+        this.fetchSquads(false);
     },
 
     async saveSquad() {
