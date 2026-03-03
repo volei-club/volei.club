@@ -18,7 +18,7 @@ Alpine.data('dashboard', () => ({
         },
 
     navigate(path) {
-        const calendarRoles = ['antrenor', 'jucatoare', 'parinte'];
+        const calendarRoles = ['antrenor', 'sportiv', 'parinte'];
         if (this.user) {
             if (!['administrator', 'manager'].includes(this.user.role)
                 && path !== '/dash'
@@ -86,7 +86,7 @@ Alpine.data('dashboard', () => ({
                 this.isLoading = false;
                 
                 // Security check fallback for deep links
-                const calendarRoles = ['antrenor', 'jucatoare', 'parinte'];
+                const calendarRoles = ['antrenor', 'sportiv', 'parinte'];
                 if (!['administrator', 'manager'].includes(this.user.role)
                     && this.currentPage !== '/dash'
                     && !this.currentPage.startsWith('/dash/mesaje')

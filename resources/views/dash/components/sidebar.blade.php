@@ -135,8 +135,8 @@
             
             <div class="flex-1"></div>
 
-            <!-- Calendar Section (Antrenori, Jucatoare, Parinti, Manageri, Admini) -->
-            <template x-if="['administrator', 'manager', 'antrenor','jucatoare','parinte'].includes(user?.role)">
+            <!-- Calendar Section (Antrenori, Sportivi, Parinti, Manageri, Admini) -->
+            <template x-if="['administrator', 'manager', 'antrenor','sportiv','parinte'].includes(user?.role)">
                 <div class="mt-4">
                     <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Activitate</div>
                     <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
