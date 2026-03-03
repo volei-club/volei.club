@@ -16,6 +16,26 @@
         <p class="text-slate-500 font-medium">Se încarcă locațiile...</p>
     </div>
 
+    <div x-show="user?.role === 'administrator'" class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm mb-6">
+        <div class="max-w-xs">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Filtrează după Club</label>
+            <template x-if="allClubs.length > 0">
+                <select x-model="selectedClubId" @change="updateHash()"
+                        class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                    <option value="">Toate Cluburile</option>
+                    <template x-for="club in allClubs" :key="club.id">
+                        <option :value="club.id" x-text="club.name"></option>
+                    </template>
+                </select>
+            </template>
+            <template x-if="allClubs.length === 0">
+                <div class="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-400">
+                    Se încarcă cluburile...
+                </div>
+            </template>
+        </div>
+    </div>
+
     <!-- Lista Locatii -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden flex-1 flex flex-col">
         <!-- Desktop Table -->
@@ -30,7 +50,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm italic">
-                    <template x-for="loc in locations" :key="loc.id">
+                    <template x-for="loc in filteredLocations" :key="loc.id">
                         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors not-italic">
                             <td class="px-6 py-4 font-bold text-slate-900 dark:text-white" x-text="loc.name"></td>
                             <td class="px-6 py-4 text-slate-600 dark:text-slate-400" x-text="loc.address"></td>
@@ -55,7 +75,7 @@
 
         <!-- Mobile Cards -->
         <div class="md:hidden flex-1 overflow-y-auto p-4 space-y-4">
-            <template x-for="loc in locations" :key="loc.id">
+            <template x-for="loc in filteredLocations" :key="loc.id">
                 <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 shadow-sm space-y-3">
                     <div class="flex justify-between items-start">
                         <h4 class="font-bold text-lg text-slate-900 dark:text-white" x-text="loc.name"></h4>
@@ -97,13 +117,13 @@
 
     <!-- Modal Adaugare/Editare -->
     <div x-show="showModal" 
-         @keydown.escape.window="showModal = false"
+         @keydown.escape.window="showModal = false; updateHash();"
          style="display: none;" 
          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all transform scale-100">
             <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20">
                 <h3 class="text-xl font-bold text-slate-800 dark:text-white" x-text="editingId ? 'Editează Locație' : 'Adaugă Locație'"></h3>
-                <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                <button @click="showModal = false; updateHash();" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
@@ -130,7 +150,7 @@
                 </div>
 
                 <div class="flex gap-3 pt-4">
-                    <button type="button" @click="showModal = false" class="flex-1 px-6 py-3 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 transition-all">
+                    <button type="button" @click="showModal = false; updateHash();" class="flex-1 px-6 py-3 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 transition-all">
                         Anulează
                     </button>
                     <button type="submit" :disabled="saving" class="flex-1 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2">

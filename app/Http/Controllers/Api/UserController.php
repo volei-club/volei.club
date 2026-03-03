@@ -46,7 +46,7 @@ class UserController extends Controller
         }
 
         if ($request->filled('team_id')) {
-            $query->where(function ($q) use ($request) {
+            $query->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($request) {
                 // Direct association
                 $q->whereHas('teams', function ($sq) use ($request) {
                         $sq->where('teams.id', $request->team_id);

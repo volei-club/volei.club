@@ -13,6 +13,7 @@
         @include('dash.scripts.locations')
         @include('dash.scripts.trainings')
         @include('dash.scripts.calendar')
+        @include('dash.scripts.performance')
         @include('dash.scripts.messages')
         @include('dash.scripts.system')
         @include('dash.scripts.profile')

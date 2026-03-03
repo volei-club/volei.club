@@ -41,7 +41,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('attendances', [\App\Http\Controllers\Api\AttendanceController::class , 'index']);
         Route::post('attendances', [\App\Http\Controllers\Api\AttendanceController::class , 'store']);
         Route::delete('attendances/{id}', [\App\Http\Controllers\Api\AttendanceController::class , 'destroy']);
-        Route::get('my-calendar', [\App\Http\Controllers\Api\AttendanceController::class , 'myCalendar']);
+        Route::get('/my-calendar', [\App\Http\Controllers\Api\AttendanceController::class , 'myCalendar']);
+
+        // Performance Tracking
+        Route::get('/performance/{userId}', [\App\Http\Controllers\Api\PerformanceController::class , 'index']);
+        Route::post('/performance', [\App\Http\Controllers\Api\PerformanceController::class , 'store']);
+        Route::delete('/performance/{id}', [\App\Http\Controllers\Api\PerformanceController::class , 'destroy']);
 
         Route::post('/impersonate/{user}', [\App\Http\Controllers\Api\ImpersonationController::class , 'impersonate']);
         Route::post('/impersonate-leave', [\App\Http\Controllers\Api\ImpersonationController::class , 'leave']);

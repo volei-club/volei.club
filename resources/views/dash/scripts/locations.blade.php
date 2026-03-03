@@ -5,6 +5,8 @@ Alpine.data('locationManager', () => ({
     showModal: false,
     editingId: null,
     allClubs: [],
+    selectedClubId: '',
+    restoring: false,
     formData: {
         name: '',
         address: '',
@@ -32,13 +34,53 @@ Alpine.data('locationManager', () => ({
         }
     },
 
-    onPageActive() {
-        this.fetchLocations();
-        if (this.user?.role === 'administrator') {
-            this.fetchClubs();
-        } else if (this.user?.role === 'manager') {
-            this.formData.club_id = this.user.club_id;
+    async onPageActive() {
+        this.restoring = true;
+        try {
+            const params = new URLSearchParams(window.location.hash.slice(1));
+            const hashClubId = params.get('club');
+            const action = params.get('action');
+            const locationId = params.get('id');
+
+            await this.fetchLocations();
+            
+            if (this.user?.role === 'administrator') {
+                await this.fetchClubs();
+                if (hashClubId) {
+                    this.$nextTick(() => {
+                        this.selectedClubId = hashClubId;
+                    });
+                }
+            } else if (this.user?.role === 'manager') {
+                this.selectedClubId = this.user.club_id;
+                this.formData.club_id = this.user.club_id;
+            }
+
+            // Restore modal state
+            if (action === 'add') {
+                this.$nextTick(() => this.openModal(null));
+            } else if (action === 'edit' && locationId) {
+                this.$nextTick(() => {
+                    const loc = this.locations.find(l => l.id === locationId);
+                    if (loc) this.openModal(loc);
+                });
+            }
+        } finally {
+            this.restoring = false;
         }
+    },
+
+    updateHash() {
+        if (this.restoring) return;
+        const params = new URLSearchParams();
+        if (this.selectedClubId) params.set('club', this.selectedClubId);
+        
+        if (this.showModal) {
+            params.set('action', this.editingId ? 'edit' : 'add');
+            if (this.editingId) params.set('id', this.editingId);
+        }
+
+        window.location.hash = params.toString();
     },
 
     async fetchLocations() {
@@ -93,6 +135,7 @@ Alpine.data('locationManager', () => ({
             };
         }
         this.showModal = true;
+        this.updateHash();
     },
 
     async saveLocation() {
@@ -169,5 +212,10 @@ Alpine.data('locationManager', () => ({
         } catch (e) {
             window.showToast("Eroare de rețea la ștergerea locației.", 'error');
         }
+    },
+
+    get filteredLocations() {
+        if (!this.selectedClubId) return this.locations;
+        return this.locations.filter(l => l.club_id === this.selectedClubId);
     }
 }));

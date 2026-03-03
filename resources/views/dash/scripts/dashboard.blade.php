@@ -14,16 +14,20 @@ Alpine.data('dashboard', () => ({
             if(this.currentPage.startsWith('/dash/echipe')) return 'Echipe';
             if(this.currentPage.startsWith('/dash/abonamente')) return 'Abonamente';
             if(this.currentPage.startsWith('/dash/calendar')) return 'Calendar';
+            if(this.currentPage.startsWith('/dash/performanta')) return 'Performanță';
             return 'Dashboard';
         },
 
     navigate(path) {
         const calendarRoles = ['antrenor', 'sportiv', 'parinte'];
         if (this.user) {
+            const calendarRoles = ['antrenor', 'sportiv', 'parinte'];
+            const isCalendarOrPerf = path.startsWith('/dash/calendar') || path.startsWith('/dash/performanta');
+            
             if (!['administrator', 'manager'].includes(this.user.role)
                 && path !== '/dash'
                 && !path.startsWith('/dash/mesaje')
-                && !(calendarRoles.includes(this.user.role) && path.startsWith('/dash/calendar'))
+                && !(calendarRoles.includes(this.user.role) && isCalendarOrPerf)
             ) {
                 path = '/dash';
             }
@@ -90,7 +94,7 @@ Alpine.data('dashboard', () => ({
                 if (!['administrator', 'manager'].includes(this.user.role)
                     && this.currentPage !== '/dash'
                     && !this.currentPage.startsWith('/dash/mesaje')
-                    && !(calendarRoles.includes(this.user.role) && this.currentPage.startsWith('/dash/calendar'))
+                    && !(calendarRoles.includes(this.user.role) && (this.currentPage.startsWith('/dash/calendar') || this.currentPage.startsWith('/dash/performanta')))
                 ) {
                     this.navigate('/dash/calendar');
                 } else if (this.user.role === 'manager' && this.currentPage.startsWith('/dash/cluburi')) {
