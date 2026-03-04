@@ -118,18 +118,18 @@
 
             <!-- Chart Card -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-h-[350px] flex flex-col">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <h4 class="font-bold text-slate-800 dark:text-white" x-text="'Evoluție ' + activeMetricLabel"></h4>
-                    <div class="flex gap-2">
+                    <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 scrollbar-none -mr-2 sm:mr-0">
                         <button @click="setMetric('detenta')" 
                                 :class="activeMetric === 'detenta' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                                class="px-3 py-1 text-xs font-bold rounded-lg transition-colors">Detentă</button>
+                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">Detentă</button>
                         <button @click="setMetric('viteza')" 
                                 :class="activeMetric === 'viteza' ? 'bg-indigo-500/10 text-indigo-500' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                                class="px-3 py-1 text-xs font-bold rounded-lg transition-colors">Viteză</button>
+                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">Viteză</button>
                         <button @click="setMetric('greutate')" 
                                 :class="activeMetric === 'greutate' ? 'bg-slate-500/10 text-slate-500' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                                class="px-3 py-1 text-xs font-bold rounded-lg transition-colors">Greutate</button>
+                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">Greutate</button>
                     </div>
                 </div>
                 
@@ -149,6 +149,11 @@
                                  <line x1="50" y1="30" x2="950" y2="30" stroke="currentColor" class="text-slate-100 dark:text-slate-700/50" stroke-dasharray="4" />
                                  <line x1="50" y1="280" x2="950" y2="280" stroke="currentColor" class="text-slate-100 dark:text-slate-700/50" stroke-dasharray="4" />
 
+                                 <!-- Date Labels (X-Axis) moved inside SVG for perfect scaling -->
+                                 <template x-for="p in chartPoints" :key="'lbl_' + p.raw.id">
+                                     <text :x="p.x" y="340" text-anchor="middle" class="text-[24px] fill-slate-400 font-medium" x-text="p.label"></text>
+                                 </template>
+
                                  <!-- Only the lines and axis in SVG -->
                                  <path :d="chartDataPath" fill="none" stroke="currentColor" class="text-primary" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
                              </svg>
@@ -162,15 +167,11 @@
                                           @mouseleave="activeTooltip = null">
                                          
                                          <!-- Point Dot -->
-                                         <div class="w-3 h-3 bg-white border-2 border-primary rounded-full shadow-sm"></div>
+                                         <div class="w-3 h-3 bg-white border-2 border-primary rounded-full shadow-sm group-hover:scale-125 transition-transform"></div>
                                          
                                          <!-- Value & Unit (Always visible) -->
-                                         <div class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap"
+                                         <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 text-[10px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap bg-white/80 dark:bg-slate-800/80 px-1 rounded shadow-sm"
                                               x-text="p.val + ' ' + p.unit"></div>
-                                         
-                                         <!-- Date (X-axis) -->
-                                         <div class="absolute top-[315px] left-1/2 -translate-x-1/2 text-[10px] text-slate-400 whitespace-nowrap"
-                                              x-text="p.label"></div>
                                      </div>
                                  </template>
                              </div>
