@@ -14,8 +14,8 @@ Route::post('/resetare-parola', [ApiAuthController::class , 'resetPassword']);
 // Protected routes using Sanctum token
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-            // Returnăm userul complet plus club-ul său pentru UI-ul de profil
-            return response()->json($request->user()->load('club'));
+            // Returnăm userul complet plus club-ul său și copiii (pentru părinți)
+            return response()->json($request->user()->load(['club', 'children']));
         }
         );
         Route::put('/user/profile', [\App\Http\Controllers\Api\UserController::class , 'updateProfile']);

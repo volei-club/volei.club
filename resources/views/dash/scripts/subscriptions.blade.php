@@ -2,6 +2,8 @@ Alpine.data('subscriptionManager', () => ({
     subscriptions: [],
     mySubscriptions: [],
     availableClubs: [],
+    children: [],
+    selectedChildId: null,
     loading: false,
     saving: false,
     showModal: false,
@@ -26,7 +28,11 @@ Alpine.data('subscriptionManager', () => ({
             if (this.user?.role === 'administrator' || this.user?.role === 'manager') {
                 this.fetchSubscriptions();
             } else if (this.user) {
-                this.fetchMySubscriptions();
+                if (this.user.role === 'parinte' && !this.selectedChildId) {
+                    this.loadChildren().then(() => this.fetchMySubscriptions());
+                } else {
+                    this.fetchMySubscriptions();
+                }
             }
         };
 
@@ -139,6 +145,21 @@ Alpine.data('subscriptionManager', () => ({
             }
         } catch(e) {}
     },
+    
+    async loadChildren() {
+        if (this.user?.role !== 'parinte') return;
+        try {
+            const res = await fetch(`/api/users?per_page=100`, {
+                headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                // We use the children from the user object if available, or the API results
+                this.children = this.user.children || (data.data ?? []).filter(u => u.role === 'sportiv');
+                if (this.children.length > 0) this.selectedChildId = this.children[0].id;
+            }
+        } catch(e) { console.error(e); }
+    },
 
     async fetchSubscriptions() {
         this.loading = true;
@@ -161,7 +182,11 @@ Alpine.data('subscriptionManager', () => ({
     async fetchMySubscriptions() {
         this.loading = true;
         try {
-            const res = await fetch(`/api/user-subscriptions/me`, {
+            let url = `/api/user-subscriptions/me`;
+            if (this.user?.role === 'parinte' && this.selectedChildId) {
+                url += `?user_id=${this.selectedChildId}`;
+            }
+            const res = await fetch(url, {
                 headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
             });
             if(res.ok) {

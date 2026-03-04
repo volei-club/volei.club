@@ -33,9 +33,8 @@ Alpine.data('calendarManager', () => ({
             });
             if (res.ok) {
                 const data = await res.json();
-                // Filter to children only
-                const childIds = (this.user.children_ids ?? []);
-                this.children = (data.data ?? []).filter(u => u.role === 'sportiv');
+                // We use the children from the user object if available, or the API results
+                this.children = this.user.children || (data.data ?? []).filter(u => u.role === 'sportiv');
                 if (this.children.length > 0) this.selectedChildId = this.children[0].id;
             }
         } catch(e) { console.error(e); }

@@ -137,6 +137,21 @@
                 <template x-if="user?.role && user.role !== 'administrator' && user.role !== 'manager'">
                     <div class="flex-1 flex flex-col gap-6">
                         
+                        {{-- Parent: child selector --}}
+                        <template x-if="user?.role === 'parinte' && children.length > 1">
+                            <div class="flex items-center gap-3 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                                <span class="material-symbols-outlined text-slate-400">child_care</span>
+                                <div class="flex-1">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Vezi abonamentele pentru:</p>
+                                    <select x-model="selectedChildId" @change="fetchMySubscriptions()" class="w-full bg-transparent font-bold text-slate-900 dark:text-white outline-none">
+                                        <template x-for="child in children" :key="child.id">
+                                            <option :value="child.id" x-text="child.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+                        </template>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Abonament Activ -->
                             <div class="bg-gradient-to-br from-primary to-primary-dark rounded-[20px] md:rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">

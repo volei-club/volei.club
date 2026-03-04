@@ -184,9 +184,25 @@ class UserSubscriptionController extends Controller
     public function mySubscriptions(Request $request)
     {
         $user = $request->user();
+        $targetUserId = $request->query('user_id', $user->id);
+
+        // Authorization check: User can see their own, or a parent can see their children
+        if ($targetUserId != $user->id) {
+            $isChild = false;
+            if ($user->role === 'parinte') {
+                $childIds = $user->children()->pluck('users.id')->toArray();
+                if (in_array((int)$targetUserId, $childIds)) {
+                    $isChild = true;
+                }
+            }
+
+            if (!$isChild && !in_array($user->role, ['administrator', 'manager'])) {
+                return response()->json(['message' => 'Acces interzis.'], 403);
+            }
+        }
 
         $subscriptions = UserSubscription::with('subscription')
-            ->where('user_id', $user->id)
+            ->where('user_id', $targetUserId)
             ->orderBy('created_at', 'desc')
             ->get();
 

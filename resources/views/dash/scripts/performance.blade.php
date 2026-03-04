@@ -185,10 +185,9 @@ Alpine.data('performanceManager', () => ({
             const res = await fetch('/api/users?per_page=100', {
                 headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
             });
-            const data = await res.json();
             if (res.ok) {
-                const childIds = this.user.children_ids || [];
-                this.availableAthletes = (data.data || []).filter(u => u.role === 'sportiv');
+                const data = await res.json();
+                this.availableAthletes = this.user.children || (data.data || []).filter(u => u.role === 'sportiv');
                 if (this.availableAthletes.length > 0) {
                     this.selectAthlete(this.availableAthletes[0]);
                 }
@@ -226,7 +225,7 @@ Alpine.data('performanceManager', () => ({
     },
 
     selectAthleteById(id) {
-        const athlete = this.availableAthletes.find(a => a.id === id);
+        const athlete = this.availableAthletes.find(a => a.id == id);
         if (athlete) this.selectAthlete(athlete);
     },
 
@@ -238,7 +237,7 @@ Alpine.data('performanceManager', () => ({
     },
 
     onModalAthleteChange(id) {
-        const athlete = this.availableAthletes.find(a => a.id === id);
+        const athlete = this.availableAthletes.find(a => a.id == id);
         if (athlete) {
             this.selectAthlete(athlete);
         }

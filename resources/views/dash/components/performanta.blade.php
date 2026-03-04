@@ -92,6 +92,24 @@
         </div>
     </template>
 
+    <!-- Athlete Selector for Parents -->
+    <template x-if="user?.role === 'parinte' && availableAthletes.length > 1">
+        <div class="mb-6 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-slate-400">child_care</span>
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Vezi performanța pentru:</label>
+                    <select @change="selectAthleteById($event.target.value)" :value="selectedAthleteId"
+                            class="w-full bg-transparent font-bold text-primary outline-none appearance-none cursor-pointer">
+                        <template x-for="athlete in availableAthletes" :key="athlete.id">
+                            <option :value="athlete.id" x-text="athlete.name"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </template>
+
     <!-- Content Area -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Chart/Stats Column -->
