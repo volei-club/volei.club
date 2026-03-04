@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Conversation;
-use App\Models\User;
 use App\Services\ChatService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {

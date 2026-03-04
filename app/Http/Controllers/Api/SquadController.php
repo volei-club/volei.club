@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Squad;
 use App\Services\TeamSquadService;
 use Illuminate\Http\Request;
 

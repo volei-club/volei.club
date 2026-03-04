@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Training;
-use App\Models\Squad;
 use App\Services\EventService;
 use App\Services\TeamSquadService;
 use Illuminate\Http\Request;

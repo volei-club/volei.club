@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserSubscription;
-use App\Models\User;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 

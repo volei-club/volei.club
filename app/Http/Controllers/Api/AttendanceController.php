@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attendance;
-use App\Models\Training;
-use App\Models\User;
 use App\Services\AttendanceService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
