@@ -212,4 +212,24 @@ class UserService
 
         return null;
     }
+
+    /**
+     * Get a user by their email address.
+     */
+    public function getUserByEmail(string $email): ?User
+    {
+        return User::where('email', $email)->first();
+    }
+
+    /**
+     * Get a user by their ID, supporting relationships.
+     */
+    public function getUserById(string $id, array $relations = []): User
+    {
+        $query = User::query();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+        return $query->findOrFail($id);
+    }
 }

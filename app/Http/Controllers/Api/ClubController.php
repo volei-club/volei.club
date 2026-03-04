@@ -56,7 +56,7 @@ class ClubController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $club = Club::findOrFail($id);
+        $club = $this->clubService->getClubById($id);
 
         if ($request->user()->role !== 'administrator' && $request->user()->club_id !== $club->id) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
@@ -73,7 +73,7 @@ class ClubController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $club = Club::findOrFail($id);
+        $club = $this->clubService->getClubById($id);
 
         if ($request->user()->role !== 'administrator') {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
@@ -101,7 +101,7 @@ class ClubController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
-        $club = Club::findOrFail($id);
+        $club = $this->clubService->getClubById($id);
 
         $error = $this->clubService->canDeleteClub($club);
         if ($error) {

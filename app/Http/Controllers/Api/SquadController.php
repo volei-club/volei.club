@@ -56,11 +56,7 @@ class SquadController extends Controller
         ]);
 
         if ($role !== 'administrator') {
-            $validTeam = \App\Models\Team::where('id', $validated['team_id'])
-                ->where('club_id', $request->user()->club_id)
-                ->exists();
-
-            if (!$validTeam) {
+            if (!$this->teamSquadService->teamBelongsToClub($validated['team_id'], $request->user()->club_id)) {
                 return response()->json(['status' => 'error', 'message' => 'Eroare: Grupa selectată nu aparține clubului tău.'], 403);
             }
         }
@@ -77,9 +73,9 @@ class SquadController extends Controller
 
     public function show(string $id)
     {
-        $squad = Squad::with(['users' => function ($q) {
+        $squad = $this->teamSquadService->getSquadById($id, ['users' => function ($q) {
             $q->where('role', 'sportiv');
-        }])->findOrFail($id);
+        }]);
 
         return response()->json($squad);
     }
@@ -95,7 +91,7 @@ class SquadController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        $squad = Squad::findOrFail($id);
+        $squad = $this->teamSquadService->getSquadById($id);
 
         if ($role !== 'administrator') {
             if ($squad->team->club_id !== $request->user()->club_id) {
@@ -109,11 +105,7 @@ class SquadController extends Controller
         ]);
 
         if ($role !== 'administrator') {
-            $validTeam = \App\Models\Team::where('id', $validated['team_id'])
-                ->where('club_id', $request->user()->club_id)
-                ->exists();
-
-            if (!$validTeam) {
+            if (!$this->teamSquadService->teamBelongsToClub($validated['team_id'], $request->user()->club_id)) {
                 return response()->json(['status' => 'error', 'message' => 'Eroare: Noua grupă selectată nu aparține clubului tău.'], 403);
             }
         }
@@ -138,7 +130,7 @@ class SquadController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        $squad = Squad::findOrFail($id);
+        $squad = $this->teamSquadService->getSquadById($id);
 
         if ($role !== 'administrator') {
             if ($squad->team->club_id !== $request->user()->club_id) {

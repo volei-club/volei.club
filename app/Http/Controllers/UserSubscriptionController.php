@@ -52,7 +52,7 @@ class UserSubscriptionController extends Controller
             'status' => 'sometimes|in:active_paid,active_pending,expired,cancelled'
         ]);
 
-        $userSubscription = UserSubscription::findOrFail($id);
+        $userSubscription = $this->subscriptionService->getUserSubscriptionById($id);
 
         if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
             return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
@@ -71,7 +71,7 @@ class UserSubscriptionController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $userSubscription = UserSubscription::findOrFail($id);
+        $userSubscription = $this->subscriptionService->getUserSubscriptionById($id);
 
         if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
             return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
@@ -91,7 +91,7 @@ class UserSubscriptionController extends Controller
             'status' => 'required|in:active_paid,active_pending,expired,cancelled'
         ]);
 
-        $userSubscription = UserSubscription::findOrFail($id);
+        $userSubscription = $this->subscriptionService->getUserSubscriptionById($id);
 
         if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
             return response()->json(['message' => 'Nu aveti permisiunea.'], 403);

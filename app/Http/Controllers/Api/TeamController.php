@@ -74,7 +74,7 @@ class TeamController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $team = Team::findOrFail($id);
+        $team = $this->teamSquadService->getTeamById($id);
 
         if ($request->user()->role !== 'administrator' && $team->club_id !== $request->user()->club_id) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
@@ -95,7 +95,7 @@ class TeamController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        $team = Team::findOrFail($id);
+        $team = $this->teamSquadService->getTeamById($id);
 
         if ($request->user()->role !== 'administrator' && $team->club_id !== $request->user()->club_id) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
@@ -123,7 +123,7 @@ class TeamController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        $team = Team::findOrFail($id);
+        $team = $this->teamSquadService->getTeamById($id);
 
         if ($request->user()->role !== 'administrator' && $team->club_id !== $request->user()->club_id) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);

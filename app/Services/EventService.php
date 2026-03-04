@@ -140,4 +140,24 @@ class EventService
 
         return null;
     }
+
+    /**
+     * Get a training by ID.
+     */
+    public function getTrainingById(string $id): Training
+    {
+        return Training::findOrFail($id);
+    }
+
+    /**
+     * Get a game by ID.
+     */
+    public function getGameById(string $id, array $relations = []): Game
+    {
+        $query = Game::query();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+        return $query->findOrFail($id);
+    }
 }

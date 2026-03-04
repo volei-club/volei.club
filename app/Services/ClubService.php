@@ -113,4 +113,12 @@ class ClubService
         }
         return null;
     }
+
+    /**
+     * Get a club by ID.
+     */
+    public function getClubById(string $id): Club
+    {
+        return Club::findOrFail($id);
+    }
 }

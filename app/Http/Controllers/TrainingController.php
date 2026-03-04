@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Training;
 use App\Models\Squad;
 use App\Services\EventService;
+use App\Services\TeamSquadService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class TrainingController extends Controller
 {
     protected $eventService;
+    protected $teamSquadService;
 
-    public function __construct(EventService $eventService)
+    public function __construct(EventService $eventService, TeamSquadService $teamSquadService)
     {
         $this->eventService = $eventService;
+        $this->teamSquadService = $teamSquadService;
     }
 
     public function index(Request $request)
@@ -53,7 +56,7 @@ class TrainingController extends Controller
             return response()->json(['message' => $error], 422);
         }
 
-        $squad = Squad::findOrFail($validated['squad_id']);
+        $squad = $this->teamSquadService->getSquadById($validated['squad_id']);
         $validated['team_id'] = $squad->team_id;
 
         $training = $this->eventService->saveTraining($validated);
@@ -63,7 +66,7 @@ class TrainingController extends Controller
     public function update(Request $request, $id)
     {
         $user = $request->user();
-        $training = Training::findOrFail($id);
+        $training = $this->eventService->getTrainingById($id);
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);
@@ -92,7 +95,7 @@ class TrainingController extends Controller
             return response()->json(['message' => $error], 422);
         }
 
-        $squad = Squad::findOrFail($validated['squad_id']);
+        $squad = $this->teamSquadService->getSquadById($validated['squad_id']);
         $validated['team_id'] = $squad->team_id;
 
         $updatedTraining = $this->eventService->saveTraining($validated, $training);
@@ -102,7 +105,7 @@ class TrainingController extends Controller
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
-        $training = Training::findOrFail($id);
+        $training = $this->eventService->getTrainingById($id);
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);

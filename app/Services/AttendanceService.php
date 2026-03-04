@@ -193,4 +193,24 @@ class AttendanceService
 
         return "$homeSets-$awaySets";
     }
+
+    /**
+     * Get a training by ID, with optional eager-loaded relations.
+     */
+    public function getTrainingById(string $id, array $relations = []): Training
+    {
+        $query = Training::query();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+        return $query->findOrFail($id);
+    }
+
+    /**
+     * Get an attendance record by ID.
+     */
+    public function getAttendanceById(string $id): Attendance
+    {
+        return Attendance::findOrFail($id);
+    }
 }

@@ -172,4 +172,16 @@ class ChatService
 
         return $query->orderBy('name')->get();
     }
+
+    /**
+     * Get a conversation by ID, with optional eager-loaded relations.
+     */
+    public function getConversationById(string $id, array $relations = []): Conversation
+    {
+        $query = Conversation::query();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+        return $query->findOrFail($id);
+    }
 }

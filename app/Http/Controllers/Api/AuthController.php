@@ -7,14 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\UserService;
 
 class AuthController extends Controller
 {
     protected $authService;
+    protected $userService;
 
-    public function __construct(AuthService $authService)
+    public function __construct(AuthService $authService, UserService $userService)
     {
         $this->authService = $authService;
+        $this->userService = $userService;
     }
 
     public function login(Request $request)
@@ -30,7 +33,12 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = User::where('email', $request->email)->firstOrFail();
+        $user = $this->userService->getUserByEmail($request->email);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

@@ -5,15 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\ImpersonationService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class ImpersonationController extends Controller
 {
     protected $impersonationService;
+    protected $userService;
 
-    public function __construct(ImpersonationService $impersonationService)
+    public function __construct(ImpersonationService $impersonationService, UserService $userService)
     {
         $this->impersonationService = $impersonationService;
+        $this->userService = $userService;
     }
 
     /**
@@ -22,7 +25,7 @@ class ImpersonationController extends Controller
     public function impersonate(Request $request, $id)
     {
         $admin = $request->user();
-        $targetUser = User::findOrFail($id);
+        $targetUser = $this->userService->getUserById($id);
 
         try {
             $targetToken = $this->impersonationService->startImpersonation($admin, $targetUser);

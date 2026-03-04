@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Squad;
 use App\Services\EventService;
+use App\Services\TeamSquadService;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
     protected $eventService;
+    protected $teamSquadService;
 
-    public function __construct(EventService $eventService)
+    public function __construct(EventService $eventService, TeamSquadService $teamSquadService)
     {
         $this->eventService = $eventService;
+        $this->teamSquadService = $teamSquadService;
     }
 
     public function index(Request $request)
@@ -32,7 +35,7 @@ class GameController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $squad = Squad::with('team')->findOrFail($request->squad_id);
+        $squad = $this->teamSquadService->getSquadById($request->squad_id, ['team']);
 
         $request->merge([
             'team_id' => $squad->team_id,
@@ -74,14 +77,14 @@ class GameController extends Controller
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        $game = Game::findOrFail($id);
+        $game = $this->eventService->getGameById($id);
 
         if ($user->role === 'manager' && $game->club_id !== $user->club_id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         if ($request->has('squad_id')) {
-            $squad = Squad::with('team')->findOrFail($request->squad_id);
+            $squad = $this->teamSquadService->getSquadById($request->squad_id, ['team']);
             $request->merge([
                 'team_id' => $squad->team_id,
                 'club_id' => $squad->team->club_id,
@@ -123,7 +126,7 @@ class GameController extends Controller
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        $game = Game::findOrFail($id);
+        $game = $this->eventService->getGameById($id);
 
         if ($user->role === 'manager' && $game->club_id !== $user->club_id) {
             return response()->json(['message' => 'Unauthorized'], 403);

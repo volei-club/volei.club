@@ -160,4 +160,24 @@ class SubscriptionService
         }
         return $expires;
     }
+
+    /**
+     * Get a subscription definition by ID.
+     */
+    public function getDefinitionById(string $id): Subscription
+    {
+        return Subscription::findOrFail($id);
+    }
+
+    /**
+     * Get a user subscription instance by ID.
+     */
+    public function getUserSubscriptionById(string $id, array $relations = []): UserSubscription
+    {
+        $query = UserSubscription::query();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+        return $query->findOrFail($id);
+    }
 }

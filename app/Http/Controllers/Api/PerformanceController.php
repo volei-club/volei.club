@@ -6,15 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\PerformanceLog;
 use App\Models\User;
 use App\Services\PerformanceService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class PerformanceController extends Controller
 {
     protected $performanceService;
+    protected $userService;
 
-    public function __construct(PerformanceService $performanceService)
+    public function __construct(PerformanceService $performanceService, UserService $userService)
     {
         $this->performanceService = $performanceService;
+        $this->userService = $userService;
     }
 
     /**
@@ -23,7 +26,7 @@ class PerformanceController extends Controller
     public function index(Request $request, $userId)
     {
         $viewer = $request->user();
-        $targetUser = User::findOrFail($userId);
+        $targetUser = $this->userService->getUserById($userId);
 
         if (!$this->performanceService->canViewPerformance($viewer, $targetUser)) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -60,7 +63,7 @@ class PerformanceController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $athlete = User::findOrFail($validated['user_id']);
+        $athlete = $this->userService->getUserById($validated['user_id']);
         if ($coach->role === 'manager' && $athlete->club_id !== $coach->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }

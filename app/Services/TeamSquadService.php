@@ -140,4 +140,79 @@ class TeamSquadService
         }
         return null;
     }
+
+    /**
+     * Validate that all provided team IDs belong to a specific club.
+     */
+    public function validateTeamsBelongToClub(array $teamIds, string $clubId): bool
+    {
+        if (empty($teamIds)) {
+            return true;
+        }
+
+        $validTeamsCount = Team::whereIn('id', $teamIds)
+            ->where('club_id', $clubId)
+            ->count();
+
+        return $validTeamsCount === count($teamIds);
+    }
+
+    /**
+     * Validate that all provided squad IDs belong to a specific set of teams.
+     */
+    public function validateSquadsBelongToTeams(array $squadIds, array $teamIds): bool
+    {
+        if (empty($squadIds)) {
+            return true;
+        }
+
+        $validSquads = Squad::whereIn('id', $squadIds)->pluck('team_id')->unique()->toArray();
+
+        return count(array_diff($validSquads, $teamIds)) === 0;
+    }
+
+    /**
+     * Get a team by ID.
+     */
+    public function getTeamById(string $id, array $relations = []): Team
+    {
+        $query = Team::query();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+        return $query->findOrFail($id);
+    }
+
+    /**
+     * Get a squad by ID.
+     */
+    public function getSquadById(string $id, array $relations = []): Squad
+    {
+        $query = Squad::query();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+        return $query->findOrFail($id);
+    }
+
+    /**
+     * Check if a team belongs to a given club.
+     */
+    public function teamBelongsToClub(string $teamId, string $clubId): bool
+    {
+        return Team::where('id', $teamId)
+            ->where('club_id', $clubId)
+            ->exists();
+    }
+
+    /**
+     * Get the unique team IDs that the given squads belong to.
+     */
+    public function getSquadTeamIds(array $squadIds): array
+    {
+        return Squad::whereIn('id', $squadIds)
+            ->pluck('team_id')
+            ->unique()
+            ->toArray();
+    }
 }

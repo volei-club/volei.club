@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Services\UserService;
+use App\Services\TeamSquadService;
 
 class UserController extends Controller
 {
     protected $userService;
+    protected $teamSquadService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, TeamSquadService $teamSquadService)
     {
         $this->userService = $userService;
+        $this->teamSquadService = $teamSquadService;
     }
 
     /**
@@ -78,10 +81,7 @@ class UserController extends Controller
         // Squad/Team ownership validation
         if (!empty($validated['team_ids'])) {
             $clubId = $validated['club_id'] ?? $creator->club_id;
-            $validTeamsCount = \App\Models\Team::whereIn('id', $validated['team_ids'])
-                ->where('club_id', $clubId)
-                ->count();
-            if ($validTeamsCount !== count($validated['team_ids'])) {
+            if (!$this->teamSquadService->validateTeamsBelongToClub($validated['team_ids'], $clubId)) {
                 return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
             }
         }
@@ -106,7 +106,7 @@ class UserController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        $userToEdit = User::findOrFail($id);
+        $userToEdit = $this->userService->getUserById($id);
 
         if ($creator->role !== 'administrator' && $userToEdit->club_id !== $creator->club_id) {
             return response()->json(['status' => 'error', 'message' => 'Nu aveți acces să editați acest utilizator.'], 403);
@@ -141,10 +141,7 @@ class UserController extends Controller
             $teamIds = $validated['team_ids'] ?? [];
             if (!empty($teamIds)) {
                 $clubIdToCheck = $validated['club_id'] ?? $userToEdit->club_id;
-                $validTeamsCount = \App\Models\Team::whereIn('id', $teamIds)
-                    ->where('club_id', $clubIdToCheck)
-                    ->count();
-                if ($validTeamsCount !== count($teamIds)) {
+                if (!$this->teamSquadService->validateTeamsBelongToClub($teamIds, $clubIdToCheck)) {
                     return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
                 }
             }
@@ -153,10 +150,10 @@ class UserController extends Controller
         if ($request->has('squad_ids')) {
             $squadIds = $validated['squad_ids'] ?? [];
             if (!empty($squadIds)) {
-                $validSquads = \App\Models\Squad::whereIn('id', $squadIds)->pluck('team_id')->unique()->toArray();
+                $validSquadTeamIds = $this->teamSquadService->getSquadTeamIds($squadIds);
                 if ($userToEdit->role !== 'antrenor' && $validated['role'] !== 'antrenor') {
                     $assignedTeams = $request->has('team_ids') ? ($validated['team_ids'] ?? []) : $userToEdit->teams->pluck('id')->toArray();
-                    if (count(array_diff($validSquads, $assignedTeams)) > 0) {
+                    if (!$this->teamSquadService->validateSquadsBelongToTeams($squadIds, $assignedTeams)) {
                         return response()->json(['status' => 'error', 'message' => 'Eroare: Echipele selectate aparțin de alte grupe decât cele asociate utilizatorului.'], 422);
                     }
                 }
@@ -183,7 +180,7 @@ class UserController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        $userToDelete = User::findOrFail($id);
+        $userToDelete = $this->userService->getUserById($id);
 
         $error = $this->userService->canDeleteUser($userToDelete, $caller);
         if ($error) {

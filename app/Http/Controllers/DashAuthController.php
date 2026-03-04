@@ -7,14 +7,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\UserService;
 
 class DashAuthController extends Controller
 {
     protected $authService;
+    protected $userService;
 
-    public function __construct(AuthService $authService)
+    public function __construct(AuthService $authService, UserService $userService)
     {
         $this->authService = $authService;
+        $this->userService = $userService;
     }
 
     public function showLogin()
@@ -29,7 +32,7 @@ class DashAuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = $this->userService->getUserByEmail($request->email);
 
         if ($user && Hash::check($request->password, $user->password)) {
             $this->authService->generateAndSend2FA($user);
@@ -62,7 +65,7 @@ class DashAuthController extends Controller
             return redirect()->route('dash.login');
         }
 
-        $user = User::find($userId);
+        $user = $this->userService->getUserById($userId);
 
         if (!$user || !$this->authService->verify2FA($user, $request->code)) {
             return back()->withErrors(['code' => 'Codul este invalid sau a expirat.']);
@@ -83,7 +86,7 @@ class DashAuthController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found in session'], 400);
         }
 
-        $user = User::find($userId);
+        $user = $this->userService->getUserById($userId);
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
@@ -122,7 +125,7 @@ class DashAuthController extends Controller
             return redirect()->route('dash.login')->withErrors(['email' => 'Eroare la conectarea cu Google. Trebuie instalat pachetul laravel/socialite sau configurat client id/secret.']);
         }
 
-        $user = User::where('email', $googleUser->getEmail())->first();
+        $user = $this->userService->getUserByEmail($googleUser->getEmail());
 
         if ($user) {
             $this->authService->auditLogin($user, 'google');

@@ -7,14 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\UserService;
 
 class ApiAuthController extends Controller
 {
     protected $authService;
+    protected $userService;
 
-    public function __construct(AuthService $authService)
+    public function __construct(AuthService $authService, UserService $userService)
     {
         $this->authService = $authService;
+        $this->userService = $userService;
     }
 
     public function login(Request $request)
@@ -24,7 +27,7 @@ class ApiAuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = $this->userService->getUserByEmail($request->email);
 
         if ($user && Hash::check($request->password, $user->password)) {
             $this->authService->generateAndSend2FA($user);
@@ -49,7 +52,7 @@ class ApiAuthController extends Controller
             'code' => 'required|numeric',
         ]);
 
-        $user = User::find($request->user_id);
+        $user = $this->userService->getUserById($request->user_id);
 
         if (!$user || !$this->authService->verify2FA($user, $request->code)) {
             return response()->json([
@@ -78,7 +81,7 @@ class ApiAuthController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $user = User::find($request->user_id);
+        $user = $this->userService->getUserById($request->user_id);
         $this->authService->generateAndSend2FA($user);
 
         return response()->json([

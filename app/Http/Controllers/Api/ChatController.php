@@ -38,7 +38,7 @@ class ChatController extends Controller
     public function show(Request $request, $id)
     {
         $user = $request->user();
-        $conversation = Conversation::with(['users', 'messages.sender'])->findOrFail($id);
+        $conversation = $this->chatService->getConversationById($id, ['users', 'messages.sender']);
 
         // Authorization: Check if user is part of the conversation
         if (!$conversation->users->contains($user->id)) {
@@ -117,7 +117,7 @@ class ChatController extends Controller
      */
     public function markAsRead(Request $request, $id)
     {
-        $conversation = Conversation::findOrFail($id);
+        $conversation = $this->chatService->getConversationById($id);
         $this->chatService->markAsRead($conversation, $request->user()->id);
 
         return response()->json([

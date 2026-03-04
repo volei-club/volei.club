@@ -79,7 +79,7 @@ class SubscriptionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $subscription = Subscription::findOrFail($id);
+        $subscription = $this->subscriptionService->getDefinitionById($id);
         $user = $request->user();
 
         if ($user->role === 'manager' && $subscription->club_id !== $user->club_id) {
@@ -105,7 +105,7 @@ class SubscriptionController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $subscription = Subscription::findOrFail($id);
+        $subscription = $this->subscriptionService->getDefinitionById($id);
         $user = $request->user();
 
         if ($user->role === 'manager' && $subscription->club_id !== $user->club_id) {

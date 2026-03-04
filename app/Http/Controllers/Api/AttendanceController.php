@@ -7,15 +7,18 @@ use App\Models\Attendance;
 use App\Models\Training;
 use App\Models\User;
 use App\Services\AttendanceService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
     protected $attendanceService;
+    protected $userService;
 
-    public function __construct(AttendanceService $attendanceService)
+    public function __construct(AttendanceService $attendanceService, UserService $userService)
     {
         $this->attendanceService = $attendanceService;
+        $this->userService = $userService;
     }
 
     /**
@@ -29,7 +32,7 @@ class AttendanceController extends Controller
             'date' => 'required|date',
         ]);
 
-        $training = Training::with('squad.users')->findOrFail($request->training_id);
+        $training = $this->attendanceService->getTrainingById($request->training_id, ['squad.users']);
 
         if ($user->role === 'antrenor' && $training->coach_id !== $user->id) {
             return response()->json(['message' => 'Acces interzis.'], 403);
@@ -59,7 +62,7 @@ class AttendanceController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $training = Training::findOrFail($validated['training_id']);
+        $training = $this->attendanceService->getTrainingById($validated['training_id']);
 
         if ($user->role === 'antrenor' && $training->coach_id !== $user->id) {
             return response()->json(['message' => 'Nu esti antrenorul acestui antrenament.'], 403);
@@ -76,7 +79,7 @@ class AttendanceController extends Controller
     public function destroy(string $id)
     {
         $user = request()->user();
-        $attendance = Attendance::findOrFail($id);
+        $attendance = $this->attendanceService->getAttendanceById($id);
 
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
             return response()->json(['message' => 'Acces interzis.'], 403);
@@ -100,7 +103,7 @@ class AttendanceController extends Controller
             if (!$isParent) {
                 return response()->json(['message' => 'Acces interzis.'], 403);
             }
-            $subject = User::findOrFail($childId);
+            $subject = $this->userService->getUserById($childId);
         }
         else {
             $subject = $user;
