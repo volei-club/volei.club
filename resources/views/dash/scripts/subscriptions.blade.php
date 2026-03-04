@@ -56,6 +56,8 @@ Alpine.data('subscriptionManager', () => ({
             if (usr && this.currentPage.startsWith('/dash/abonamente')) {
                 if (usr.role === 'administrator' || usr.role === 'manager') {
                     this.fetchSubscriptions();
+                } else if (usr.role === 'parinte') {
+                    this.loadChildren().then(() => this.fetchMySubscriptions());
                 } else {
                     this.fetchMySubscriptions();
                 }

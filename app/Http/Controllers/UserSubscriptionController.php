@@ -191,7 +191,7 @@ class UserSubscriptionController extends Controller
             $isChild = false;
             if ($user->role === 'parinte') {
                 $childIds = $user->children()->pluck('users.id')->toArray();
-                if (in_array((int)$targetUserId, $childIds)) {
+                if (in_array($targetUserId, $childIds)) {
                     $isChild = true;
                 }
             }
