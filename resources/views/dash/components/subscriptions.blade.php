@@ -19,7 +19,10 @@
                     <p class="text-slate-500 font-medium">Se încarcă abonamentele...</p>
                 </div>
 
-                <template x-if="user?.role === 'administrator'">
+                <!-- ADMIN / MANAGER VIEW -->
+                <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
+                    <div class="flex-1 flex flex-col">
+                        <template x-if="user?.role === 'administrator'">
                     <div class="mb-6 flex flex-col md:flex-row gap-4">
                         <div class="w-full md:w-64">
                             <select id="subFilterClub" x-model="filters.club_id" @change="fetchSubscriptions(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
@@ -127,6 +130,165 @@
                         </div>
                     </template>
                 </div>
+                </div>
+                </template>
+
+                <!-- ATHLETE / PARENT VIEW -->
+                <template x-if="user?.role && user.role !== 'administrator' && user.role !== 'manager'">
+                    <div class="flex-1 flex flex-col gap-6">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Abonament Activ -->
+                            <div class="bg-gradient-to-br from-primary to-primary-dark rounded-[20px] md:rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                                <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl text-white/10 select-none pointer-events-none">card_membership</span>
+                                
+                                <h3 class="text-white/80 font-bold uppercase tracking-wider text-xs mb-4">Abonament Curent</h3>
+                                
+                                <template x-if="mySubscriptions.length > 0 && (mySubscriptions[0].status === 'active_paid' || mySubscriptions[0].status === 'active_pending')">
+                                    <div>
+                                        <div class="text-3xl font-extrabold mb-1" x-text="mySubscriptions[0].subscription?.name || 'Abonament Activ'"></div>
+                                        <div class="text-white/80 flex items-center gap-2 mb-6">
+                                            <span class="material-symbols-outlined text-sm">event</span>
+                                            Valabil până la <span class="font-bold text-white ml-1" x-text="new Date(mySubscriptions[0].expires_at).toLocaleDateString('ro-RO')"></span>
+                                        </div>
+                                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-lg text-sm font-semibold">
+                                            <span class="w-2 h-2 rounded-full" :class="mySubscriptions[0].status === 'active_paid' ? 'bg-green-400' : 'bg-amber-400'"></span>
+                                            <span x-text="mySubscriptions[0].status === 'active_paid' ? 'Abonament Plătit' : 'Plată în Așteptare'"></span>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template x-if="!mySubscriptions.length || (mySubscriptions[0].status !== 'active_paid' && mySubscriptions[0].status !== 'active_pending')">
+                                    <div>
+                                        <div class="text-2xl font-bold mb-2">Niciun abonament activ</div>
+                                        <p class="text-white/70 text-sm mb-6">Nu ai un plan de abonament valabil în acest moment. Pentru informații suplimentare, te rugăm să contactezi antrenorul sau administrația clubului.</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Istoric Abonamente -->
+                        <div class="bg-white dark:bg-slate-800 rounded-[20px] md:rounded-2xl border border-slate-50 dark:border-slate-800/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex-1 flex flex-col">
+                            <div class="p-5 md:p-6 border-b border-slate-50 dark:border-slate-800/60">
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">history</span>
+                                    Istoric Abonamente
+                                </h3>
+                            </div>
+                            
+                            <div class="hidden md:block flex-1 overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[500px]">
+                                    <thead>
+                                        <tr class="bg-slate-50/50 dark:bg-slate-900/20 border-b border-slate-50 dark:border-slate-800/60 text-slate-500 uppercase text-[11px] font-bold tracking-wider">
+                                            <th class="px-6 py-4">Plan Abonament</th>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Data Activării</th>
+                                            <th class="px-6 py-4">Data Expirării</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800/60 text-sm">
+                                        <template x-for="ms in mySubscriptions" :key="ms.id">
+                                            <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                                                <td class="px-6 py-4">
+                                                    <span class="font-bold text-slate-900 dark:text-white" x-text="ms.subscription?.name || 'Abonament'"></span>
+                                                    <div class="text-xs text-slate-500 mt-0.5">
+                                                        <span x-text="ms.subscription?.price || '-'"></span> lei / <span x-text="ms.subscription?.period ? ms.subscription.period.replace(/_/g, ' ') : '-'"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center gap-1"
+                                                        :class="{
+                                                            'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400': ms.status === 'active_paid',
+                                                            'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400': ms.status === 'active_pending',
+                                                            'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400': ms.status === 'expired',
+                                                            'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400': ms.status === 'cancelled'
+                                                        }">
+                                                        <span class="material-symbols-outlined text-[14px]" x-text="ms.status === 'active_paid' ? 'check_circle' : (ms.status === 'active_pending' ? 'pending' : (ms.status === 'expired' ? 'history' : 'cancel'))"></span>
+                                                        <span x-text="ms.status.replace('_', ' ')"></span>
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400" x-text="new Date(ms.starts_at).toLocaleDateString('ro-RO')"></td>
+                                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium" x-text="new Date(ms.expires_at).toLocaleDateString('ro-RO')"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="mySubscriptions.length === 0 && !loading">
+                                            <tr>
+                                                <td colspan="4" class="px-6 py-12 text-center text-slate-500">
+                                                    <div class="flex flex-col items-center justify-center">
+                                                        <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-700 mb-2">inbox</span>
+                                                        <p>Nu există abonamente înregistrate pe acest cont.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Mobile Cards -->
+                            <div class="md:hidden flex-1 overflow-y-auto p-4 space-y-4">
+                                <template x-for="ms in mySubscriptions" :key="ms.id">
+                                    <div class="bg-slate-50/50 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800/60 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+                                        
+                                        <!-- Decorative Strip -->
+                                        <div class="absolute left-0 top-0 bottom-0 w-1"
+                                             :class="{
+                                                 'bg-green-400': ms.status === 'active_paid',
+                                                 'bg-amber-400': ms.status === 'active_pending',
+                                                 'bg-slate-400': ms.status === 'expired',
+                                                 'bg-red-400': ms.status === 'cancelled'
+                                             }"></div>
+
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h4 class="font-bold text-slate-900 dark:text-white text-base" x-text="ms.subscription?.name || 'Abonament'"></h4>
+                                                <div class="text-sm text-slate-500 mt-0.5">
+                                                    <span class="font-bold text-primary" x-text="ms.subscription?.price || '-'"></span> lei / <span x-text="ms.subscription?.period ? ms.subscription.period.replace(/_/g, ' ') : '-'"></span>
+                                                </div>
+                                            </div>
+                                            <span class="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wide inline-flex items-center gap-1 shrink-0"
+                                                :class="{
+                                                    'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400': ms.status === 'active_paid',
+                                                    'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400': ms.status === 'active_pending',
+                                                    'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400': ms.status === 'expired',
+                                                    'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400': ms.status === 'cancelled'
+                                                }">
+                                                <span class="material-symbols-outlined text-[13px]" x-text="ms.status === 'active_paid' ? 'check_circle' : (ms.status === 'active_pending' ? 'pending' : (ms.status === 'expired' ? 'history' : 'cancel'))"></span>
+                                                <span x-text="ms.status.replace('_', ' ')"></span>
+                                            </span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/60 text-sm">
+                                            <div>
+                                                <p class="text-xs text-slate-400 uppercase tracking-wide font-bold mb-1">Activare</p>
+                                                <p class="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1.5 flex-wrap">
+                                                    <span class="material-symbols-outlined text-[16px] text-slate-400">event_available</span>
+                                                    <span x-text="new Date(ms.starts_at).toLocaleDateString('ro-RO')"></span>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-slate-400 uppercase tracking-wide font-bold mb-1">Expirare</p>
+                                                <p class="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1.5 flex-wrap">
+                                                    <span class="material-symbols-outlined text-[16px] text-slate-400">event_busy</span>
+                                                    <span x-text="new Date(ms.expires_at).toLocaleDateString('ro-RO')"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                
+                                <template x-if="mySubscriptions.length === 0 && !loading">
+                                    <div class="py-12 text-center border border-slate-100 dark:border-slate-800/60 border-dashed rounded-2xl bg-slate-50/30 dark:bg-slate-900/10">
+                                        <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-700 mb-2">inbox</span>
+                                        <p class="text-slate-500 text-sm">Nu există abonamente.</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+
 
                 <!-- Modal Abonament -->
                 <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">

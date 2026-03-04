@@ -109,7 +109,10 @@ class SquadController extends Controller
 
     public function show(string $id)
     {
-        $squad = Squad::with('users')->findOrFail($id);
+        $squad = Squad::with(['users' => function ($q) {
+            $q->where('role', 'sportiv');
+        }])->findOrFail($id);
+
         return response()->json($squad);
     }
 

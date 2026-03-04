@@ -1,5 +1,6 @@
 Alpine.data('subscriptionManager', () => ({
     subscriptions: [],
+    mySubscriptions: [],
     availableClubs: [],
     loading: false,
     saving: false,
@@ -22,7 +23,11 @@ Alpine.data('subscriptionManager', () => ({
 
         const applyFiltersAndFetch = (h) => {
             this.filters.club_id = h;
-            this.fetchSubscriptions();
+            if (this.user?.role === 'administrator' || this.user?.role === 'manager') {
+                this.fetchSubscriptions();
+            } else if (this.user) {
+                this.fetchMySubscriptions();
+            }
         };
 
         this.$watch('currentPage', value => {
@@ -41,6 +46,13 @@ Alpine.data('subscriptionManager', () => ({
         this.$watch('user', (usr) => {
             if (usr && usr?.role === 'administrator' && this.currentPage.startsWith('/dash/abonamente')) {
                 if (this.availableClubs.length === 0) this.fetchClubs();
+            }
+            if (usr && this.currentPage.startsWith('/dash/abonamente')) {
+                if (usr.role === 'administrator' || usr.role === 'manager') {
+                    this.fetchSubscriptions();
+                } else {
+                    this.fetchMySubscriptions();
+                }
             }
         });
 
@@ -141,6 +153,20 @@ Alpine.data('subscriptionManager', () => ({
                 const payload = await res.json();
                 this.subscriptions = payload.data;
                 this.processHashActions();
+            }
+        } catch(e) {}
+        this.loading = false;
+    },
+
+    async fetchMySubscriptions() {
+        this.loading = true;
+        try {
+            const res = await fetch(`/api/user-subscriptions/me`, {
+                headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            });
+            if(res.ok) {
+                const payload = await res.json();
+                this.mySubscriptions = payload.data;
             }
         } catch(e) {}
         this.loading = false;

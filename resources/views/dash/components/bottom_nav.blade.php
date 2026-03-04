@@ -28,17 +28,26 @@
             </a>
         </template>
 
-        <!-- Performanta (Athletes), Membri (Admin/Manager), or Antrenamente (Coach) -->
+        <!-- Membri (Admin/Manager) or Performanta (Athletes) -->
         <template x-if="['manager', 'administrator'].includes(user?.role)">
             <a href="/dash/membri" @click.prevent="navigate('/dash/membri')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/membri') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/membri') ? 'fill-1' : ''">groups</span>
-                <span class="text-[10px] font-semibold tracking-wide">Membri</span>
+                <span class="text-[10px] font-semibold tracking-wide" x-text="window.innerWidth < 380 ? 'Membri' : 'Membri'"></span>
             </a>
         </template>
-        <template x-if="user?.role === 'antrenor'">
-            <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje')"
+        <template x-if="['sportiv', 'parinte'].includes(user?.role)">
+            <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta')"
+               class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
+               :class="currentPage.startsWith('/dash/performanta') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
+                <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">trending_up</span>
+                <span class="text-[10px] font-semibold tracking-wide truncate max-w-full px-1" x-text="window.innerWidth < 380 ? 'Perf.' : 'Performanță'"></span>
+            </a>
+        </template>
+
+        <!-- Mesaje (Toate Rolurile) -->
+        <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors relative"
                :class="currentPage.startsWith('/dash/mesaje') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
@@ -50,15 +59,6 @@
                     </span>
                 </template>
             </a>
-        </template>
-        <template x-if="['sportiv', 'parinte'].includes(user?.role)">
-            <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta')"
-               class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
-               :class="currentPage.startsWith('/dash/performanta') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
-                <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">trending_up</span>
-                <span class="text-[10px] font-semibold tracking-wide">Performanță</span>
-            </a>
-        </template>
 
         <!-- Abonament (Athletes) or Meniu (Admin) -->
         <template x-if="['antrenor', 'manager', 'administrator'].includes(user?.role)">
@@ -73,7 +73,7 @@
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/abonamente') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
-                <span class="text-[10px] font-semibold tracking-wide">Abonament</span>
+                <span class="text-[10px] font-semibold tracking-wide truncate max-w-full px-1" x-text="window.innerWidth < 380 ? 'Abonam.' : 'Abonament'"></span>
             </a>
         </template>
 

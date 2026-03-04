@@ -39,7 +39,7 @@ class AttendanceController extends Controller
             ->keyBy('user_id');
 
         if (in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
-            $members = $training->squad?->users ?? collect();
+            $members = ($training->squad?->users ?? collect())->where('role', 'sportiv')->values();
 
             $result = $members->map(function ($member) use ($existing) {
                 $record = $existing->get($member->id);

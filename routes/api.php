@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Subscriptions Management
         Route::apiResource('subscriptions', \App\Http\Controllers\SubscriptionController::class)->except(['show']);
+        Route::get('user-subscriptions/me', [\App\Http\Controllers\UserSubscriptionController::class , 'mySubscriptions']);
         Route::apiResource('user-subscriptions', \App\Http\Controllers\UserSubscriptionController::class)->only(['store', 'update', 'destroy']);
         Route::patch('user-subscriptions/{id}/status', [\App\Http\Controllers\UserSubscriptionController::class , 'updateStatus']);
         Route::get('audit', [\App\Http\Controllers\AuditController::class , 'index']);
