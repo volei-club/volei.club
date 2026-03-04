@@ -68,7 +68,7 @@
 
 
         <!-- Dynamic Working Canvas -->
-        <main class="flex-1 overflow-y-auto px-6 pb-6 pt-16 md:pt-6 relative">
+        <main class="flex-1 overflow-y-auto px-6 pb-24 md:pb-6 pt-16 md:pt-6 relative">
             
             @include('dash.components.home')
             @include('dash.components.clubs')
@@ -128,7 +128,7 @@
             </div>
         </template>
     </div>
-
+    @include('dash.components.bottom_nav')
     @include('dash.components.scripts')
 </body>
 </html>

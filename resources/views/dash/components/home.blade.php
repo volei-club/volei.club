@@ -27,7 +27,7 @@
 
                         <!-- Card 1: Cluburi (admin) sau Grupe (manager) -->
                         <template x-if="user?.role === `administrator`">
-                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
                                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Cluburi</p>
@@ -47,7 +47,7 @@
                             </div>
                         </template>
                         <template x-if="['manager', 'antrenor'].includes(user?.role)">
-                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
                                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grupe</p>
@@ -68,7 +68,7 @@
                         </template>
 
                         <!-- Card 2: Sportivi -->
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
                                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Sportivi</p>
@@ -89,7 +89,7 @@
 
                         <!-- Card 3: Grupe (admin) sau Antrenamente (manager) -->
                         <template x-if="user?.role === `administrator`">
-                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
                                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grupe</p>
@@ -109,7 +109,7 @@
                             </div>
                         </template>
                         <template x-if="['manager', 'antrenor'].includes(user?.role)">
-                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
                                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Antrenamente</p>
@@ -130,7 +130,7 @@
                         </template>
 
                         <!-- Card 4: Abonamente -->
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
                                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Abonamente</p>
@@ -156,7 +156,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         
                         <!-- Next Session Card -->
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col justify-between">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60 flex flex-col justify-between">
                             <div class="flex justify-between items-start mb-4">
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Următoarea Sesiune</p>
@@ -190,7 +190,7 @@
                         </div>
 
                         <!-- Latest Performance Card -->
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                             <div class="flex justify-between items-start mb-4">
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ultima Performanță</p>
@@ -229,7 +229,7 @@
                         </div>
 
                         <!-- Subscription Status Card -->
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                             <div class="flex justify-between items-start mb-4">
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stare Abonament</p>
@@ -268,7 +268,7 @@
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
                         <!-- Left: Recent Clubs (admin) or Recent Members (manager) -->
-                        <section class="xl:col-span-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
+                        <section class="xl:col-span-8 bg-white dark:bg-slate-800 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60 overflow-hidden flex flex-col">
                             <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                                 <div>
                                     <h2 class="text-base font-bold text-slate-900 dark:text-white" x-text="user?.role === `administrator` ? `Cluburi Recente` : `Membri Recenți`"></h2>
@@ -349,7 +349,7 @@
                         </section>
 
                         <!-- Right: Recent Subscriptions -->
-                        <section class="xl:col-span-4 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                        <section class="xl:col-span-4 bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60 flex flex-col">
                             <div class="flex items-center justify-between mb-4">
                                 <div>
                                     <h2 class="text-base font-bold text-slate-900 dark:text-white">Abonamente Recente</h2>
@@ -393,7 +393,7 @@
                 <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
                     <!-- Recent Conversations -->
-                    <section :class="['administrator', 'manager', 'antrenor'].includes(user?.role) ? 'xl:col-span-6' : 'xl:col-span-12'" class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <section :class="['administrator', 'manager', 'antrenor'].includes(user?.role) ? 'xl:col-span-6' : 'xl:col-span-12'" class="bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                         <div class="flex items-center justify-between mb-4">
                             <div>
                                 <h2 class="text-base font-bold text-slate-900 dark:text-white">Mesaje Recente</h2>
@@ -437,7 +437,7 @@
 
                     <!-- Quick Actions - Only for Admins/Managers/Coaches -->
                     <template x-if="['administrator', 'manager', 'antrenor'].includes(user?.role)">
-                        <section class="xl:col-span-6 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <section class="xl:col-span-6 bg-white dark:bg-slate-800 p-5 rounded-[20px] md:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 dark:border-slate-800/60">
                             <div class="mb-4">
                                 <h2 class="text-base font-bold text-slate-900 dark:text-white">Acțiuni Rapide</h2>
                                 <p class="text-xs text-slate-500 mt-0.5">Navigare rapidă la secțiunile principale</p>
