@@ -767,7 +767,7 @@
                              x-transition:leave="ease-in duration-200"
                              x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                              x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                             class="inline-block w-full max-w-2xl p-0 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 shadow-2xl rounded-3xl border border-slate-100 dark:border-slate-700">
+                             class="inline-block w-full max-w-2xl p-0 my-4 sm:my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 shadow-2xl rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-700">
                             
                             <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
                                 <div class="flex items-center gap-3">
@@ -789,7 +789,7 @@
                                     <div class="space-y-3">
                                         <template x-for="sub in [...historyUser.subscriptions].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))" :key="sub.id">
                                             <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all bg-white dark:bg-slate-800/50 group">
-                                                <div class="flex items-start justify-between gap-4">
+                                                <div class="flex flex-col sm:flex-row items-start justify-between gap-4">
                                                     <div class="flex gap-3">
                                                         <div :class="{
                                                             'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400': sub.status === 'active_paid',
@@ -808,7 +808,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="text-right flex flex-col items-end">
+                                                    <div class="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-700/50">
                                                         <span :class="{
                                                             'bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-400 border-green-100 dark:border-green-800': sub.status === 'active_paid',
                                                             'bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-amber-100 dark:border-amber-800': sub.status === 'active_pending',
@@ -817,12 +817,12 @@
                                                         }" class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shadow-sm" x-text="statusLabels[sub.status] || sub.status"></span>
                                                         <div class="text-[10px] text-slate-400 mt-2">Creat pe <span x-text="formatDate(sub.created_at)"></span></div>
                                                         
-                                                        <div class="flex items-center gap-3 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <button @click="editUserSubscription(sub)" class="text-[10px] font-bold text-blue-500 hover:text-blue-600 uppercase tracking-wider flex items-center transition-colors">
-                                                                <span class="material-symbols-outlined text-[14px] mr-1">edit</span> Editează
+                                                        <div class="flex items-center gap-4 sm:gap-3 mt-3 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button @click="editUserSubscription(sub)" class="text-[11px] sm:text-[10px] font-bold text-blue-500 hover:text-blue-600 uppercase tracking-wider flex items-center transition-colors py-1">
+                                                                <span class="material-symbols-outlined text-[16px] sm:text-[14px] mr-1">edit</span> Editează
                                                             </button>
-                                                            <button @click="deleteUserSubscription(sub.id)" class="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wider flex items-center transition-colors">
-                                                                <span class="material-symbols-outlined text-[14px] mr-1">delete</span> Șterge
+                                                            <button @click="deleteUserSubscription(sub.id)" class="text-[11px] sm:text-[10px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wider flex items-center transition-colors py-1">
+                                                                <span class="material-symbols-outlined text-[16px] sm:text-[14px] mr-1">delete</span> Șterge
                                                             </button>
                                                         </div>
                                                     </div>
