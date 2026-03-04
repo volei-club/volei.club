@@ -17,7 +17,7 @@
                 <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
                 <button @click="$dispatch('open-profile-modal')" class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700">
                     <template x-if="user?.photo">
-                        <img :src="user.photo" @@error="user.photo = null" class="w-full h-full object-cover">
+                        <img :src="'/storage/' + user.photo" @@error="user.photo = null" class="w-full h-full object-cover">
                     </template>
                     <template x-if="!user?.photo">
                         <div class="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xs" x-text="user?.name ? user.name.charAt(0) : ''"></div>
