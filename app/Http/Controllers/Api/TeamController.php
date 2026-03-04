@@ -5,33 +5,23 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Team;
+use App\Services\TeamSquadService;
 
 class TeamController extends Controller
 {
+    protected $teamSquadService;
+
+    public function __construct(TeamSquadService $teamSquadService)
+    {
+        $this->teamSquadService = $teamSquadService;
+    }
+
     /**
      * Display a listing of the teams.
      */
     public function index(Request $request)
     {
-        $role = $request->user()->role;
-        $query = Team::query();
-
-        if ($role !== 'administrator') {
-            $query->where('club_id', $request->user()->club_id);
-        }
-        else {
-            if ($request->filled('club_id')) {
-                $query->where('club_id', $request->club_id);
-            }
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        $perPage = $request->input('per_page', 50);
-        $paginator = $query->with('users')->latest()->paginate($perPage);
+        $paginator = $this->teamSquadService->listTeams($request);
 
         return response()->json([
             'status' => 'success',
@@ -55,12 +45,11 @@ class TeamController extends Controller
         if (!in_array($role, ['administrator', 'manager'])) {
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
+
         $rules = [
             'name' => 'required|string|max:255',
         ];
 
-        // Administratorii trebuie să trimită club_id ca să știe unde adaugă grupa.
-        // Managerii vor moșteni automat propriul club.
         if ($role === 'administrator') {
             $rules['club_id'] = 'required|exists:clubs,id';
         }
@@ -71,7 +60,7 @@ class TeamController extends Controller
             $validated['club_id'] = $request->user()->club_id;
         }
 
-        $team = Team::create($validated);
+        $team = $this->teamSquadService->createTeam($validated);
 
         return response()->json([
             'status' => 'success',
@@ -116,12 +105,12 @@ class TeamController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $team->update($validated);
+        $updatedTeam = $this->teamSquadService->updateTeam($team, $validated);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Grupa a fost actualizată!',
-            'data' => $team
+            'data' => $updatedTeam
         ]);
     }
 
@@ -140,25 +129,11 @@ class TeamController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
-        // Dacă grupa are jucători alocați, nu o ștergem direct pentru a nu lăsa utilizatori "orfani".
-        if ($team->users()->count() > 0) {
+        $error = $this->teamSquadService->canDeleteTeam($team);
+        if ($error) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Această grupă are jucători sau antrenori asociați. Pentru siguranță, eliminați membrii înainte de ștergere.'
-            ], 422);
-        }
-
-        if ($team->squads()->count() > 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Această grupă are sub-echipe asociate. Ștergeți-le mai întâi.'
-            ], 422);
-        }
-
-        if (\App\Models\Training::where('team_id', $id)->exists()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Această grupă are antrenamente programate. Ștergeți antrenamentele mai întâi.'
+                'message' => $error
             ], 422);
         }
 

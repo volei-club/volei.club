@@ -3,33 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use App\Services\ClubService;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
+    protected $clubService;
+
+    public function __construct(ClubService $clubService)
+    {
+        $this->clubService = $clubService;
+    }
+
     public function index(Request $request)
     {
-        $user = $request->user();
-        $query = Location::with('club');
-
-        if ($user->role === 'manager') {
-            $query->where('club_id', $user->club_id);
-        }
-        elseif ($user->role === 'administrator') {
-            if ($request->filled('club_id')) {
-                $query->where('club_id', $request->club_id);
-            }
-        }
-        else {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        return response()->json($query->get());
+        $locations = $this->clubService->listLocations($request);
+        return response()->json($locations);
     }
 
     public function store(Request $request)
     {
         $user = $request->user();
+        if (!in_array($user->role, ['administrator', 'manager'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
@@ -40,7 +38,7 @@ class LocationController extends Controller
             $validated['club_id'] = $user->club_id;
         }
 
-        $location = Location::create($validated);
+        $location = $this->clubService->createLocation($validated);
         return response()->json($location, 201);
     }
 
@@ -48,6 +46,10 @@ class LocationController extends Controller
     {
         $user = $request->user();
         $location = Location::findOrFail($id);
+
+        if (!in_array($user->role, ['administrator', 'manager'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         if ($user->role === 'manager' && $location->club_id !== $user->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);
@@ -58,8 +60,8 @@ class LocationController extends Controller
             'address' => 'required|string|max:255',
         ]);
 
-        $location->update($validated);
-        return response()->json($location);
+        $updatedLocation = $this->clubService->updateLocation($location, $validated);
+        return response()->json($updatedLocation);
     }
 
     public function destroy(Request $request, $id)
@@ -67,12 +69,17 @@ class LocationController extends Controller
         $user = $request->user();
         $location = Location::findOrFail($id);
 
+        if (!in_array($user->role, ['administrator', 'manager'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         if ($user->role === 'manager' && $location->club_id !== $user->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        if (\App\Models\Training::where('location_id', $id)->exists()) {
-            return response()->json(['message' => 'Această locație este folosită de unul sau mai multe antrenamente și nu poate fi ștearsă.'], 422);
+        $error = $this->clubService->canDeleteLocation($location);
+        if ($error) {
+            return response()->json(['message' => $error], 422);
         }
 
         $location->delete();

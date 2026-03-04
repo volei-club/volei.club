@@ -4,38 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use App\Models\Squad;
+use App\Services\EventService;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
+    protected $eventService;
+
+    public function __construct(EventService $eventService)
+    {
+        $this->eventService = $eventService;
+    }
+
     public function index(Request $request)
     {
-        $user = $request->user();
-        $query = Game::with(['club', 'team', 'squad', 'players']);
-
-        if ($user->role === 'manager') {
-            $query->where('club_id', $user->club_id);
-        }
-        elseif (in_array($user->role, ['antrenor', 'sportiv'])) {
-            $squadIds = $user->squads()->pluck('squads.id');
-            $query->whereIn('squad_id', $squadIds);
-        }
-        elseif ($user->role === 'parinte') {
-            $squadIds = $user->children()->with('squads')->get()->pluck('squads.*.id')->flatten()->unique();
-            $query->whereIn('squad_id', $squadIds);
-        }
-        elseif ($user->role === 'administrator') {
-        // Admin sees everything
-        }
-        else {
+        $games = $this->eventService->listGames($request);
+        if ($games === null) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
-        if ($request->filled('squad_id')) {
-            $query->where('squad_id', $request->squad_id);
-        }
-
-        return response()->json($query->orderBy('match_date', 'desc')->get());
+        return response()->json($games);
     }
 
     public function store(Request $request)
@@ -76,9 +63,7 @@ class GameController extends Controller
             'substitutes.*' => 'uuid|exists:users,id',
         ]);
 
-        $gameData = collect($validated)->except(['starters', 'substitutes'])->toArray();
-        $game = Game::create($gameData);
-        $this->syncPlayers($game, $validated['starters'] ?? [], $validated['substitutes'] ?? []);
+        $game = $this->eventService->saveGame($validated);
 
         return response()->json($game->load(['players']), 201);
     }
@@ -127,11 +112,9 @@ class GameController extends Controller
             'substitutes.*' => 'uuid|exists:users,id',
         ]);
 
-        $gameData = collect($validated)->except(['starters', 'substitutes'])->toArray();
-        $game->update($gameData);
-        $this->syncPlayers($game, $validated['starters'] ?? [], $validated['substitutes'] ?? []);
+        $updatedGame = $this->eventService->saveGame($validated, $game);
 
-        return response()->json($game->load(['players']));
+        return response()->json($updatedGame->load(['players']));
     }
 
     public function destroy(Request $request, $id)
@@ -148,20 +131,5 @@ class GameController extends Controller
 
         $game->delete();
         return response()->json(null, 204);
-    }
-
-    private function syncPlayers(Game $game, array $starters, array $substitutes)
-    {
-        $syncData = [];
-        foreach ($starters as $id) {
-            $syncData[$id] = ['type' => 'titular'];
-        }
-        foreach ($substitutes as $id) {
-            // Priority to titular if duplicated for some reason, but they shouldn't be.
-            if (!isset($syncData[$id])) {
-                $syncData[$id] = ['type' => 'rezerva'];
-            }
-        }
-        $game->players()->sync($syncData);
     }
 }

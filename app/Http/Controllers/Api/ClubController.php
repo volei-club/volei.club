@@ -5,23 +5,23 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Club;
+use App\Services\ClubService;
 
 class ClubController extends Controller
 {
+    protected $clubService;
+
+    public function __construct(ClubService $clubService)
+    {
+        $this->clubService = $clubService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $role = $request->user()->role;
-
-        // Dacă e administrator, vede tot. Altfel, doar clubul de care aparține
-        if ($role === 'administrator') {
-            $clubs = Club::with('creator')->latest()->get();
-        }
-        else {
-            $clubs = Club::where('id', $request->user()->club_id)->with('creator')->latest()->get();
-        }
+        $clubs = $this->clubService->listClubs($request);
 
         return response()->json([
             'status' => 'success',
@@ -34,7 +34,6 @@ class ClubController extends Controller
      */
     public function store(Request $request)
     {
-        // Un club poate fi creat ideal doar de un administrator
         if ($request->user()->role !== 'administrator') {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
@@ -43,17 +42,12 @@ class ClubController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $club = Club::create([
-            'name' => $validated['name'],
-            'created_by' => $request->user()->id
-        ]);
-
-        $club->load('creator');
+        $club = $this->clubService->createClub($validated, $request->user()->id);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Club creat cu succes!',
-            'data' => $club
+            'data' => $club->load('creator')
         ], 201);
     }
 
@@ -89,12 +83,12 @@ class ClubController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $club->update($validated);
+        $updatedClub = $this->clubService->updateClub($club, $validated);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Club actualizat!',
-            'data' => $club
+            'data' => $updatedClub
         ]);
     }
 
@@ -109,33 +103,11 @@ class ClubController extends Controller
 
         $club = Club::findOrFail($id);
 
-        // Nu permitem ștergerea dacă există membri înrolați
-        if ($club->users()->count() > 0) {
+        $error = $this->clubService->canDeleteClub($club);
+        if ($error) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Acest club nu poate fi șters deoarece are utilizatori asociați. Transferați sau ștergeți utilizatorii mai întâi.'
-            ], 422);
-        }
-
-        // Nu permitem ștergerea dacă există grupe asociate
-        if ($club->teams()->count() > 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Acest club nu poate fi șters deoarece are grupe (echipe) asociate. Ștergeți grupele mai întâi.'
-            ], 422);
-        }
-
-        if (\App\Models\Location::where('club_id', $id)->exists()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Acest club are locații asociate. Ștergeți locațiile mai întâi.'
-            ], 422);
-        }
-
-        if (\App\Models\Subscription::where('club_id', $id)->exists()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Acest club are definiții de abonamente alocate. Ștergeți-le mai întâi.'
+                'message' => $error
             ], 422);
         }
 

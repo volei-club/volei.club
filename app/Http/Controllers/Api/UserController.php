@@ -5,95 +5,27 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $role = $request->user()->role;
-
-        if (!in_array($role, ['administrator', 'manager', 'antrenor', 'parinte'])) {
+        if (!in_array($request->user()->role, ['administrator', 'manager', 'antrenor', 'parinte'])) {
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        $query = User::with(['club', 'teams', 'squads', 'activeSubscription.subscription', 'upcomingSubscription.subscription', 'subscriptions.subscription', 'children', 'parents']);
-
-        if ($role === 'parinte') {
-            $query->whereHas('parents', function ($q) use ($request) {
-                $q->where('users.id', $request->user()->id);
-            });
-        }
-        elseif ($role !== 'administrator') {
-            // Managerii/Antrenorii văd userii din clubul lor.
-            $query->where('club_id', $request->user()->club_id);
-        }
-        else {
-            // Dacă e admin și a ales un club din filtru
-            if ($request->filled('club_id')) {
-                $query->where('club_id', $request->club_id);
-            }
-        }
-
-        if ($request->filled('role')) {
-            $roles = explode(',', $request->role);
-            if (count($roles) > 1) {
-                $query->whereIn('role', $roles);
-            }
-            else {
-                $query->where('role', $request->role);
-            }
-        }
-
-        if ($request->filled('team_id')) {
-            $query->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($request) {
-                // Direct association
-                $q->whereHas('teams', function ($sq) use ($request) {
-                        $sq->where('teams.id', $request->team_id);
-                    }
-                    )
-                        // Indirect via children (for parents)
-                        ->orWhereHas('children.teams', function ($sq) use ($request) {
-                    $sq->where('teams.id', $request->team_id);
-                }
-                );
-            });
-        }
-
-        if ($request->filled('squad_id')) {
-            $query->where(function ($q) use ($request) {
-                // Direct association
-                $q->whereHas('squads', function ($sq) use ($request) {
-                        $sq->where('squads.id', $request->squad_id);
-                    }
-                    )
-                        // Indirect via children (for parents)
-                        ->orWhereHas('children.squads', function ($sq) use ($request) {
-                    $sq->where('squads.id', $request->squad_id);
-                }
-                );
-            });
-        }
-
-        // Ascunde utilizatorul apelant din lista proprie
-        $query->where('id', '!=', $request->user()->id);
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        $perPage = $request->input('per_page', 50);
-        $paginator = $query->latest()->paginate($perPage);
+        $paginator = $this->userService->listUsers($request);
 
         return response()->json([
             'status' => 'success',
@@ -112,9 +44,9 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $creatorRole = $request->user()->role;
+        $creator = $request->user();
 
-        if (!in_array($creatorRole, ['administrator', 'manager'])) {
+        if (!in_array($creator->role, ['administrator', 'manager'])) {
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
@@ -135,81 +67,31 @@ class UserController extends Controller
             'photo' => 'nullable|image|max:2048'
         ]);
 
-        if ($request->hasFile('photo')) {
-            $validated['photo'] = $this->handlePhotoUpload($request->file('photo'));
-        }
-
-        // Reguli de business
-        if ($creatorRole !== 'administrator') {
+        // Security rules
+        if ($creator->role !== 'administrator') {
             if ($validated['role'] === 'administrator' || $validated['role'] === 'manager') {
                 return response()->json(['status' => 'error', 'message' => 'Rol invalid pentru nivelul tău de acces.'], 403);
             }
-            // Forțăm clubul creatorului
-            $validated['club_id'] = $request->user()->club_id;
+            $validated['club_id'] = $creator->club_id;
         }
 
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
-        else {
-            $validated['password'] = Hash::make(Str::random(10)); // Generăm o parolă temporară dacă nu o setăm explicit
-        }
-
-        if (!isset($validated['is_active'])) {
-            $validated['is_active'] = true;
-        }
-
-        // Validare de securitate la nivel de grupe
+        // Squad/Team ownership validation
         if (!empty($validated['team_ids'])) {
-            if ($creatorRole !== 'administrator') {
-                $validTeamsCount = \App\Models\Team::whereIn('id', $validated['team_ids'])
-                    ->where('club_id', $validated['club_id'])
-                    ->count();
-                if ($validTeamsCount !== count($validated['team_ids'])) {
-                    return response()->json(['status' => 'error', 'message' => 'Eroare: Se pot asigna doar grupe care aparțin clubului selectat.'], 422);
-                }
-            }
-            else {
-                // Pentru administrator verificăm doar să aparțină clubului ales în request
-                $validTeamsCount = \App\Models\Team::whereIn('id', $validated['team_ids'])
-                    ->where('club_id', $validated['club_id'])
-                    ->count();
-                if ($validTeamsCount !== count($validated['team_ids'])) {
-                    return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
-                }
+            $clubId = $validated['club_id'] ?? $creator->club_id;
+            $validTeamsCount = \App\Models\Team::whereIn('id', $validated['team_ids'])
+                ->where('club_id', $clubId)
+                ->count();
+            if ($validTeamsCount !== count($validated['team_ids'])) {
+                return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
             }
         }
 
-        $userData = $validated;
-        unset($userData['team_ids']);
-        unset($userData['squad_ids']);
-        unset($userData['child_ids']);
-        $newUser = User::create($userData);
-
-        if (!empty($validated['team_ids'])) {
-            $newUser->teams()->sync($validated['team_ids']);
-        }
-
-        if (!empty($validated['squad_ids'])) {
-            $newUser->squads()->sync($validated['squad_ids']);
-
-            // Auto-sync parent teams for squads
-            $parentTeamIds = \App\Models\Squad::whereIn('id', $validated['squad_ids'])->pluck('team_id')->unique()->toArray();
-            if (!empty($parentTeamIds)) {
-                $newUser->teams()->syncWithoutDetaching($parentTeamIds);
-            }
-        }
-
-        if ($validated['role'] === 'parinte' && !empty($validated['child_ids'])) {
-            $newUser->children()->sync($validated['child_ids']);
-        }
-
-        // Aici s-ar putea trimite un mail de bun-venit cu parola $password.
+        $newUser = $this->userService->createUser($validated, $request->file('photo'));
 
         return response()->json([
             'status' => 'success',
             'message' => 'Utilizator adăugat cu succes!',
-            'data' => $newUser->load(['club', 'teams', 'squads', 'children'])
+            'data' => $newUser
         ], 201);
     }
 
@@ -218,15 +100,15 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $creatorRole = $request->user()->role;
+        $creator = $request->user();
 
-        if (!in_array($creatorRole, ['administrator', 'manager'])) {
+        if (!in_array($creator->role, ['administrator', 'manager'])) {
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
         $userToEdit = User::findOrFail($id);
 
-        if ($creatorRole !== 'administrator' && $userToEdit->club_id !== $request->user()->club_id) {
+        if ($creator->role !== 'administrator' && $userToEdit->club_id !== $creator->club_id) {
             return response()->json(['status' => 'error', 'message' => 'Nu aveți acces să editați acest utilizator.'], 403);
         }
 
@@ -247,103 +129,46 @@ class UserController extends Controller
             'photo' => 'nullable|image|max:2048'
         ]);
 
-        if ($request->hasFile('photo')) {
-            if ($userToEdit->photo) {
-                Storage::disk('public')->delete($userToEdit->photo);
-            }
-            $validated['photo'] = $this->handlePhotoUpload($request->file('photo'));
-        }
-
-        if ($creatorRole !== 'administrator') {
+        if ($creator->role !== 'administrator') {
             if ($validated['role'] === 'administrator' || $validated['role'] === 'manager') {
                 return response()->json(['status' => 'error', 'message' => 'Rol invalid pentru nivelul tău de acces.'], 403);
             }
-            $validated['club_id'] = $request->user()->club_id;
+            $validated['club_id'] = $creator->club_id;
         }
 
-        if ($validated['role'] === 'administrator') {
-            $validated['club_id'] = null;
-        }
-
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
-        else {
-            unset($validated['password']);
-        }
-
-        // Sincronizare echipe
+        // Ownership checks for groups
         if ($request->has('team_ids')) {
             $teamIds = $validated['team_ids'] ?? [];
             if (!empty($teamIds)) {
-                if ($creatorRole !== 'administrator') {
-                    $validTeamsCount = \App\Models\Team::whereIn('id', $teamIds)
-                        ->where('club_id', $validated['club_id'])
-                        ->count();
-                    if ($validTeamsCount !== count($teamIds)) {
-                        return response()->json(['status' => 'error', 'message' => 'Eroare: Nu puteți asocia grupe care nu aparțin clubului curent.'], 422);
-                    }
-                }
-                else {
-                    $validTeamsCount = \App\Models\Team::whereIn('id', $teamIds)
-                        ->where('club_id', $validated['club_id'] ?? $userToEdit->club_id)
-                        ->count();
-                    if ($validTeamsCount !== count($teamIds)) {
-                        return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
-                    }
+                $clubIdToCheck = $validated['club_id'] ?? $userToEdit->club_id;
+                $validTeamsCount = \App\Models\Team::whereIn('id', $teamIds)
+                    ->where('club_id', $clubIdToCheck)
+                    ->count();
+                if ($validTeamsCount !== count($teamIds)) {
+                    return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
                 }
             }
-            $userToEdit->teams()->sync($teamIds);
         }
 
-        // Sincronizare squads (echipe)
         if ($request->has('squad_ids')) {
             $squadIds = $validated['squad_ids'] ?? [];
             if (!empty($squadIds)) {
                 $validSquads = \App\Models\Squad::whereIn('id', $squadIds)->pluck('team_id')->unique()->toArray();
-
-                // For coaches, we don't strictly require they select the teams beforehand in the UI
-                if ($userToEdit->role === 'antrenor' || $validated['role'] === 'antrenor') {
-                    $userToEdit->teams()->syncWithoutDetaching($validSquads);
-                }
-                else {
+                if ($userToEdit->role !== 'antrenor' && $validated['role'] !== 'antrenor') {
                     $assignedTeams = $request->has('team_ids') ? ($validated['team_ids'] ?? []) : $userToEdit->teams->pluck('id')->toArray();
-                    $diff = array_diff($validSquads, $assignedTeams);
-                    if (count($diff) > 0) {
+                    if (count(array_diff($validSquads, $assignedTeams)) > 0) {
                         return response()->json(['status' => 'error', 'message' => 'Eroare: Echipele selectate aparțin de alte grupe decât cele asociate utilizatorului.'], 422);
                     }
                 }
             }
-            $userToEdit->squads()->sync($squadIds);
-
-            // Also ensure parent teams are synced if we just added squads
-            if (!empty($squadIds)) {
-                $parentTeamIds = \App\Models\Squad::whereIn('id', $squadIds)->pluck('team_id')->unique()->toArray();
-                $userToEdit->teams()->syncWithoutDetaching($parentTeamIds);
-            }
         }
 
-        // Sincronizare copii (pentru parinti)
-        if ($request->has('child_ids')) {
-            $childIds = $validated['child_ids'] ?? [];
-            if ($validated['role'] === 'parinte') {
-                $userToEdit->children()->sync($childIds);
-            }
-            else {
-                $userToEdit->children()->detach();
-            }
-        }
-
-        $updateData = $validated;
-        unset($updateData['team_ids']);
-        unset($updateData['squad_ids']);
-        unset($updateData['child_ids']);
-        $userToEdit->update($updateData);
+        $updatedUser = $this->userService->updateUser($userToEdit, $validated, $request->file('photo'));
 
         return response()->json([
             'status' => 'success',
             'message' => 'Utilizator actualizat!',
-            'data' => $userToEdit->load(['club', 'teams', 'squads', 'children'])
+            'data' => $updatedUser
         ]);
     }
 
@@ -358,33 +183,11 @@ class UserController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        if ($caller->id === $id) {
-            return response()->json(['status' => 'error', 'message' => 'Nu vă puteți șterge propriul cont.'], 403);
-        }
-
         $userToDelete = User::findOrFail($id);
 
-        if ($caller->role !== 'administrator') {
-            if ($userToDelete->club_id !== $caller->club_id) {
-                return response()->json(['status' => 'error', 'message' => 'Acest utilizator nu face parte din clubul dvs.'], 403);
-            }
-            if ($userToDelete->role === 'administrator' || $userToDelete->role === 'manager') {
-                return response()->json(['status' => 'error', 'message' => 'Nu aveți permisiunea de a șterge acest tip de cont.'], 403);
-            }
-        }
-
-        if (\App\Models\Training::where('coach_id', $id)->exists()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Acest utilizator este antrenor pentru unul sau mai multe antrenamente și nu poate fi șters.'
-            ], 422);
-        }
-
-        if ($userToDelete->subscriptions()->count() > 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Acest utilizator are abonamente alocate. Anulați sau ștergeți abonamentele înainte de a șterge contul.'
-            ], 422);
+        $error = $this->userService->canDeleteUser($userToDelete, $caller);
+        if ($error) {
+            return response()->json(['status' => 'error', 'message' => $error], 403);
         }
 
         $userToDelete->delete();
@@ -409,34 +212,12 @@ class UserController extends Controller
             'photo' => 'nullable|image|max:2048'
         ]);
 
-        $updateData = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ];
-
-        if ($request->hasFile('photo')) {
-            if ($user->photo) {
-                Storage::disk('public')->delete($user->photo);
-            }
-            $updateData['photo'] = $this->handlePhotoUpload($request->file('photo'));
-        }
-
-        if (!empty($validated['password'])) {
-            $updateData['password'] = Hash::make($validated['password']);
-        }
-
-        $user->update($updateData);
+        $updatedUser = $this->userService->updateUser($user, $validated, $request->file('photo'));
 
         return response()->json([
             'status' => 'success',
             'message' => 'Profil actualizat cu succes!',
-            'data' => $user->load('club')
+            'data' => $updatedUser->load('club')
         ]);
-    }
-
-    protected function handlePhotoUpload($file)
-    {
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        return $file->storeAs('profiles', $filename, 'public');
     }
 }

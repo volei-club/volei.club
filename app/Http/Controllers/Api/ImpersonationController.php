@@ -4,39 +4,39 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ImpersonationService;
 use Illuminate\Http\Request;
 
 class ImpersonationController extends Controller
 {
+    protected $impersonationService;
+
+    public function __construct(ImpersonationService $impersonationService)
+    {
+        $this->impersonationService = $impersonationService;
+    }
+
     /**
      * Start impersonating another user.
      */
     public function impersonate(Request $request, $id)
     {
         $admin = $request->user();
-
-        // Strict: only true administrators can do this
-        if ($admin->role !== 'administrator') {
-            return response()->json(['status' => 'error', 'message' => 'Eroare: Doar administratorii pot impersona.'], 403);
-        }
-
         $targetUser = User::findOrFail($id);
 
-        // Prevent self-impersonation to avoid endless loops or confusion
-        if ($admin->id === $targetUser->id) {
-            return response()->json(['status' => 'error', 'message' => 'Nu vă puteți impersona propriul cont.'], 400);
+        try {
+            $targetToken = $this->impersonationService->startImpersonation($admin, $targetUser);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Te-ai logat ca ' . $targetUser->name,
+                'token' => $targetToken->plainTextToken
+            ]);
         }
-
-        // We create a new token for the target user. The name identifies it as an impersonation session.
-        $tokenName = 'ImpersonationTokenByAdmin_' . $admin->id;
-        $targetToken = $targetUser->createToken($tokenName);
-
-        // Optional: Keep the original token intact. The frontend simply holds it in localStorage.
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Te-ai logat ca ' . $targetUser->name,
-            'token' => $targetToken->plainTextToken
-        ]);
+        catch (\Exception $e) {
+            $code = $e->getMessage() === 'Cannot self-impersonate.' ? 400 : 403;
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $code);
+        }
     }
 
     /**
@@ -44,13 +44,7 @@ class ImpersonationController extends Controller
      */
     public function leave(Request $request)
     {
-        // Stergem tokenul curent de impersonare, protejand bd
-        /** @var \Laravel\Sanctum\PersonalAccessToken $token */
-        $token = $request->user()->currentAccessToken();
-
-        if (str_starts_with($token->name, 'ImpersonationTokenByAdmin_')) {
-            $token->delete();
-        }
+        $this->impersonationService->stopImpersonation($request->user());
 
         return response()->json([
             'status' => 'success',

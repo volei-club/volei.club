@@ -3,45 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Training;
-use App\Models\Location;
-use App\Models\Team;
 use App\Models\Squad;
-use App\Models\User;
+use App\Services\EventService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class TrainingController extends Controller
 {
+    protected $eventService;
+
+    public function __construct(EventService $eventService)
+    {
+        $this->eventService = $eventService;
+    }
+
     public function index(Request $request)
     {
-        $user = $request->user();
-        $query = Training::with(['club', 'location', 'team', 'squad', 'coach']);
-
-        if ($user->role === 'manager') {
-            $query->where('club_id', $user->club_id);
-        }
-        elseif ($user->role !== 'administrator') {
+        $trainings = $this->eventService->listTrainings($request);
+        if ($trainings === null) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
-        if ($request->has('club_id') && $user->role === 'administrator') {
-            $query->where('club_id', $request->club_id);
-        }
-
-        if ($request->has('team_id')) {
-            $query->where('team_id', $request->team_id);
-        }
-
-        if ($request->has('squad_id')) {
-            $query->where('squad_id', $request->squad_id);
-        }
-
-        return response()->json($query->orderBy('day_of_week')->orderBy('start_time')->get());
+        return response()->json($trainings);
     }
 
     public function store(Request $request)
     {
         $user = $request->user();
+
+        if (!in_array($user->role, ['administrator', 'manager'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         $validated = $request->validate([
             'club_id' => $user->role === 'administrator' ? 'required|uuid|exists:clubs,id' : 'nullable',
@@ -54,32 +45,18 @@ class TrainingController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        if ($user->role === 'manager') {
-            $validated['club_id'] = $user->club_id;
+        $club_id = $user->role === 'administrator' ? $validated['club_id'] : $user->club_id;
+        $validated['club_id'] = $club_id;
+
+        $error = $this->eventService->validateClubOwnership($club_id, $validated['squad_id'], $validated['location_id'], $validated['coach_id']);
+        if ($error) {
+            return response()->json(['message' => $error], 422);
         }
 
-        $club_id = $validated['club_id'];
-
-        // Automatically set team_id from squad
-        $squad = Squad::where('id', $validated['squad_id'])->whereHas('team', function ($q) use ($club_id) {
-            $q->where('club_id', $club_id);
-        })->first();
-
-        if (!$squad) {
-            return response()->json(['message' => 'Echipa nu există sau nu aparține clubului selectat.'], 422);
-        }
-
+        $squad = Squad::findOrFail($validated['squad_id']);
         $validated['team_id'] = $squad->team_id;
 
-        // Validate that location and coach belong to the same club
-        $location = Location::where('id', $validated['location_id'])->where('club_id', $club_id)->first();
-        $coach = User::where('id', $validated['coach_id'])->where('club_id', $club_id)->first();
-
-        if (!$location || !$coach) {
-            return response()->json(['message' => 'Locația sau antrenorul nu aparțin clubului selectat.'], 422);
-        }
-
-        $training = Training::create($validated);
+        $training = $this->eventService->saveTraining($validated);
         return response()->json($training->load(['club', 'location', 'team', 'squad', 'coach']), 201);
     }
 
@@ -90,6 +67,10 @@ class TrainingController extends Controller
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($user->role !== 'administrator' && $user->role !== 'manager') {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $validated = $request->validate([
@@ -104,29 +85,18 @@ class TrainingController extends Controller
         ]);
 
         $club_id = ($user->role === 'administrator' && !empty($validated['club_id'])) ? $validated['club_id'] : $training->club_id;
-
-        // Automatically set team_id from squad
-        $squad = Squad::where('id', $validated['squad_id'])->whereHas('team', function ($q) use ($club_id) {
-            $q->where('club_id', $club_id);
-        })->first();
-
-        if (!$squad) {
-            return response()->json(['message' => 'Echipa nu există sau nu aparține clubului selectat.'], 422);
-        }
-
-        $validated['team_id'] = $squad->team_id;
         $validated['club_id'] = $club_id;
 
-        // Validate entities
-        $location = Location::where('id', $validated['location_id'])->where('club_id', $club_id)->first();
-        $coach = User::where('id', $validated['coach_id'])->where('club_id', $club_id)->first();
-
-        if (!$location || !$coach) {
-            return response()->json(['message' => 'Locația sau antrenorul nu aparțin clubului.'], 422);
+        $error = $this->eventService->validateClubOwnership($club_id, $validated['squad_id'], $validated['location_id'], $validated['coach_id']);
+        if ($error) {
+            return response()->json(['message' => $error], 422);
         }
 
-        $training->update($validated);
-        return response()->json($training->load(['club', 'location', 'team', 'squad', 'coach']));
+        $squad = Squad::findOrFail($validated['squad_id']);
+        $validated['team_id'] = $squad->team_id;
+
+        $updatedTraining = $this->eventService->saveTraining($validated, $training);
+        return response()->json($updatedTraining->load(['club', 'location', 'team', 'squad', 'coach']));
     }
 
     public function destroy(Request $request, $id)
@@ -136,6 +106,10 @@ class TrainingController extends Controller
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
             return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($user->role !== 'administrator' && $user->role !== 'manager') {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $training->delete();

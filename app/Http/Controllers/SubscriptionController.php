@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
-use App\Models\Club;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     /**
      * Return defined subscriptions.
      * Admin sees all, Managers see only their club's subscriptions.
@@ -16,22 +23,14 @@ class SubscriptionController extends Controller
     {
         $user = $request->user();
 
-        $query = Subscription::with('club');
-
-        if ($user->role === 'manager') {
-            $query->where('club_id', $user->club_id);
-        }
-        else if ($user->role === 'administrator') {
-            if ($request->has('club_id') && $request->club_id) {
-                $query->where('club_id', $request->club_id);
-            }
-        }
-        else {
+        if (!in_array($user->role, ['administrator', 'manager'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        $definitions = $this->subscriptionService->listDefinitions($request);
+
         return response()->json([
-            'data' => $query->get()
+            'data' => $definitions
         ]);
     }
 
@@ -48,24 +47,30 @@ class SubscriptionController extends Controller
         ]);
 
         $user = $request->user();
-        $clubId = $user->role === 'manager' ? $user->club_id : $request->club_id;
+        if ($user->role === 'manager') {
+            $clubId = $user->club_id;
+        }
+        else if ($user->role === 'administrator') {
+            $clubId = $request->club_id;
+        }
+        else {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         if (!$clubId) {
             return response()->json(['message' => 'Club ID is required.'], 400);
         }
 
-        $subscription = Subscription::create([
+        $subscription = $this->subscriptionService->createDefinition([
             'club_id' => $clubId,
             'name' => $request->name,
             'price' => $request->price,
             'period' => $request->period,
         ]);
 
-        $subscription->load('club');
-
         return response()->json([
             'message' => 'Subscription created successfully',
-            'data' => $subscription
+            'data' => $subscription->load('club')
         ], 201);
     }
 
@@ -87,17 +92,11 @@ class SubscriptionController extends Controller
             'period' => 'required|string|in:1_saptamana,2_saptamani,1_luna,3_luni,6_luni,1_an',
         ]);
 
-        $subscription->update([
-            'name' => $request->name,
-            'price' => $request->price,
-            'period' => $request->period,
-        ]);
-
-        $subscription->load('club');
+        $updated = $this->subscriptionService->updateDefinition($subscription, $request->only(['name', 'price', 'period']));
 
         return response()->json([
             'message' => 'Subscription updated successfully',
-            'data' => $subscription
+            'data' => $updated->load('club')
         ]);
     }
 
@@ -113,7 +112,6 @@ class SubscriptionController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        // Optional: Check if it has active users attached before deleting
         if ($subscription->userSubscriptions()->count() > 0) {
             return response()->json(['message' => 'Acest abonament este in uz de catre unii membri. Nu poate fi sters.'], 400);
         }

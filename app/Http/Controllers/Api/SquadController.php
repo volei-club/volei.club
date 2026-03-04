@@ -4,59 +4,28 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Squad;
+use App\Services\TeamSquadService;
 use Illuminate\Http\Request;
 
 class SquadController extends Controller
 {
+    protected $teamSquadService;
+
+    public function __construct(TeamSquadService $teamSquadService)
+    {
+        $this->teamSquadService = $teamSquadService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $role = $request->user()->role;
-        $query = Squad::with(['team', 'team.club', 'creator']);
-
-        if ($role === 'manager') {
-            $query->whereHas('team', function ($q) use ($request) {
-                $q->where('club_id', $request->user()->club_id);
-            });
-        }
-        elseif (in_array($role, ['antrenor', 'sportiv'])) {
-            $query->whereHas('users', function ($q) use ($request) {
-                $q->where('users.id', $request->user()->id);
-            });
-        }
-        elseif ($role === 'parinte') {
-            $query->whereHas('users', function ($q) use ($request) {
-                $q->whereHas('parents', function ($pq) use ($request) {
-                        $pq->where('parent_id', $request->user()->id);
-                    }
-                    );
-                });
-        }
-        elseif ($role !== 'administrator') {
+        if (!in_array($request->user()->role, ['administrator', 'manager', 'antrenor', 'sportiv', 'parinte'])) {
             return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
         }
 
-        // Filtru opțional de listare UI bazat strict pe Club (for admins)
-        if ($request->filled('club_id')) {
-            $query->whereHas('team', function ($q) use ($request) {
-                $q->where('club_id', $request->club_id);
-            });
-        }
-
-        // Filtru opțional de listare UI bazat pe Grupă (Team)
-        if ($request->filled('team_id')) {
-            $query->where('team_id', $request->team_id);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        $perPage = $request->input('per_page', 50);
-        $paginator = $query->with('users')->latest()->paginate($perPage);
+        $paginator = $this->teamSquadService->listSquads($request);
 
         return response()->json([
             'status' => 'success',
@@ -87,7 +56,6 @@ class SquadController extends Controller
         ]);
 
         if ($role !== 'administrator') {
-            // Managerul poate adăuga o echipă doar dacă Grupa aparține clubului său
             $validTeam = \App\Models\Team::where('id', $validated['team_id'])
                 ->where('club_id', $request->user()->club_id)
                 ->exists();
@@ -98,7 +66,7 @@ class SquadController extends Controller
         }
 
         $validated['created_by'] = $request->user()->id;
-        $squad = Squad::create($validated);
+        $squad = $this->teamSquadService->createSquad($validated);
 
         return response()->json([
             'status' => 'success',
@@ -150,12 +118,12 @@ class SquadController extends Controller
             }
         }
 
-        $squad->update($validated);
+        $updatedSquad = $this->teamSquadService->updateSquad($squad, $validated);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Echipă actualizată!',
-            'data' => $squad->load(['team', 'team.club'])
+            'data' => $updatedSquad->load(['team', 'team.club'])
         ]);
     }
 
@@ -178,10 +146,11 @@ class SquadController extends Controller
             }
         }
 
-        if ($squad->users()->count() > 0) {
+        $error = $this->teamSquadService->canDeleteSquad($squad);
+        if ($error) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Această echipă are jucători asociați. Pentru siguranță, eliminați membrii înainte de ștergere.'
+                'message' => $error
             ], 422);
         }
 

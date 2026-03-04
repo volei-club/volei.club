@@ -3,32 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\DataTransferService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use App\Models\User;
-use App\Models\Club;
-use App\Models\Team;
-use App\Models\Squad;
-use App\Models\Location;
-use App\Models\Subscription;
-use App\Models\Training;
-use App\Models\UserSubscription;
 
 class ExportImportController extends Controller
 {
-    protected $models = [
-        'clubs' => Club::class ,
-        'users' => User::class ,
-        'teams' => Team::class ,
-        'squads' => Squad::class ,
-        'locations' => Location::class ,
-        'subscriptions' => Subscription::class ,
-        'trainings' => Training::class ,
-        'user-subscriptions' => UserSubscription::class ,
-    ];
+    protected $dataTransferService;
+
+    public function __construct(DataTransferService $dataTransferService)
+    {
+        $this->dataTransferService = $dataTransferService;
+    }
 
     public function export(Request $request, $type)
     {
@@ -36,34 +21,10 @@ class ExportImportController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $data = [];
-        if ($type === 'all') {
-            foreach ($this->models as $key => $modelClass) {
-                $data[$key] = $modelClass::all();
-            }
-            // Add pivot table data for many-to-many relationships
-            $data['pivot_parent_student'] = DB::table('parent_student')->get();
-            $data['pivot_squad_user'] = DB::table('squad_user')->get();
-            $data['pivot_team_user'] = DB::table('team_user')->get();
-        }
-        elseif (isset($this->models[$type])) {
-            $data[$type] = $this->models[$type]::all();
+        $data = $this->dataTransferService->exportData($type);
 
-            // Include relevant pivot data if type-specific
-            if ($type === 'users') {
-                $data['pivot_parent_student'] = DB::table('parent_student')->get();
-                $data['pivot_squad_user'] = DB::table('squad_user')->get();
-                $data['pivot_team_user'] = DB::table('team_user')->get();
-            }
-            elseif ($type === 'squads') {
-                $data['pivot_squad_user'] = DB::table('squad_user')->get();
-            }
-            elseif ($type === 'teams') {
-                $data['pivot_team_user'] = DB::table('team_user')->get();
-            }
-        }
-        else {
-            return response()->json(['message' => 'Invalid export type'], 400);
+        if (empty($data)) {
+            return response()->json(['message' => 'Invalid export type or no data found'], 400);
         }
 
         return response()->json($data, 200, [
@@ -89,61 +50,10 @@ class ExportImportController extends Controller
         }
 
         try {
-            DB::beginTransaction();
-
-            // 1. Process main models
-            foreach ($this->models as $key => $modelClass) {
-                if (isset($data[$key]) && is_array($data[$key])) {
-                    foreach ($data[$key] as $item) {
-                        $id = $item['id'] ?? null;
-
-                        // Prepare data (remove sensitive or auto-gen fields if needed)
-                        $itemData = $item;
-                        if ($key === 'users' && !isset($itemData['password'])) {
-                            // Only set password for new users
-                            if (!$id || !User::where('id', $id)->exists()) {
-                                $itemData['password'] = Hash::make(Str::random(12));
-                            }
-                        }
-
-                        if ($id) {
-                            $modelClass::updateOrCreate(['id' => $id], $itemData);
-                        }
-                        else {
-                            $modelClass::create($itemData);
-                        }
-                    }
-                }
-            }
-
-            // 2. Process pivot tables
-            $pivots = [
-                'pivot_parent_student' => ['table' => 'parent_student', 'keys' => ['parent_id', 'student_id']],
-                'pivot_squad_user' => ['table' => 'squad_user', 'keys' => ['squad_id', 'user_id']],
-                'pivot_team_user' => ['table' => 'team_user', 'keys' => ['team_id', 'user_id']],
-            ];
-
-            foreach ($pivots as $key => $config) {
-                if (isset($data[$key]) && is_array($data[$key])) {
-                    foreach ($data[$key] as $item) {
-                        $where = [];
-                        foreach ($config['keys'] as $k) {
-                            $where[$k] = $item[$k];
-                        }
-
-                        // Check if exists to avoid duplicates
-                        if (!DB::table($config['table'])->where($where)->exists()) {
-                            DB::table($config['table'])->insert((array)$item);
-                        }
-                    }
-                }
-            }
-
-            DB::commit();
+            $this->dataTransferService->importData($data);
             return response()->json(['message' => 'Import completed successfully!']);
         }
         catch (\Exception $e) {
-            DB::rollBack();
             return response()->json(['message' => 'Import failed: ' . $e->getMessage()], 500);
         }
     }

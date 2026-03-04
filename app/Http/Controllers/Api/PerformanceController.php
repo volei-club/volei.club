@@ -5,11 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PerformanceLog;
 use App\Models\User;
+use App\Services\PerformanceService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PerformanceController extends Controller
 {
+    protected $performanceService;
+
+    public function __construct(PerformanceService $performanceService)
+    {
+        $this->performanceService = $performanceService;
+    }
+
     /**
      * Get performance history for a specific user.
      */
@@ -18,28 +25,11 @@ class PerformanceController extends Controller
         $viewer = $request->user();
         $targetUser = User::findOrFail($userId);
 
-        // Authorization
-        if ($viewer->role === 'parinte') {
-            $isChild = $viewer->children()->where('student_id', $userId)->exists();
-            if (!$isChild && $viewer->id !== $userId) {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
-        }
-        elseif (in_array($viewer->role, ['sportiv'])) {
-            if ($viewer->id !== $userId) {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
-        }
-        elseif ($viewer->role === 'manager') {
-            if ($targetUser->club_id !== $viewer->club_id) {
-                return response()->json(['message' => 'Forbidden'], 403);
-            }
+        if (!$this->performanceService->canViewPerformance($viewer, $targetUser)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $logs = PerformanceLog::where('user_id', $userId)
-            ->with('coach:id,name')
-            ->orderBy('log_date', 'desc')
-            ->get();
+        $logs = $this->performanceService->getHistory($userId);
 
         return response()->json([
             'status' => 'success',
@@ -75,18 +65,7 @@ class PerformanceController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        $log = PerformanceLog::create([
-            'user_id' => $validated['user_id'],
-            'coach_id' => $coach->id,
-            'log_date' => $validated['log_date'],
-            'weight' => $validated['weight'],
-            'vertical_jump' => $validated['vertical_jump'],
-            'serve_speed' => $validated['serve_speed'],
-            'reception_rating' => $validated['reception_rating'],
-            'attack_rating' => $validated['attack_rating'],
-            'block_rating' => $validated['block_rating'],
-            'notes' => $validated['notes'],
-        ]);
+        $log = $this->performanceService->storeEntry($validated, $coach->id);
 
         return response()->json([
             'status' => 'success',
@@ -102,18 +81,7 @@ class PerformanceController extends Controller
         $user = $request->user();
         $log = PerformanceLog::findOrFail($id);
 
-        if ($user->role === 'antrenor' && $log->coach_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        if ($user->role === 'manager') {
-            $athlete = User::find($log->user_id);
-            if ($athlete->club_id !== $user->club_id) {
-                return response()->json(['message' => 'Forbidden'], 403);
-            }
-        }
-
-        if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
+        if (!$this->performanceService->canManageEntry($user, $log)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

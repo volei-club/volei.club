@@ -79,7 +79,7 @@ window.messagesManager = () => {
             try {
                 const response = await axios.get(`/api/chat/conversations/${conversationId}`);
                 if (response.data.status === 'success') {
-                    this.messages = response.data.data;
+                    this.messages = response.data.data.messages;
                     this.scrollToBottom();
                 }
             } catch (error) {
@@ -249,7 +249,7 @@ window.messagesManager = () => {
              try {
                 const response = await axios.get(`/api/chat/conversations/${this.activeConversationId}`);
                 if (response.data.status === 'success') {
-                    const newMessages = response.data.data;
+                    const newMessages = response.data.data.messages;
                     if (newMessages.length > this.messages.length) {
                         this.messages = newMessages;
                         this.scrollToBottom();

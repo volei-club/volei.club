@@ -3,13 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserSubscription;
-use App\Models\Subscription;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class UserSubscriptionController extends Controller
 {
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     /**
      * Assign a generic subscription to a specific user (athlete)
      * Managers can only assign to members of their club.
@@ -23,48 +29,11 @@ class UserSubscriptionController extends Controller
             'status' => 'required|in:active_paid,active_pending'
         ]);
 
-        $user = $request->user();
-        $targetUser = User::findOrFail($request->user_id);
-        $subscriptionDef = Subscription::findOrFail($request->subscription_id);
-
-        if ($user->role === 'manager' && $targetUser->club_id !== $user->club_id) {
+        if (!$this->subscriptionService->canManageSubscription($request->user(), $request->user_id)) {
             return response()->json(['message' => 'Nu poti asocia abonamente acestui sportiv.'], 403);
         }
 
-        // Calculate expires_at
-        $starts = Carbon::parse($request->starts_at);
-        $expires = $starts->copy();
-
-        switch ($subscriptionDef->period) {
-            case '1_saptamana':
-                $expires->addWeek();
-                break;
-            case '2_saptamani':
-                $expires->addWeeks(2);
-                break;
-            case '1_luna':
-                $expires->addMonth();
-                break;
-            case '3_luni':
-                $expires->addMonths(3);
-                break;
-            case '6_luni':
-                $expires->addMonths(6);
-                break;
-            case '1_an':
-                $expires->addYear();
-                break;
-            default:
-                $expires->addMonth();
-        }
-
-        $userSubscription = UserSubscription::create([
-            'user_id' => $targetUser->id,
-            'subscription_id' => $subscriptionDef->id,
-            'starts_at' => $starts,
-            'expires_at' => $expires,
-            'status' => $request->status,
-        ]);
+        $userSubscription = $this->subscriptionService->assignToUser($request->all());
 
         return response()->json([
             'message' => 'Subscription assigned to user successfully.',
@@ -84,50 +53,12 @@ class UserSubscriptionController extends Controller
         ]);
 
         $userSubscription = UserSubscription::findOrFail($id);
-        $user = $request->user();
-        $targetUser = User::findOrFail($userSubscription->user_id);
 
-        if ($user->role === 'manager' && $targetUser->club_id !== $user->club_id) {
+        if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
             return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
         }
 
-        $data = $request->only(['status', 'starts_at', 'subscription_id']);
-
-        if (isset($data['subscription_id']) || isset($data['starts_at'])) {
-            $subDef = isset($data['subscription_id'])
-                ?Subscription::findOrFail($data['subscription_id'])
-                : Subscription::findOrFail($userSubscription->subscription_id);
-
-            $starts = isset($data['starts_at']) ?Carbon::parse($data['starts_at']) : Carbon::parse($userSubscription->starts_at);
-
-            $expires = $starts->copy();
-            switch ($subDef->period) {
-                case '1_saptamana':
-                    $expires->addWeek();
-                    break;
-                case '2_saptamani':
-                    $expires->addWeeks(2);
-                    break;
-                case '1_luna':
-                    $expires->addMonth();
-                    break;
-                case '3_luni':
-                    $expires->addMonths(3);
-                    break;
-                case '6_luni':
-                    $expires->addMonths(6);
-                    break;
-                case '1_an':
-                    $expires->addYear();
-                    break;
-                default:
-                    $expires->addMonth();
-            }
-            $data['expires_at'] = $expires;
-            $data['starts_at'] = $starts;
-        }
-
-        $userSubscription->update($data);
+        $this->subscriptionService->updateUserSubscription($userSubscription, $request->only(['status', 'starts_at', 'subscription_id']));
 
         return response()->json([
             'message' => 'Abonament actualizat.',
@@ -141,10 +72,8 @@ class UserSubscriptionController extends Controller
     public function destroy(Request $request, $id)
     {
         $userSubscription = UserSubscription::findOrFail($id);
-        $user = $request->user();
-        $targetUser = User::findOrFail($userSubscription->user_id);
 
-        if ($user->role === 'manager' && $targetUser->club_id !== $user->club_id) {
+        if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
             return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
         }
 
@@ -163,10 +92,8 @@ class UserSubscriptionController extends Controller
         ]);
 
         $userSubscription = UserSubscription::findOrFail($id);
-        $user = $request->user();
 
-        $targetUser = User::findOrFail($userSubscription->user_id);
-        if ($user->role === 'manager' && $targetUser->club_id !== $user->club_id) {
+        if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
             return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
         }
 
@@ -186,25 +113,11 @@ class UserSubscriptionController extends Controller
         $user = $request->user();
         $targetUserId = $request->query('user_id', $user->id);
 
-        // Authorization check: User can see their own, or a parent can see their children
-        if ($targetUserId != $user->id) {
-            $isChild = false;
-            if ($user->role === 'parinte') {
-                $childIds = $user->children()->pluck('users.id')->toArray();
-                if (in_array($targetUserId, $childIds)) {
-                    $isChild = true;
-                }
-            }
-
-            if (!$isChild && !in_array($user->role, ['administrator', 'manager'])) {
-                return response()->json(['message' => 'Acces interzis.'], 403);
-            }
+        if (!$this->subscriptionService->canViewSubscription($user, $targetUserId)) {
+            return response()->json(['message' => 'Acces interzis.'], 403);
         }
 
-        $subscriptions = UserSubscription::with('subscription')
-            ->where('user_id', $targetUserId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $subscriptions = $this->subscriptionService->getAthleteSubscriptions($targetUserId);
 
         return response()->json([
             'status' => 'success',
