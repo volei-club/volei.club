@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Location;
 use App\Services\ClubService;
 use Illuminate\Http\Request;
 
@@ -45,7 +44,7 @@ class LocationController extends Controller
     public function update(Request $request, $id)
     {
         $user = $request->user();
-        $location = Location::findOrFail($id);
+        $location = $this->clubService->getLocationById($id);
 
         if (!in_array($user->role, ['administrator', 'manager'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -67,7 +66,7 @@ class LocationController extends Controller
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
-        $location = Location::findOrFail($id);
+        $location = $this->clubService->getLocationById($id);
 
         if (!in_array($user->role, ['administrator', 'manager'])) {
             return response()->json(['message' => 'Unauthorized'], 403);

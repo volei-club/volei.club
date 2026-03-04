@@ -4,8 +4,6 @@ namespace App\Services;
 
 use App\Models\PerformanceLog;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class PerformanceService
 {
@@ -71,5 +69,13 @@ class PerformanceService
         }
 
         return false;
+    }
+
+    /**
+     * Get a performance log entry by ID.
+     */
+    public function getLogById(string $id): PerformanceLog
+    {
+        return PerformanceLog::findOrFail($id);
     }
 }

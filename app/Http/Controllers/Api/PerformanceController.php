@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PerformanceLog;
-use App\Models\User;
 use App\Services\PerformanceService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -82,7 +81,7 @@ class PerformanceController extends Controller
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
-        $log = PerformanceLog::findOrFail($id);
+        $log = $this->performanceService->getLogById($id);
 
         if (!$this->performanceService->canManageEntry($user, $log)) {
             return response()->json(['message' => 'Unauthorized'], 403);

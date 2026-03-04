@@ -121,4 +121,12 @@ class ClubService
     {
         return Club::findOrFail($id);
     }
+
+    /**
+     * Get a location by ID.
+     */
+    public function getLocationById(string $id): Location
+    {
+        return Location::findOrFail($id);
+    }
 }
