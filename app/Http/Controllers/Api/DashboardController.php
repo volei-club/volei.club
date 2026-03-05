@@ -61,7 +61,10 @@ class DashboardController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $stats
+                'data' => [
+                    'athlete_stats' => $stats,
+                    'recent_conversations' => $this->dashboardService->getRecentConversations($user),
+                ]
             ]);
         }
 

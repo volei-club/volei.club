@@ -165,24 +165,59 @@ class DashboardService
      */
     public function getAthleteStats(User $athlete)
     {
+        // 1. Next Session
+        $attendanceService = app(AttendanceService::class);
+        $calendar = $attendanceService->generateCalendar($athlete, 2); // Get next 2 weeks
+        $nextSession = collect($calendar)
+            ->filter(fn($s) => !$s['is_cancelled'] && Carbon::parse($s['start'])->isFuture())
+            ->first();
+
+        // 2. Latest Performance
         $latestPerformance = PerformanceLog::where('user_id', $athlete->id)
             ->orderBy('log_date', 'desc')
             ->first();
 
+        $performanceData = null;
+        if ($latestPerformance) {
+            $performanceData = [
+                'vertical_jump' => $latestPerformance->vertical_jump,
+                'serve_speed' => $latestPerformance->serve_speed,
+                'date' => $latestPerformance->log_date ?Carbon::parse($latestPerformance->log_date)->format('d.m.Y') : '-',
+            ];
+        }
+
+        // 3. Active Subscription
         $activeSubscription = UserSubscription::where('user_id', $athlete->id)
-            ->where('status', 'active_paid')
+            ->whereIn('status', ['active_paid', 'active_pending'])
             ->where('expires_at', '>=', now())
             ->with('subscription')
+            ->orderBy('expires_at', 'desc')
             ->first();
 
-        // Calculate attendance rate (simple version)
+        $subscriptionData = null;
+        if ($activeSubscription) {
+            $subscriptionData = [
+                'plan_name' => $activeSubscription->subscription->name ?? 'Abonament',
+                'status' => $activeSubscription->status,
+                'expiry' => $activeSubscription->expires_at ?Carbon::parse($activeSubscription->expires_at)->format('d.m.Y') : '-',
+            ];
+        }
+
+        // 4. Attendance Rate
         $totalSessions = DB::table('attendances')->where('user_id', $athlete->id)->count();
         $presentSessions = DB::table('attendances')->where('user_id', $athlete->id)->where('status', 'prezent')->count();
         $attendanceRate = $totalSessions > 0 ? round(($presentSessions / $totalSessions) * 100) : 0;
 
         return [
-            'latest_performance' => $latestPerformance,
-            'active_subscription' => $activeSubscription,
+            'next_session' => $nextSession ? [
+                'title' => $nextSession['title'],
+                'date' => Carbon::parse($nextSession['start'])->translatedFormat('d F Y'),
+                'time' => $nextSession['start_time'] . ' - ' . $nextSession['end_time'],
+                'location' => $nextSession['location'],
+                'type' => $nextSession['type'],
+            ] : null,
+            'latest_performance' => $performanceData,
+            'subscription' => $subscriptionData,
             'attendance_rate' => $attendanceRate,
         ];
     }
