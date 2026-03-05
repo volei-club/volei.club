@@ -134,6 +134,7 @@ window.messagesManager = () => {
                 const conv = this.conversations.find(c => c.id === conversationId);
                 if (conv) {
                     conv.is_unread = false;
+                    conv.unread_count = 0;
                     const myId = this.user.id;
                     const pivot = conv.users.find(u => u.id === myId)?.pivot;
                     if (pivot) pivot.last_read_at = new Date().toISOString();
@@ -188,16 +189,18 @@ window.messagesManager = () => {
             // If I am currently looking at this conversation, it's NOT unread
             if (this.activeConversationId === conv.id) return false;
 
-            // If server explicitly told us it's unread, believe it
+            // Priority 1: Explicit flag from server
+            if (conv.unread_count !== undefined) return conv.unread_count > 0;
             if (conv.is_unread !== undefined) return conv.is_unread;
 
-            // Fallback to local calculation logic if flag is not present
+            // Priority 2: Fallback to local calculation logic
             if (conv.last_message.sender_id === this.user.id) return false;
 
             const myId = this.user.id;
             const myPivot = conv.users.find(u => u.id === myId)?.pivot;
             if (!myPivot || !myPivot.last_read_at) return true;
             
+            // Note: Date comparison can be tricky due to precision/timezones
             return new Date(conv.last_message.created_at).getTime() > new Date(myPivot.last_read_at).getTime();
         },
 
