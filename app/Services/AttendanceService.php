@@ -107,15 +107,14 @@ class AttendanceService
         $sessions = [];
 
         // Romanian day names mapping to Carbon dayOfWeek (0=Sun, 1=Mon...)
-        // Includes versions with and without diacritics to be robust
         $dayMap = [
-            'duminica' => 0, 'duminică' => 0,
+            'duminica' => 0,
             'luni'     => 1,
-            'marti'    => 2, 'marți'    => 2,
+            'marti'    => 2,
             'miercuri' => 3,
             'joi'      => 4,
             'vineri'   => 5,
-            'sambata'  => 6, 'sâmbătă'  => 6,
+            'sambata'  => 6,
         ];
 
         // Generate training instances
@@ -158,12 +157,12 @@ class AttendanceService
                 $sessions[] = [
                     'id' => 'training_' . $training->id . '_' . $dateStr,
                     'type' => 'training',
-                    'title' => 'Antrenament ' . ($training->squad->name ?? $training->team->name),
+                    'title' => __('calendar.training_title', ['name' => ($training->squad->name ?? $training->team->name)]),
                     'start' => $dateStr . ' ' . $training->start_time,
                     'start_time' => $training->start_time,
                     'end' => $dateStr . ' ' . $training->end_time,
                     'end_time' => $training->end_time,
-                    'location' => $training->location->name ?? 'Nespecificat',
+                    'location' => $training->location->name ?? __('calendar.unspecified_location'),
                     'training_id' => $training->id,
                     'is_cancelled' => (bool)$cancellation,
                     'cancellation_reason' => $cancellation?->reason,
@@ -185,12 +184,12 @@ class AttendanceService
             $sessions[] = [
                 'id' => 'game_' . $game->id,
                 'type' => 'game',
-                'title' => 'Meci: ' . ($game->opponent_name ?? 'Adversar necunoscut'),
+                'title' => __('calendar.game_title', ['name' => ($game->opponent_name ?? __('calendar.unknown_opponent'))]),
                 'start' => $game->match_date->format('Y-m-d') . ' ' . $startTime,
                 'start_time' => $startTime,
                 'end' => $game->match_date->format('Y-m-d') . ' ' . $endTime,
                 'end_time' => $endTime,
-                'location' => $game->location ?? 'Nespecificat',
+                'location' => $game->location ?? __('calendar.unspecified_location'),
                 'game_id' => $game->id,
                 'opponent' => $game->opponent_name,
                 'score' => $this->formatGameScore($game),
