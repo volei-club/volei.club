@@ -190,24 +190,24 @@ class UserService
     public function canDeleteUser(User $user, User $caller): ?string
     {
         if ($caller->id === $user->id) {
-            return 'Nu vă puteți șterge propriul cont.';
+            return __('api_users.delete_self');
         }
 
         if ($caller->role !== 'administrator') {
             if ($user->club_id !== $caller->club_id) {
-                return 'Acest utilizator nu face parte din clubul dvs.';
+                return __('api_users.delete_not_in_club');
             }
             if (in_array($user->role, ['administrator', 'manager'])) {
-                return 'Nu aveți permisiunea de a șterge acest tip de cont.';
+                return __('api_users.delete_unauthorized_role');
             }
         }
 
         if (\App\Models\Training::where('coach_id', $user->id)->exists()) {
-            return 'Acest utilizator este antrenor pentru unul sau mai multe antrenamente și nu poate fi șters.';
+            return __('api_users.delete_is_coach');
         }
 
         if ($user->subscriptions()->count() > 0) {
-            return 'Acest utilizator are abonamente alocate. Anulați sau ștergeți abonamentele înainte de a șterge contul.';
+            return __('api_users.delete_has_subscriptions');
         }
 
         return null;

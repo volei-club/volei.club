@@ -128,15 +128,15 @@ class EventService
     {
         $squad = Squad::where('id', $squadId)->whereHas('team', fn($q) => $q->where('club_id', $clubId))->first();
         if (!$squad)
-            return 'Echipa nu există sau nu aparține clubului selectat.';
+            return __('api_events.squad_not_in_club');
 
         $location = Location::where('id', $locationId)->where('club_id', $clubId)->first();
         if (!$location)
-            return 'Locația nu aparține clubului selectat.';
+            return __('api_events.location_not_in_club');
 
         $coach = User::where('id', $coachId)->where('club_id', $clubId)->first();
         if (!$coach)
-            return 'Antrenorul nu aparține clubului selectat.';
+            return __('api_events.coach_not_in_club');
 
         return null;
     }

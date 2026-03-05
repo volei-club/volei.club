@@ -48,19 +48,19 @@ class ClubService
     public function canDeleteClub(Club $club): ?string
     {
         if ($club->users()->count() > 0) {
-            return 'Acest club nu poate fi șters deoarece are utilizatori asociați. Transferați sau ștergeți utilizatorii mai întâi.';
+            return __('api_clubs.delete_has_users');
         }
 
         if ($club->teams()->count() > 0) {
-            return 'Acest club nu poate fi șters deoarece are grupe (echipe) asociate. Ștergeți grupele mai întâi.';
+            return __('api_clubs.delete_has_teams');
         }
 
         if (Location::where('club_id', $club->id)->exists()) {
-            return 'Acest club are locații asociate. Ștergeți locațiile mai întâi.';
+            return __('api_clubs.delete_has_locations');
         }
 
         if (Subscription::where('club_id', $club->id)->exists()) {
-            return 'Acest club are definiții de abonamente alocate. Ștergeți-le mai întâi.';
+            return __('api_clubs.delete_has_subscriptions');
         }
 
         return null;
@@ -109,7 +109,7 @@ class ClubService
     public function canDeleteLocation(Location $location): ?string
     {
         if (Training::where('location_id', $location->id)->exists()) {
-            return 'Această locație este folosită de unul sau mai multe antrenamente și nu poate fi ștearsă.';
+            return __('api_locations.delete_in_use');
         }
         return null;
     }

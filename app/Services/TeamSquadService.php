@@ -57,15 +57,15 @@ class TeamSquadService
     public function canDeleteTeam(Team $team): ?string
     {
         if ($team->users()->count() > 0) {
-            return 'Această grupă are jucători sau antrenori asociați. Pentru siguranță, eliminați membrii înainte de ștergere.';
+            return __('api_teams.delete_has_members');
         }
 
         if ($team->squads()->count() > 0) {
-            return 'Această grupă are sub-echipe asociate. Ștergeți-le mai întâi.';
+            return __('api_teams.delete_has_squads');
         }
 
         if (Training::where('team_id', $team->id)->exists()) {
-            return 'Această grupă are antrenamente programate. Ștergeți antrenamentele mai întâi.';
+            return __('api_teams.delete_has_trainings');
         }
 
         return null;
@@ -136,7 +136,7 @@ class TeamSquadService
     public function canDeleteSquad(Squad $squad): ?string
     {
         if ($squad->users()->count() > 0) {
-            return 'Această echipă are jucători asociați. Pentru siguranță, eliminați membrii înainte de ștergere.';
+            return __('api_squads.delete_has_members');
         }
         return null;
     }

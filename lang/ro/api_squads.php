@@ -10,4 +10,5 @@ return [
     'created_success' => 'Echipă adăugată cu succes!',
     'updated_success' => 'Echipă actualizată!',
     'deleted_success' => 'Echipă ștearsă!',
+    'delete_has_members' => 'Această echipă are jucători asociați. Pentru siguranță, eliminați membrii înainte de ștergere.',
 ];
