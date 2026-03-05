@@ -8,8 +8,16 @@ Alpine.data('subscriptionManager', () => ({
     saving: false,
     showModal: false,
     error: null,
-    form: { id: null, name: '', price: '', period: '1_luna', club_id: '' },
     filters: { club_id: '' },
+    periodLabels: {
+        '1_saptamana': `{{ __('subscriptions.form.periods.1_saptamana') }}`,
+        '2_saptamani': `{{ __('subscriptions.form.periods.2_saptamani') }}`,
+        '1_luna': `{{ __('subscriptions.form.periods.1_luna') }}`,
+        '3_luni': `{{ __('subscriptions.form.periods.3_luni') }}`,
+        '6_luni': `{{ __('subscriptions.form.periods.6_luni') }}`,
+        '1_an': `{{ __('subscriptions.form.periods.1_an') }}`
+    },
+    locale: document.documentElement.lang || 'ro-RO',
 
     init() {
         const syncFromHash = () => {
@@ -226,20 +234,20 @@ Alpine.data('subscriptionManager', () => ({
             if(res.ok) {
                 this.fetchSubscriptions();
                 this.showModal = false;
-                window.showToast(isEdit ? 'Abonament actualizat cu succes!' : 'Abonament creat cu succes!');
+                window.showToast(isEdit ? '{{ __('subscriptions.messages.update_success') }}' : '{{ __('subscriptions.messages.create_success') }}');
             } else {
-                this.error = payload.message || 'Eroare la salvare.';
+                this.error = payload.message || '{{ __('subscriptions.messages.save_error') }}';
                 window.showToast(this.error, 'error');
             }
         } catch (e) { 
-            this.error = "Eroare de rețea."; 
+            this.error = "{{ __('subscriptions.messages.network_error') }}"; 
             window.showToast(this.error, 'error');
         }
         this.saving = false;
     },
 
     async deleteSubscription(id) {
-        if(!confirm('Sigur dorești ștergerea acestui abonament de club?')) return;
+        if(!confirm('{{ __('subscriptions.messages.delete_confirm') }}')) return;
         
         try {
             const res = await fetch(`/api/subscriptions/${id}`, {
@@ -248,11 +256,22 @@ Alpine.data('subscriptionManager', () => ({
             });
             if(res.ok) {
                 this.subscriptions = this.subscriptions.filter(s => s.id !== id);
-                window.showToast('Abonament șters cu succes!');
+                window.showToast('{{ __('subscriptions.messages.delete_success') }}');
             } else {
                 const data = await res.json();
-                window.showToast(data.message || 'Eroare la ștergere. Posibil există membri activi asociați.', 'error');
+                window.showToast(data.message || '{{ __('subscriptions.messages.delete_error') }}', 'error');
             }
-        } catch (e) { window.showToast('A apărut o eroare de rețea.', 'error'); }
+        } catch (e) { window.showToast('{{ __('subscriptions.messages.network_error') }}', 'error'); }
+    },
+
+    getStatusLabel(status) {
+        const labels = {
+            'active_paid': `{{ __('members.status.active') }} ({{ __('members.status.paid') }})`,
+            'active_pending': `{{ __('members.status.active') }} ({{ __('members.status.pending') }})`,
+            'cancelled': `{{ __('members.status.inactive') }} ({{ __('members.status.cancelled') }})`,
+            'expired': `{{ __('members.status.inactive') }} ({{ __('members.status.expired') }})`,
+            'pending': `{{ __('members.status.pending') }}`
+        };
+        return labels[status] || status;
     }
 }));

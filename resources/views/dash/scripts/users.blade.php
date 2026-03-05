@@ -17,6 +17,14 @@ Alpine.data('userManager', () => ({
     form: { id: null, name: '', email: '', phone: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [], child_ids: [], photo: null, photo_url: null },
     availableStudents: [],
     loadingStudents: false,
+    locale: document.documentElement.lang || 'ro-RO',
+    roleLabels: {
+        'administrator': '{{ __('members.roles_filter.admin') }}',
+        'manager': '{{ __('members.roles_filter.manager') }}',
+        'antrenor': '{{ __('members.roles_filter.coach') }}',
+        'sportiv': '{{ __('members.roles_filter.student') }}',
+        'parinte': '{{ __('members.roles_filter.parent') }}'
+    },
     
     // Subscription properties
     showSubscriptionModal: false,
@@ -27,16 +35,12 @@ Alpine.data('userManager', () => ({
     showSubscriptionHistoryModal: false,
     historyUser: null,
     statusLabels: {
-        'active_paid': 'Plătit',
-        'active_pending': 'Așteaptă Plată',
-        'expired': 'Expirat',
-        'cancelled': 'Anulat',
-        'inactive_expired': 'Expirat',
-        'scheduled': 'Programat',
-        // Fallbacks for uppercase if they ever appear
-        'ACTIVE_PAID': 'Plătit',
-        'ACTIVE_PENDING': 'Așteaptă Plată',
-        'CANCELLED': 'Anulat'
+        'active_paid': '{{ __('members.status.paid') }}',
+        'active_pending': '{{ __('members.status.pending') }}',
+        'expired': '{{ __('members.status.expired') }}',
+        'cancelled': '{{ __('members.status.cancelled') }}',
+        'inactive_expired': '{{ __('members.status.expired') }}',
+        'scheduled': '{{ __('members.status.scheduled') }}'
     },
 
     filters: { role: '', club_id: '', team_id: '', squad_id: '' },
@@ -477,20 +481,20 @@ Alpine.data('userManager', () => ({
                 if(isEdit) {
                     const idx = this.users.findIndex(u => u.id === this.form.id);
                     if(idx !== -1) this.users[idx] = payload.data;
-                    window.showToast('Membru actualizat cu succes!');
+                    window.showToast('{{ __('members.messages.update_success') }}');
                 } else {
                     this.fetchUsers();
-                    window.showToast('Membru creat cu succes!');
+                    window.showToast('{{ __('members.messages.create_success') }}');
                 }
                 this.showModal = false;
                 this.form = { id: null, name: '', email: '', role: '', club_id: '', password: '', is_active: true, team_ids: [], squad_ids: [] };
                 this.availableSquads = [];
             } else {
-                this.error = payload.message || 'Eroare la salvare.';
+                this.error = payload.message || '{{ __('members.messages.save_error') }}';
                 window.showToast(this.error, 'error');
             }
         } catch (e) { 
-            this.error = "Eroare rețea."; 
+            this.error = "{{ __('members.messages.network_error') }}"; 
             window.showToast(this.error, 'error');
         }
         
@@ -498,7 +502,7 @@ Alpine.data('userManager', () => ({
     },
 
     async deleteUser(id) {
-        if(!confirm('Sigur dorești să ștergi acest Membru? Această acțiune este ireversibilă.')) return;
+        if(!confirm('{{ __('members.messages.delete_confirm') }}')) return;
         try {
             const res = await fetch(`/api/users/${id}`, {
                 method: 'DELETE',
@@ -506,18 +510,18 @@ Alpine.data('userManager', () => ({
             });
             const payload = await res.json();
             if(!res.ok) {
-                window.showToast(payload.message || 'Nu poți șterge acest Membru.', 'error');
+                window.showToast(payload.message || '{{ __('members.messages.delete_error') }}', 'error');
                 return;
             }
-            window.showToast('Membru șters cu succes!');
+            window.showToast('{{ __('members.messages.delete_success') }}');
             this.fetchUsers();
         } catch(e) {
-            window.showToast('A apărut o eroare la ștergere.', 'error');
+            window.showToast('{{ __('members.messages.delete_error') }}', 'error');
         }
     },
 
     async impersonateUser(user) {
-        if(!confirm(`Ești sigur că vrei să te loghezi ca ${user.name}?`)) return;
+        if(!confirm('{{ __('members.messages.impersonate_confirm', ['name' => "'+user.name+'"]) }}')) return;
         
         try {
             const res = await fetch(`/api/impersonate/${user.id}`, {
@@ -535,10 +539,10 @@ Alpine.data('userManager', () => ({
                 // Reincarcam aplicatia complet
                 window.location.reload();
             } else {
-                alert(payload.message || 'Eroare la impersonare.');
+                alert(payload.message || '{{ __('members.messages.impersonate_error') }}');
             }
         } catch(e) {
-            alert('Eroare de rețea la impersonare.');
+            alert('{{ __('members.messages.network_error') }}');
         }
     },
 
@@ -602,7 +606,7 @@ Alpine.data('userManager', () => ({
     },
 
     async deleteUserSubscription(id) {
-        if(!confirm('Sigur dorești să ștergi acest înregistrare de abonament?')) return;
+        if(!confirm('{{ __('members.messages.delete_subscription_confirm') }}')) return;
         
         try {
             const res = await fetch(`/api/user-subscriptions/${id}`, {
@@ -616,13 +620,13 @@ Alpine.data('userManager', () => ({
             if(res.ok) {
                 this.fetchUsers();
                 this.showSubscriptionHistoryModal = false;
-                window.showToast('Înregistrare abonament ștearsă.');
+                window.showToast('{{ __('members.messages.subscription_delete_success') }}');
             } else {
                 const payload = await res.json();
-                window.showToast(payload.message || 'Eroare la ștergere.', 'error');
+                window.showToast(payload.message || '{{ __('admin.error') }}', 'error');
             }
         } catch (e) {
-            window.showToast('Eroare rețea.', 'error');
+            window.showToast('{{ __('members.messages.network_error') }}', 'error');
         }
     },
 
@@ -654,18 +658,18 @@ Alpine.data('userManager', () => ({
             if(res.ok) {
                 this.fetchUsers();
                 this.showSubscriptionModal = false;
-                window.showToast(isEdit ? 'Abonament actualizat!' : 'Abonament alocat cu succes!');
+                window.showToast(isEdit ? '{{ __('members.messages.subscription_update_success') }}' : '{{ __('members.messages.subscription_create_success') }}');
             } else {
                 if (res.status === 422 && payload.errors) {
                     const errors = Object.values(payload.errors).flat();
                     this.subscriptionError = errors.join(' ');
                 } else {
-                    this.subscriptionError = payload.message || 'Eroare la alocarea abonamentului.';
+                    this.subscriptionError = payload.message || '{{ __('members.messages.subscription_save_error') }}';
                 }
                 window.showToast(this.subscriptionError, 'error');
             }
         } catch (e) { 
-            this.subscriptionError = "Eroare rețea."; 
+            this.subscriptionError = "{{ __('members.messages.network_error') }}"; 
             window.showToast(this.subscriptionError, 'error');
         }
         
@@ -680,7 +684,7 @@ Alpine.data('userManager', () => ({
     formatDate(dateString) {
         if (!dateString) return '-';
         const date = new Date(dateString);
-        return date.toLocaleDateString('ro-RO', { 
+        return date.toLocaleDateString(this.locale, { 
             day: '2-digit', 
             month: '2-digit', 
             year: 'numeric' 
@@ -706,13 +710,13 @@ Alpine.data('userManager', () => ({
             if(res.ok) {
                 this.fetchUsers();
                 this.showSubscriptionModal = false;
-                window.showToast('Status abonament actualizat!');
+                window.showToast('{{ __('members.messages.subscription_status_success') }}');
             } else {
-                this.subscriptionError = payload.message || 'Eroare la actualizarea statusului.';
+                this.subscriptionError = payload.message || '{{ __('members.messages.error') }}';
                 window.showToast(this.subscriptionError, 'error');
             }
         } catch (e) { 
-            this.subscriptionError = "Eroare rețea."; 
+            this.subscriptionError = "{{ __('members.messages.network_error') }}"; 
             window.showToast(this.subscriptionError, 'error');
         }
         

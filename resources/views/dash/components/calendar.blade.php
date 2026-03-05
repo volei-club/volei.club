@@ -9,8 +9,8 @@
     {{-- Page Header --}}
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Calendar Antrenamente</h1>
-            <p class="text-slate-500 text-sm mt-1">Sesiunile tale săptămânale și istoricul de prezență</p>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{{ __('calendar.title') }}</h1>
+            <p class="text-slate-500 text-sm mt-1">{{ __('calendar.subtitle') }}</p>
         </div>
 
         {{-- Parent: child selector --}}
@@ -29,7 +29,7 @@
             <template x-if="canMarkAttendance()">
                 <button @click="openGameModal()" class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
                     <span class="material-symbols-outlined text-[18px]">sports_volleyball</span>
-                    Adaugă Meci
+                    {{ __('calendar.add_game') }}
                 </button>
             </template>
         </div>
@@ -82,14 +82,14 @@
                             ]"
                         >
                             <div x-show="session.is_cancelled" class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none z-10 px-1">
-                                <span class="bg-red-500/90 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm rotate-[-12deg] tracking-wider">Anulat</span>
+                                <span class="bg-red-500/90 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm rotate-[-12deg] tracking-wider">{{ __('calendar.cancelled') }}</span>
                                 <template x-if="session.cancellation_reason">
                                     <p class="text-[8px] font-bold text-red-600 dark:text-red-400 mt-4 bg-white/80 dark:bg-slate-900/80 px-1 rounded line-clamp-2 text-center" x-text="session.cancellation_reason"></p>
                                 </template>
                             </div>
 
                             <div :class="{'opacity-50 grayscale': session.is_cancelled}">
-                                <div x-show="session.type === 'game'" class="px-1.5 py-0.5 bg-indigo-500 text-white rounded text-[8px] font-black uppercase tracking-tighter w-fit mb-1">MECI</div>
+                                <div x-show="session.type === 'game'" class="px-1.5 py-0.5 bg-indigo-500 text-white rounded text-[8px] font-black uppercase tracking-tighter w-fit mb-1">{{ __('calendar.game.label') }}</div>
 
                             <div class="flex items-center gap-1 font-bold mb-1">
                                 <span class="material-symbols-outlined text-[14px]">schedule</span>
@@ -97,7 +97,7 @@
                             </div>
 
                             <div x-show="session.type === 'game'">
-                                <p class="font-black text-indigo-900 dark:text-indigo-200 uppercase truncate">VS <span x-text="session.opponent"></span></p>
+                                <p class="font-black text-indigo-900 dark:text-indigo-200 uppercase truncate">{{ __('calendar.game.vs') }} <span x-text="session.opponent"></span></p>
                                 <div x-show="session.score" class="mt-1 flex items-center gap-1.5">
                                     <span class="material-symbols-outlined text-[14px] text-indigo-500">analytics</span>
                                     <span class="font-black text-indigo-700 bg-white/50 px-1.5 rounded" x-text="session.score"></span>
@@ -105,7 +105,7 @@
                             </div>
                             
                             <div x-show="session.type !== 'game'">
-                                <p class="font-semibold truncate" x-text="session.squad ?? session.team ?? 'Antrenament'"></p>
+                                <p class="font-semibold truncate" x-text="session.squad ?? session.team ?? `{{ __('calendar.training.label') }}`"></p>
                             </div>
 
                             <p class="text-[10px] opacity-70 truncate" x-text="session.location ?? ''"></p>
@@ -117,17 +117,17 @@
 
                             <div x-show="!canMarkAttendance() && session.type === 'game' && session.role" class="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-indigo-600">
                                 <span class="material-symbols-outlined text-[14px]">person</span>
-                                <span x-text="session.role === 'titular' ? 'Titular' : 'Rezervă'"></span>
+                                <span x-text="session.role === 'titular' ? `{{ __('calendar.roles.titular') }}` : `{{ __('calendar.roles.reserve') }}`"></span>
                             </div>
 
                             <div x-show="!canMarkAttendance() && session.type === 'game'" class="mt-1.5 flex items-center gap-1 text-[10px] opacity-60">
                                 <span class="material-symbols-outlined text-[12px]">visibility</span>
-                                <span>Detalii meci</span>
+                                <span>{{ __('calendar.game.details') }}</span>
                             </div>
 
                             <div x-show="canMarkAttendance()" class="mt-1.5 flex items-center gap-1 text-[10px] opacity-60">
                                 <span class="material-symbols-outlined text-[12px]" x-text="session.type === 'game' ? 'edit' : 'how_to_reg'"></span>
-                                <span x-text="session.type === 'game' ? 'Detalii meci' : 'Bifează prezența'"></span>
+                                <span x-text="session.type === 'game' ? `{{ __('calendar.game.details') }}` : `{{ __('calendar.training.mark_attendance') }}`"></span>
                             </div>
                             </div>
                         </div>
@@ -140,8 +140,8 @@
     {{-- Empty state --}}
     <div x-show="!loading && sessions.length === 0" class="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
         <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">calendar_today</span>
-        <p class="text-slate-500">Nu există activități programate.</p>
-        <p class="text-slate-400 text-sm mt-1">Contactează-ți antrenorul sau managerul.</p>
+        <p class="text-slate-500">{{ __('calendar.no_activities') }}</p>
+        <p class="text-slate-400 text-sm mt-1">{{ __('calendar.contact_coach') }}</p>
     </div>
 
     {{-- ====== Attendance Modal (Coach view) ====== --}}
@@ -152,10 +152,10 @@
             {{-- Modal Header --}}
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
                 <div>
-                    <h2 class="font-bold text-slate-900 dark:text-white text-lg">Prezență Antrenament</h2>
+                    <h2 class="font-bold text-slate-900 dark:text-white text-lg">{{ __('calendar.attendance_title') }}</h2>
                     <template x-if="attendanceSession">
                         <p class="text-sm text-slate-500 mt-0.5">
-                            <span x-text="new Date(attendanceSession.date + 'T00:00:00').toLocaleDateString('ro-RO', {weekday:'long', day:'numeric', month:'long'})"></span>
+                            <span x-text="new Date(attendanceSession.date + 'T00:00:00').toLocaleDateString(locale, {weekday:'long', day:'numeric', month:'long'})"></span>
                             &bull;
                             <span x-text="attendanceSession.start_time?.slice(0,5)"></span>–<span x-text="attendanceSession.end_time?.slice(0,5)"></span>
                         </p>
@@ -166,7 +166,7 @@
                          <button @click="openCancelModal()" class="text-sm px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1"
                                  :class="attendanceSession.is_cancelled ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'">
                              <span class="material-symbols-outlined text-[16px]" x-text="attendanceSession.is_cancelled ? 'restore' : 'cancel'"></span>
-                             <span x-text="attendanceSession.is_cancelled ? 'Restaurează / Anulează' : 'Anulează Sesiunea'"></span>
+                             <span x-text="attendanceSession.is_cancelled ? `{{ __('calendar.restore_session') }}` : `{{ __('calendar.cancel_session') }}`"></span>
                          </button>
                     </template>
                     <button @click="closeAttendance()" class="text-slate-400 hover:text-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl p-2 transition-colors">
@@ -184,7 +184,7 @@
 
                 <div x-show="!loadingAttendance && attendanceMembers.length === 0" class="text-center py-10 text-slate-400">
                     <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">person_off</span>
-                    <p>Nicio sportivă asociată acestei echipe.</p>
+                    <p>{{ __('calendar.no_athletes') }}</p>
                 </div>
 
                 <div x-show="!loadingAttendance" class="space-y-3">
@@ -216,7 +216,7 @@
                                     @click="markAttendance(member, 'prezent')"
                                     :class="member.status === 'prezent' ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600'"
                                     class="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                                    title="Prezent"
+                                    :title="'{{ __('calendar.present') }}'"
                                 >
                                     <span class="material-symbols-outlined text-[20px]">check_circle</span>
                                 </button>
@@ -225,7 +225,7 @@
                                     @click="markAttendance(member, 'motivat')"
                                     :class="member.status === 'motivat' ? 'bg-amber-500 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600'"
                                     class="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                                    title="Motivat"
+                                    :title="'{{ __('calendar.motivated') }}'"
                                 >
                                     <span class="material-symbols-outlined text-[20px]">info</span>
                                 </button>
@@ -234,7 +234,7 @@
                                     @click="markAttendance(member, 'absent')"
                                     :class="member.status === 'absent' ? 'bg-red-500 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600'"
                                     class="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                                    title="Absent"
+                                    :title="'{{ __('calendar.absent') }}'"
                                 >
                                     <span class="material-symbols-outlined text-[20px]">cancel</span>
                                 </button>
@@ -254,19 +254,19 @@
                 <div class="flex justify-around text-center">
                     <div>
                         <p class="text-2xl font-black text-emerald-500" x-text="attendanceMembers.filter(m => m.status === 'prezent').length"></p>
-                        <p class="text-xs text-slate-500">Prezenți</p>
+                        <p class="text-xs text-slate-500">{{ __('calendar.attendance_summary.present') }}</p>
                     </div>
                     <div>
                         <p class="text-2xl font-black text-amber-500" x-text="attendanceMembers.filter(m => m.status === 'motivat').length"></p>
-                        <p class="text-xs text-slate-500">Motivați</p>
+                        <p class="text-xs text-slate-500">{{ __('calendar.attendance_summary.motivated') }}</p>
                     </div>
                     <div>
                         <p class="text-2xl font-black text-red-500" x-text="attendanceMembers.filter(m => m.status === 'absent').length"></p>
-                        <p class="text-xs text-slate-500">Absenți</p>
+                        <p class="text-xs text-slate-500">{{ __('calendar.attendance_summary.absent') }}</p>
                     </div>
                     <div>
                         <p class="text-2xl font-black text-slate-400" x-text="attendanceMembers.filter(m => !m.status).length"></p>
-                        <p class="text-xs text-slate-500">Neînregistrați</p>
+                        <p class="text-xs text-slate-500">{{ __('calendar.attendance_summary.unregistered') }}</p>
                     </div>
                 </div>
             </div>
@@ -279,7 +279,7 @@
         <div @click.outside="closeCancelModal()" class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 flex flex-col">
             
             <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                <h2 class="font-bold text-slate-900 dark:text-white text-lg">Anulare Antrenament</h2>
+                <h2 class="font-bold text-slate-900 dark:text-white text-lg">{{ __('calendar.cancellation.title') }}</h2>
                 <button @click="closeCancelModal()" class="text-slate-400 hover:text-slate-600 rounded-xl p-2 transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
@@ -289,28 +289,28 @@
                 <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 mb-6 flex gap-3">
                     <span class="material-symbols-outlined text-amber-500">warning</span>
                     <div class="text-sm text-amber-800 dark:text-amber-300">
-                        <p class="font-bold">Atenție!</p>
-                        <p>Anularea acestei sesiuni va fi vizibilă pentru toți membrii și aceștia vor primi o notificare pe mesagerie.</p>
+                        <p class="font-bold">{{ __('calendar.cancellation.warning') }}</p>
+                        <p>{{ __('calendar.cancellation.notice') }}</p>
                     </div>
                 </div>
 
                 <div class="mb-6">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Motivul Anulării (Opțional)</label>
-                    <textarea x-model="cancelReason" rows="3" placeholder="ex: Antrenorul este indisponibil, Sala este ocupată..."
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">{{ __('calendar.cancellation.reason_label') }}</label>
+                    <textarea x-model="cancelReason" rows="3" placeholder="{{ __('calendar.cancellation.reason_placeholder') }}"
                               class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary shadow-sm resize-none"></textarea>
                 </div>
 
                 <div class="flex gap-3">
                     <button @click="closeCancelModal()"
                             class="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-50 transition-all">
-                        Renunță
+                        {{ __('calendar.cancellation.back') }}
                     </button>
                     <button @click="confirmToggleCancel()" :disabled="cancelling"
                             class="flex-[2] px-4 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 flex items-center justify-center gap-2">
                         <template x-if="cancelling">
                             <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         </template>
-                        <span>Anulează Sesiunea</span>
+                        <span>{{ __('calendar.cancellation.confirm_cancel') }}</span>
                     </button>
                 </div>
             </div>

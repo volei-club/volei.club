@@ -7,7 +7,7 @@
            class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
            :class="currentPage === '/dash' ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
             <span class="material-symbols-outlined text-[24px]" :class="currentPage === '/dash' ? 'fill-1' : ''">dashboard</span>
-            <span class="text-[10px] font-semibold tracking-wide">Acasă</span>
+            <span class="text-[10px] font-semibold tracking-wide">{{ __('dash.nav.home') }}</span>
         </a>
 
         <!-- Calendar (Coaches/Admin) or Meciuri (Athlete) -->
@@ -16,7 +16,7 @@
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/calendar') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">event</span>
-                <span class="text-[10px] font-semibold tracking-wide">Calendar</span>
+                <span class="text-[10px] font-semibold tracking-wide">{{ __('dash.nav.calendar') }}</span>
             </a>
         </template>
         <template x-if="['sportiv', 'parinte'].includes(user?.role)">
@@ -24,7 +24,7 @@
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/meciuri') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
-                <span class="text-[10px] font-semibold tracking-wide">Meciuri</span>
+                <span class="text-[10px] font-semibold tracking-wide">{{ __('dash.nav.matches') }}</span>
             </a>
         </template>
 
@@ -34,7 +34,7 @@
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/membri') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/membri') ? 'fill-1' : ''">groups</span>
-                <span class="text-[10px] font-semibold tracking-wide" x-text="window.innerWidth < 380 ? 'Membri' : 'Membri'"></span>
+                <span class="text-[10px] font-semibold tracking-wide" x-text="window.innerWidth < 380 ? `{{ __('dash.nav.members') }}` : `{{ __('dash.nav.members') }}`"></span>
             </a>
         </template>
         <template x-if="['sportiv', 'parinte'].includes(user?.role)">
@@ -42,7 +42,7 @@
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/performanta') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">trending_up</span>
-                <span class="text-[10px] font-semibold tracking-wide truncate max-w-full px-1" x-text="window.innerWidth < 380 ? 'Perf.' : 'Performanță'"></span>
+                <span class="text-[10px] font-semibold tracking-wide truncate max-w-full px-1" x-text="window.innerWidth < 380 ? `{{ __('dash.nav.performance_short') }}` : `{{ __('dash.nav.performance') }}`"></span>
             </a>
         </template>
 
@@ -51,7 +51,7 @@
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors relative"
                :class="currentPage.startsWith('/dash/mesaje') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
-                <span class="text-[10px] font-semibold tracking-wide">Mesaje</span>
+                <span class="text-[10px] font-semibold tracking-wide">{{ __('dash.nav.messages') }}</span>
                 <template x-if="unreadMessagesCount > 0">
                     <span class="absolute top-1 right-2 lg:right-4 flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -65,7 +65,7 @@
             <button @click="isMobileMenuOpen = true"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 focus:outline-none">
                 <span class="material-symbols-outlined text-[24px]">menu</span>
-                <span class="text-[10px] font-semibold tracking-wide">Meniu</span>
+                <span class="text-[10px] font-semibold tracking-wide">{{ __('dash.nav.menu') }}</span>
             </button>
         </template>
         <template x-if="['sportiv', 'parinte'].includes(user?.role)">
@@ -73,7 +73,7 @@
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/abonamente') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
-                <span class="text-[10px] font-semibold tracking-wide truncate max-w-full px-1" x-text="window.innerWidth < 380 ? 'Abonam.' : 'Abonament'"></span>
+                <span class="text-[10px] font-semibold tracking-wide truncate max-w-full px-1" x-text="window.innerWidth < 380 ? `{{ __('dash.nav.subscription_short') }}` : `{{ __('dash.nav.subscription') }}`"></span>
             </a>
         </template>
 

@@ -119,7 +119,7 @@
                     <span class="material-symbols-outlined text-[20px]" x-text="n.type === 'success' ? 'check_circle' : 'error'"></span>
                 </div>
                 <div class="flex-1">
-                    <p class="text-sm font-bold text-slate-800 dark:text-white" x-text="n.type === 'success' ? 'Succes!' : 'Eroare'"></p>
+                    <p class="text-sm font-bold text-slate-800 dark:text-white" x-text="n.type === 'success' ? '{{ __('admin.success') }}' : '{{ __('admin.error') }}'"></p>
                     <p class="text-xs text-slate-500 dark:text-slate-400" x-text="n.msg"></p>
                 </div>
                 <button @click="notifications = notifications.filter(notif => notif.id !== n.id)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">

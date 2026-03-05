@@ -6,7 +6,7 @@
         <div class="w-full md:w-80 flex flex-col border-r border-slate-100 dark:border-slate-700 h-full" :class="activeConversationId ? 'hidden md:flex' : 'flex'">
             <!-- Sidebar Header -->
             <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Mesaje</h2>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('chat.title') }}</h2>
                 <button @click="openNewChat()" class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors">
                     <span class="material-symbols-outlined text-[20px]">add_comment</span>
                 </button>
@@ -19,7 +19,7 @@
                         <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-300 mx-auto mb-4">
                             <span class="material-symbols-outlined text-3xl">chat_bubble_outline</span>
                         </div>
-                        <p class="text-slate-400 text-sm italic">Nicio conversație momentan.</p>
+                        <p class="text-slate-400 text-sm italic">{{ __('chat.no_conversations') }}</p>
                     </div>
                 </template>
                 
@@ -64,7 +64,7 @@
                                     <span class="font-bold text-slate-900 dark:text-white truncate" x-text="getConversationPartner(conv)?.name"></span>
                                     <span class="text-[10px] text-slate-400 shrink-0" x-text="formatMessageTime(conv.last_message?.created_at)"></span>
                                 </div>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate" x-text="conv.last_message?.content || 'Începeți o conversație'"></p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate" x-text="conv.last_message?.content || `{{ __('chat.start_conversation') }}`"></p>
                             </div>
                         </button>
                     </template>
@@ -80,8 +80,8 @@
                     <div class="w-20 h-20 rounded-3xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center text-primary/30 mb-6">
                         <span class="material-symbols-outlined text-5xl">forum</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Alege o conversație</h3>
-                    <p class="text-sm max-w-xs">Selectează un contact din stânga pentru a începe comunicarea.</p>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">{{ __('chat.choose_conversation') }}</h3>
+                    <p class="text-sm max-w-xs">{{ __('chat.select_contact') }}</p>
                 </div>
             </template>
             
@@ -134,7 +134,7 @@
                         <form @submit.prevent="sendMessage()" class="flex gap-2 p-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-lg focus-within:border-primary transition-all">
                             <input type="text" 
                                    x-model="newMessage" 
-                                   placeholder="Scrie un mesaj..." 
+                                   placeholder="{{ __('chat.type_message') }}" 
                                    class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 text-slate-900 dark:text-white"
                                    :disabled="sendingMessage">
                             <button type="submit" 
@@ -161,7 +161,7 @@
              x-transition:enter-end="opacity-100 scale-100">
             
             <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Contact Nou</h3>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('chat.new_contact') }}</h3>
                 <button @click="showNewChatModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                     <span class="material-symbols-outlined">close</span>
                 </button>
@@ -171,7 +171,7 @@
                 <div class="p-4">
                     <div class="relative mb-4">
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                        <input type="text" x-model="contactSearchQuery" placeholder="Caută contact..." class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-xl text-sm focus:ring-1 focus:ring-primary">
+                        <input type="text" x-model="contactSearchQuery" placeholder="{{ __('chat.search_contact') }}" class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-xl text-sm focus:ring-1 focus:ring-primary">
                     </div>
                     
                     <div class="space-y-1">
@@ -205,7 +205,7 @@
                         </template>
                         
                         <template x-if="!loadingContacts && filteredContacts.length === 0">
-                            <div class="py-8 text-center text-slate-400 italic text-sm">Niciun contact găsit conform regulilor de vizibilitate.</div>
+                            <div class="py-8 text-center text-slate-400 italic text-sm">{{ __('chat.no_contacts_found') }}</div>
                         </template>
                     </div>
                 </div>

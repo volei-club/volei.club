@@ -71,14 +71,14 @@ Alpine.data('profileManager', () => ({
             if (response.ok) {
                 // Update global user object
                 this.user = result.data;
-                window.showToast('Profil actualizat cu succes!');
+                window.showToast('{{ __('profile.messages.success_saved') }}');
                 this.showModal = false;
             } else {
-                window.showToast(result.message || 'Eroare la actualizarea profilului', 'error');
+                window.showToast(result.message || '{{ __('profile.messages.error_save') }}', 'error');
             }
         } catch (e) {
             console.error(e);
-            window.showToast('Eroare de rețea la salvare', 'error');
+            window.showToast('{{ __('profile.messages.network_error') }}', 'error');
         } finally {
             this.saving = false;
         }

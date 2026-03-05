@@ -6,6 +6,14 @@ window.messagesManager = () => {
         activePartner: null,
         contacts: [],
         newMessage: '',
+        locale: document.documentElement.lang || 'ro-RO',
+        roleLabels: {
+            'administrator': '{{ __('members.roles_filter.admin') }}',
+            'manager': '{{ __('members.roles_filter.manager') }}',
+            'antrenor': '{{ __('members.roles_filter.coach') }}',
+            'sportiv': '{{ __('members.roles_filter.student') }}',
+            'parinte': '{{ __('members.roles_filter.parent') }}'
+        },
         
         loadingConversations: false,
         loadingMessages: false,
@@ -16,13 +24,6 @@ window.messagesManager = () => {
         contactSearchQuery: '',
         
         pollingInterval: null,
-        roleLabels: {
-            'administrator': 'Administrator',
-            'manager': 'Manager',
-            'antrenor': 'Antrenor',
-            'sportiv': 'Sportiv',
-            'parinte': 'Părinte'
-        },
 
         init() {
             this.$watch('currentPage', (val) => {
@@ -120,7 +121,7 @@ window.messagesManager = () => {
                     this.fetchConversations();
                 }
             } catch (error) {
-                this.$dispatch('notify', { message: 'Eroare la trimiterea mesajului.', type: 'error' });
+                this.$dispatch('notify', { message: `{{ __('chat.error_sending') }}`, type: 'error' });
                 this.newMessage = content;
             } finally {
                 this.sendingMessage = false;
@@ -210,9 +211,9 @@ window.messagesManager = () => {
             const now = new Date();
             
             if (date.toDateString() === now.toDateString()) {
-                return date.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+                return date.toLocaleTimeString(this.locale, { hour: '2-digit', minute: '2-digit' });
             }
-            return date.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit' });
+            return date.toLocaleDateString(this.locale, { day: '2-digit', month: '2-digit' });
         },
 
         get filteredContacts() {

@@ -19,7 +19,7 @@
                :class="currentPage === '/dash' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                 <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '/dash' ? 'fill-1' : ''">dashboard</span>
-                Acasă
+                {{ __('dash.nav.home') }}
             </a>
 
             <!-- Main Navigation Items -->
@@ -27,27 +27,27 @@
             <!-- Admin Section -->
             <template x-if="user?.role === 'administrator'">
                 <div>
-                    <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Administrare</div>
+                    <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.administration') }}</div>
                     
                     <a href="/dash/cluburi" @click.prevent="navigate('/dash/cluburi'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/cluburi') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/cluburi') ? 'fill-1' : ''">domain</span>
-                        Cluburi
+                        {{ __('dash.nav.clubs') }}
                     </a>
 
                     <a href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/grupe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
-                        Grupe
+                        {{ __('dash.nav.groups') }}
                     </a>
 
                     <a href="/dash/echipe" @click.prevent="navigate('/dash/echipe'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/echipe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/echipe') ? 'fill-1' : ''">groups_2</span>
-                        Echipe
+                        {{ __('dash.nav.teams') }}
                     </a>
 
             </template>
@@ -55,67 +55,67 @@
             <!-- Management Section (Admins & Managers) -->
             <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
                 <div :class="user?.role === 'administrator' ? 'mt-4' : ''">
-                    <div x-show="user?.role === 'manager'" class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Clubul Meu</div>
+                    <div x-show="user?.role === 'manager'" class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.my_club') }}</div>
                     <a href="/dash/membri" @click.prevent="navigate('/dash/membri'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/membri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/membri') ? 'fill-1' : ''">groups</span>
-                        Membri
+                        {{ __('dash.nav.members') }}
                     </a>
 
                     <a href="/dash/locatii" @click.prevent="navigate('/dash/locatii'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/locatii') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/locatii') ? 'fill-1' : ''">location_on</span>
-                        Locații
+                        {{ __('dash.nav.locations') }}
                     </a>
 
                     <a href="/dash/antrenamente" @click.prevent="navigate('/dash/antrenamente'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/antrenamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/antrenamente') ? 'fill-1' : ''">calendar_month</span>
-                        Antrenamente
+                        {{ __('dash.nav.trainings') }}
                     </a>
 
                     <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
-                        Meciuri
+                        {{ __('dash.nav.matches') }}
                     </a>
 
                     <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/abonamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
-                        Abonamente
+                        {{ __('dash.nav.subscriptions') }}
                     </a>
                     
                     <a x-show="user?.role === 'manager'" href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/grupe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
-                        Grupele Mele
+                        {{ __('dash.nav.my_groups') }}
                     </a>
 
                     <a x-show="user?.role === 'manager'" href="/dash/echipe" @click.prevent="navigate('/dash/echipe'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/echipe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/echipe') ? 'fill-1' : ''">groups_2</span>
-                        Echipele Mele
+                        {{ __('dash.nav.my_teams') }}
                     </a>
 
             </template>
 
             <!-- Alte Opțiuni (Mesaje, Audit, Sistem) -->
             <div class="mt-8">
-                <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Resurse & Sistem</div>
+                <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.resources_system') }}</div>
                 
                 <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje'); isMobileMenuOpen = false;" 
                     :class="currentPage.startsWith('/dash/mesaje') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                     class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                     <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
-                    <span class="flex-1">Mesaje</span>
+                    <span class="flex-1">{{ __('dash.nav.messages') }}</span>
                     <template x-if="unreadMessagesCount > 0">
                         <span class="ml-2 px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full" x-text="unreadMessagesCount"></span>
                     </template>
@@ -126,7 +126,7 @@
                         :class="currentPage.startsWith('/dash/audit') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                         class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/audit') ? 'fill-1' : ''">history_edu</span>
-                        Audit
+                        {{ __('dash.nav.audit') }}
                     </a>
                 </template>
 
@@ -135,7 +135,7 @@
                         :class="currentPage === '/dash/sistem' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                         class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '/dash/sistem' ? 'fill-1' : ''">settings_suggest</span>
-                        Sistem
+                        {{ __('dash.nav.system') }}
                     </a>
                 </template>
             </div>
@@ -145,34 +145,34 @@
             <!-- Athlete / Parent Section (Activitatea Mea) -->
             <template x-if="['sportiv', 'parinte'].includes(user?.role)">
                 <div class="mt-4">
-                    <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Activitatea Mea</div>
+                    <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.my_activity') }}</div>
                     
                     <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/calendar') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">calendar_month</span>
-                        Calendar
+                        {{ __('dash.nav.calendar') }}
                     </a>
 
                     <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/performanta') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">monitoring</span>
-                        Performanță
+                        {{ __('dash.nav.performance') }}
                     </a>
                     
                     <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
-                        Meciuri
+                        {{ __('dash.nav.matches') }}
                     </a>
 
                     <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/abonamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
-                        Abonamente
+                        {{ __('dash.nav.subscriptions') }}
                     </a>
                 </div>
             </template>
@@ -180,18 +180,18 @@
             <!-- Calendar Section (Antrenori, Manageri, Admini) -->
             <template x-if="['administrator', 'manager', 'antrenor'].includes(user?.role)">
                 <div class="mt-4">
-                    <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Activitate</div>
+                    <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.activity') }}</div>
                     <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/calendar') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">calendar_month</span>
-                        Calendar
+                        {{ __('dash.nav.calendar') }}
                     </a>
                     <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta'); isMobileMenuOpen = false;"
                        :class="currentPage.startsWith('/dash/performanta') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">monitoring</span>
-                        Performanță
+                        {{ __('dash.nav.performance') }}
                     </a>
                     
                     <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
@@ -199,7 +199,7 @@
                        :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
                         <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
-                        Meciuri
+                        {{ __('dash.nav.matches') }}
                     </a>
                    
                 </div>
@@ -219,12 +219,12 @@
                 </template>
                 <div class="ml-3 truncate flex-1">
                     <p class="text-sm font-semibold text-slate-900 dark:text-white truncate" x-text="user?.name"></p>
-                    <p class="text-xs text-slate-500 capitalize truncate" x-text="user?.role"></p>
+                    <p class="text-xs text-slate-500 capitalize truncate" x-text="roleLabels[user?.role] || user?.role"></p>
                 </div>
-                <button @click="$dispatch('open-profile-modal')" class="ml-2 text-slate-400 hover:text-primary transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-lg" title="Setări Profil">
+                <button @click="$dispatch('open-profile-modal')" class="ml-2 text-slate-400 hover:text-primary transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-lg" :title="'{{ __('dash.profile.settings') }}'">
                     <span class="material-symbols-outlined text-[20px]">person_edit</span>
                 </button>
-                <button @click="logout()" class="ml-2 text-slate-400 hover:text-red-500 transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-lg" title="Deconectare">
+                <button @click="logout()" class="ml-2 text-slate-400 hover:text-red-500 transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-lg" :title="'{{ __('dash.profile.logout') }}'">
                     <span class="material-symbols-outlined text-[20px]">logout</span>
                 </button>
             </div>

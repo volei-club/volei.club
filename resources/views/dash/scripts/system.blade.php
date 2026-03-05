@@ -2,14 +2,14 @@ Alpine.data('systemManager', () => ({
     importing: false,
     selectedFile: null,
     types: [
-        { id: 'users', name: 'Membri', icon: 'groups' },
-        { id: 'clubs', name: 'Cluburi', icon: 'domain' },
-        { id: 'teams', name: 'Grupe', icon: 'diversity_3' },
-        { id: 'squads', name: 'Echipe', icon: 'groups_2' },
-        { id: 'locations', name: 'Locații', icon: 'location_on' },
-        { id: 'subscriptions', name: 'Planuri', icon: 'loyalty' },
-        { id: 'trainings', name: 'Antrenamente', icon: 'calendar_month' },
-        { id: 'user-subscriptions', name: 'Abonări', icon: 'account_balance_wallet' }
+        { id: 'users', name: '{{ __('system.types.users') }}', icon: 'groups' },
+        { id: 'clubs', name: '{{ __('system.types.clubs') }}', icon: 'domain' },
+        { id: 'teams', name: '{{ __('system.types.teams') }}', icon: 'diversity_3' },
+        { id: 'squads', name: '{{ __('system.types.squads') }}', icon: 'groups_2' },
+        { id: 'locations', name: '{{ __('system.types.locations') }}', icon: 'location_on' },
+        { id: 'subscriptions', name: '{{ __('system.types.subscriptions') }}', icon: 'loyalty' },
+        { id: 'trainings', name: '{{ __('system.types.trainings') }}', icon: 'calendar_month' },
+        { id: 'user-subscriptions', name: '{{ __('system.types.user-subscriptions') }}', icon: 'account_balance_wallet' }
     ],
 
     init() {
@@ -18,7 +18,7 @@ Alpine.data('systemManager', () => ({
 
     async exportData(type) {
         try {
-            window.showToast(`Se pregătește exportul pentru: ${type}...`);
+            window.showToast(`{{ __('system.export.preparing', ['type' => '']) }}${type}...`);
             const response = await fetch(`/api/export/${type}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -46,10 +46,10 @@ Alpine.data('systemManager', () => ({
             window.URL.revokeObjectURL(url);
             a.remove();
             
-            window.showToast('Export finalizat cu succes!');
+            window.showToast('{{ __('system.export.success') }}');
         } catch (e) {
             console.error(e);
-            window.showToast('Eroare la exportul datelor', 'error');
+            window.showToast('{{ __('system.export.error') }}', 'error');
         }
     },
 
@@ -77,17 +77,17 @@ Alpine.data('systemManager', () => ({
             const data = await response.json();
 
             if (response.ok) {
-                window.showToast(data.message || 'Import finalizat cu succes!');
+                window.showToast(data.message || '{{ __('system.import.success') }}');
                 this.selectedFile = null;
                 // Reset input
                 const input = document.querySelector('input[type="file"]');
                 if (input) input.value = '';
             } else {
-                window.showToast(data.message || 'Eroare la importul datelor', 'error');
+                window.showToast(data.message || '{{ __('system.import.error') }}', 'error');
             }
         } catch (e) {
             console.error(e);
-            window.showToast('Eroare de rețea la import', 'error');
+            window.showToast('{{ __('system.import.network_error') }}', 'error');
         } finally {
             this.importing = false;
         }

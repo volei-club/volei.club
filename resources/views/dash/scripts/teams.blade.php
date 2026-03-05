@@ -11,6 +11,13 @@ Alpine.data('teamManager', () => ({
     pagination: { current_page: 1, last_page: 1, total: 0, per_page: 50 },
     form: { id: null, name: '', club_id: '' },
     filters: { club_id: '' },
+    roleLabels: {
+        'administrator': '{{ __('members.roles_filter.admin') }}',
+        'manager': '{{ __('members.roles_filter.manager') }}',
+        'antrenor': '{{ __('members.roles_filter.coach') }}',
+        'sportiv': '{{ __('members.roles_filter.student') }}',
+        'parinte': '{{ __('members.roles_filter.parent') }}'
+    },
 
     init() {
         const syncFromHash = () => {
@@ -207,20 +214,20 @@ Alpine.data('teamManager', () => ({
             if(res.ok) {
                 this.fetchTeams();
                 this.showModal = false;
-                window.showToast(isEdit ? 'Grupă actualizată cu succes!' : 'Grupă creată cu succes!');
+                window.showToast(isEdit ? `{{ __('admin.teams.updated_success') }}` : `{{ __('admin.teams.created_success') }}`);
             } else {
-                this.error = payload.message || 'Eroare la salvare.';
+                this.error = payload.message || `{{ __('admin.clubs.save_error') }}`;
                 window.showToast(this.error, 'error');
             }
         } catch (e) { 
-            this.error = "Eroare de rețea."; 
+            this.error = `{{ __('admin.error_network') }}`; 
             window.showToast(this.error, 'error');
         }
         this.saving = false;
     },
 
     async deleteTeam(id) {
-        if(!confirm('Sigur dorești ștergerea acestei grupe? Acțiunea e ireversibilă!')) return;
+        if(!confirm(`{{ __('admin.teams.delete_confirm') }}`)) return;
         
         try {
             const res = await fetch(`/api/teams/${id}`, {
@@ -229,11 +236,11 @@ Alpine.data('teamManager', () => ({
             });
             if(res.ok) {
                 this.teams = this.teams.filter(t => t.id !== id);
-                window.showToast('Grupă ștearsă cu succes!');
+                window.showToast(`{{ __('admin.teams.deleted_success') }}`);
             } else {
                 const data = await res.json();
-                window.showToast(data.message || 'Eroare la ștergere. Posibil grupa are membri asociați.', 'error');
+                window.showToast(data.message || `{{ __('admin.teams.delete_error') }}`, 'error');
             }
-        } catch (e) { window.showToast('A apărut o eroare de rețea.', 'error'); }
+        } catch (e) { window.showToast(`{{ __('admin.error_network') }}`, 'error'); }
     }
 }));

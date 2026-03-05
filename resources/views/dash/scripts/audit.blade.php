@@ -11,18 +11,19 @@ Alpine.data('auditManager', () => ({
         last_page: 1,
         total: 0
     },
+    locale: document.documentElement.lang || 'ro-RO',
     showDetailsModal: false,
     selectedLogData: null,
     statusLabels: {
-        'active_paid': 'Plătit',
-        'active_pending': 'Așteaptă Plată',
-        'active_overdue': 'Restanță',
-        'expired': 'Expirat',
-        'inactive_expired': 'Expirat',
-        'cancelled': 'Anulat',
-        'scheduled': 'Programat',
-        'ACTIVE_PAID': 'Plătit',
-        'ACTIVE_PENDING': 'Așteaptă Plată'
+        'active_paid': '{{ __('subscriptions.status.paid') }}',
+        'active_pending': '{{ __('subscriptions.status.pending') }}',
+        'active_overdue': '{{ __('subscriptions.status.overdue') }}',
+        'expired': '{{ __('subscriptions.status.expired') }}',
+        'inactive_expired': '{{ __('subscriptions.status.expired') }}',
+        'cancelled': '{{ __('subscriptions.status.cancelled') }}',
+        'scheduled': '{{ __('subscriptions.status.scheduled') }}',
+        'ACTIVE_PAID': '{{ __('subscriptions.status.paid') }}',
+        'ACTIVE_PENDING': '{{ __('subscriptions.status.pending') }}'
     },
 
     async init() {
@@ -80,46 +81,68 @@ Alpine.data('auditManager', () => ({
 
     translateAuditKey(key) {
         const keys = {
-            'name': 'Nume',
-            'email': 'Email',
-            'role': 'Rol',
-            'is_active': 'Activ',
-            'club_id': 'Club',
-            'team_ids': 'Grupe',
-            'squad_ids': 'Echipe',
-            'status': 'Statut',
-            'price': 'Preț',
-            'period': 'Perioadă',
-            'address': 'Adresă',
-            'day_of_week': 'Zi Săptămână',
-            'start_time': 'Oră Start',
-            'end_time': 'Oră Final',
-            'location_id': 'Locație',
-            'coach_id': 'Antrenor',
-            'team_id': 'Grupă',
-            'starts_at': 'Data Început',
-            'expires_at': 'Data Expirare',
-            'subscription_id': 'Tip Abonament'
+            'name': '{{ __('audit.keys.name') }}',
+            'email': '{{ __('audit.keys.email') }}',
+            'role': '{{ __('audit.keys.role') }}',
+            'is_active': '{{ __('audit.keys.is_active') }}',
+            'club_id': '{{ __('audit.keys.club_id') }}',
+            'team_ids': '{{ __('audit.keys.team_ids') }}',
+            'squad_ids': '{{ __('audit.keys.squad_ids') }}',
+            'status': '{{ __('audit.keys.status') }}',
+            'price': '{{ __('audit.keys.price') }}',
+            'period': '{{ __('audit.keys.period') }}',
+            'address': '{{ __('audit.keys.address') }}',
+            'day_of_week': '{{ __('audit.keys.day_of_week') }}',
+            'start_time': '{{ __('audit.keys.start_time') }}',
+            'end_time': '{{ __('audit.keys.end_time') }}',
+            'location_id': '{{ __('audit.keys.location_id') }}',
+            'coach_id': '{{ __('audit.keys.coach_id') }}',
+            'team_id': '{{ __('audit.keys.team_id') }}',
+            'starts_at': '{{ __('audit.keys.starts_at') }}',
+            'expires_at': '{{ __('audit.keys.expires_at') }}',
+            'subscription_id': '{{ __('audit.keys.subscription_id') }}',
+            'previous': '{{ __('admin.previous') }}',
+            'next': '{{ __('admin.next') }}'
         };
         return keys[key] || key;
     },
 
     translateAuditValue(key, val) {
-        if (val === null || val === undefined || val === '') return 'N/A';
-        if (val === true || val === '1' || val === 1) return 'Da';
-        if (val === false || val === '0' || val === 0) return 'Nu';
+        if (val === null || val === undefined || val === '') return '{{ __('admin.not_available') }}';
+        if (val === true || val === '1' || val === 1) return '{{ __('admin.yes') }}';
+        if (val === false || val === '0' || val === 0) return '{{ __('admin.no') }}';
         
         if (key === 'status') return this.statusLabels[val] || val;
         if (key === 'role') {
-            const roles = { 'administrator': 'Administrator', 'manager': 'Manager', 'antrenor': 'Antrenor', 'sportiv': 'Sportiv' };
+            const roles = { 
+                'administrator': '{{ __('members.roles_filter.admin') }}', 
+                'manager': '{{ __('members.roles_filter.manager') }}', 
+                'antrenor': '{{ __('members.roles_filter.coach') }}', 
+                'sportiv': '{{ __('members.roles_filter.student') }}' 
+            };
             return roles[val] || val;
         }
         if (key === 'day_of_week') {
-            const days = { 'luni': 'Luni', 'marti': 'Marți', 'miercuri': 'Miercuri', 'joi': 'Joi', 'vineri': 'Vineri', 'sambata': 'Sâmbătă', 'duminica': 'Duminică' };
+            const days = { 
+                'luni': '{{ __('trainings.form.days.luni') }}', 
+                'marti': '{{ __('trainings.form.days.marti') }}', 
+                'miercuri': '{{ __('trainings.form.days.miercuri') }}', 
+                'joi': '{{ __('trainings.form.days.joi') }}', 
+                'vineri': '{{ __('trainings.form.days.vineri') }}', 
+                'sambata': '{{ __('trainings.form.days.sambata') }}', 
+                'duminica': '{{ __('trainings.form.days.duminica') }}' 
+            };
             return days[val] || val;
         }
         if (key === 'period') {
-            const periods = { '1_saptamana': '1 Săptămână', '2_saptamani': '2 Săptămâni', '1_luna': '1 Lună', '3_luni': '3 Luni', '6_luni': '6 Luni', '1_an': '1 An' };
+            const periods = { 
+                '1_saptamana': '{{ __('subscriptions.form.periods.1_saptamana') }}', 
+                '2_saptamani': '{{ __('subscriptions.form.periods.2_saptamani') }}', 
+                '1_luna': '{{ __('subscriptions.form.periods.1_luna') }}', 
+                '3_luni': '{{ __('subscriptions.form.periods.3_luni') }}', 
+                '6_luni': '{{ __('subscriptions.form.periods.6_luni') }}', 
+                '1_an': '{{ __('subscriptions.form.periods.1_an') }}' 
+            };
             return periods[val] || val;
         }
 
@@ -129,14 +152,14 @@ Alpine.data('auditManager', () => ({
     translateAuditType(type) {
         const cleanType = type.split('\\').pop();
         const types = {
-            'User': 'Utilizator',
-            'Club': 'Club',
-            'Subscription': 'Definiție Abonament',
-            'UserSubscription': 'Abonament Membru',
-            'Team': 'Grupă',
-            'Squad': 'Echipă',
-            'Location': 'Locație',
-            'Training': 'Antrenament'
+            'User': '{{ __('audit.types.User') }}',
+            'Club': '{{ __('audit.types.Club') }}',
+            'Subscription': '{{ __('audit.types.Subscription') }}',
+            'UserSubscription': '{{ __('audit.types.UserSubscription') }}',
+            'Team': '{{ __('audit.types.Team') }}',
+            'Squad': '{{ __('audit.types.Squad') }}',
+            'Location': '{{ __('audit.types.Location') }}',
+            'Training': '{{ __('audit.types.Training') }}'
         };
         return types[cleanType] || cleanType;
     }

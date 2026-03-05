@@ -140,12 +140,12 @@ Alpine.data('locationManager', () => ({
 
     async saveLocation() {
         if (!this.formData.name || !this.formData.address) {
-            window.showToast("Toate câmpurile sunt obligatorii.", 'error');
+            window.showToast(`{{ __('admin.locations.required_fields') }}`, 'error');
             return;
         }
 
         if (!this.user) {
-            window.showToast("Eroare: Utilizator neidentificat.", 'error');
+            window.showToast(`{{ __('admin.locations.user_not_found') }}`, 'error');
             return;
         }
 
@@ -160,7 +160,7 @@ Alpine.data('locationManager', () => ({
             }
 
             if (!payload.club_id && this.user.role === 'administrator') {
-                window.showToast("Vă rugăm selectați un club.", 'error');
+                window.showToast(`{{ __('admin.locations.select_club_error') }}`, 'error');
                 this.saving = false;
                 return;
             }
@@ -178,20 +178,20 @@ Alpine.data('locationManager', () => ({
             if (res.ok) {
                 this.showModal = false;
                 this.fetchLocations();
-                window.showToast(this.editingId ? 'Locație actualizată!' : 'Locație creată!');
+                window.showToast(this.editingId ? `{{ __('admin.locations.updated_success') }}` : `{{ __('admin.locations.created_success') }}`);
             } else {
                 const data = await res.json();
-                window.showToast(data.message || "Eroare la salvarea locației.", 'error');
+                window.showToast(data.message || `{{ __('admin.locations.save_error') }}`, 'error');
             }
         } catch (e) {
-            window.showToast("Eroare de rețea la salvarea locației.", 'error');
+            window.showToast(`{{ __('admin.error_network') }}`, 'error');
         } finally {
             this.saving = false;
         }
     },
 
     async deleteLocation(id) {
-        if (!confirm("Ești sigur că vrei să ștergi această locație?")) return;
+        if (!confirm(`{{ __('admin.locations.delete_confirm') }}`)) return;
 
         try {
             const res = await fetch(`/api/locations/${id}`, {
@@ -204,13 +204,13 @@ Alpine.data('locationManager', () => ({
 
             if (res.ok) {
                 this.fetchLocations();
-                window.showToast('Locație ștearsă cu succes!');
+                window.showToast(`{{ __('admin.locations.deleted_success') }}`);
             } else {
                 const data = await res.json();
-                window.showToast(data.message || "Eroare la ștergerea locației.", 'error');
+                window.showToast(data.message || `{{ __('admin.locations.delete_error') }}`, 'error');
             }
         } catch (e) {
-            window.showToast("Eroare de rețea la ștergerea locației.", 'error');
+            window.showToast(`{{ __('admin.error_network') }}`, 'error');
         }
     },
 

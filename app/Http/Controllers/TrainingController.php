@@ -6,6 +6,8 @@ use App\Services\EventService;
 use App\Services\TeamSquadService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class TrainingController extends Controller
 {
@@ -141,7 +143,7 @@ class TrainingController extends Controller
             'reason' => 'nullable|string|max:1000',
         ]);
 
-        \Log::info('Training cancellation attempt', [
+        Log::info('Training cancellation attempt', [
             'training_id' => $id,
             'date' => $validated['date'],
             'reason' => $validated['reason'] ?? 'none'
@@ -149,21 +151,21 @@ class TrainingController extends Controller
 
         $reason = $request->input('reason');
         if (empty(trim($reason ?? ''))) {
-            $reason = 'Nespecificat';
+            $reason = __('trainings.notifications.unspecified_reason');
         }
 
         $training->cancellations()->updateOrCreate(
         ['date' => $validated['date']],
-        ['reason' => $reason === 'Nespecificat' ? null : $reason]
+        ['reason' => $reason === __('trainings.notifications.unspecified_reason') ? null : $reason]
         );
 
         // Send notifications
         $this->sendCancellationNotifications($training, $validated['date'], $reason, $user);
 
-        \Log::info('Training cancellation successful', ['id' => $id]);
+        Log::info('Training cancellation successful', ['id' => $id]);
 
         return response()->json([
-            'message' => 'Sesiunea de antrenament a fost anulată și notificările au fost trimise.',
+            'message' => __('trainings.notifications.cancellation_success'),
             'reason' => $reason
         ]);
     }
@@ -174,8 +176,12 @@ class TrainingController extends Controller
         if (!$squad)
             return;
 
-        $formattedDate = \Carbon\Carbon::parse($date)->locale('ro')->translatedFormat('l, d F');
-        $messageContent = "Bună ziua! Sesiunea de antrenament din data de {$formattedDate} ({$training->start_time}) a fost ANULATĂ. Motiv: {$reason}";
+        $formattedDate = Carbon::parse($date)->locale(app()->getLocale())->isoFormat('dddd, D MMMM');
+        $messageContent = __('trainings.notifications.cancellation_message', [
+            'date' => $formattedDate,
+            'time' => substr($training->start_time, 0, 5),
+            'reason' => $reason
+        ]);
 
         $notifiedUserIds = [];
 
@@ -217,6 +223,6 @@ class TrainingController extends Controller
 
         $training->cancellations()->where('date', $validated['date'])->delete();
 
-        return response()->json(['message' => 'Sesiunea de antrenament a fost restaurată.']);
+        return response()->json(['message' => __('trainings.notifications.restore_success')]);
     }
 }

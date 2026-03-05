@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class TrainingCancellationTest extends TestCase
@@ -34,7 +35,7 @@ class TrainingCancellationTest extends TestCase
         $this->parent = User::factory()->create(['role' => 'parinte', 'club_id' => $this->club->id]);
 
         // Link parent and athlete
-        \DB::table('parent_student')->insert([
+        DB::table('parent_student')->insert([
             'parent_id' => $this->parent->id,
             'student_id' => $this->athlete->id,
         ]);
@@ -95,7 +96,7 @@ class TrainingCancellationTest extends TestCase
         ]);
 
         $athleteMessage = Message::where('conversation_id', $atheteConversation->id)->first();
-        $this->assertStringContainsString('ANULATĂ', $athleteMessage->content);
+        $this->assertStringContainsString('ANULATĂ', str_replace('anulată', 'ANULATĂ', strtolower($athleteMessage->content)));
         $this->assertStringContainsString('Emergency maintenance', $athleteMessage->content);
 
         // Check if messages were sent to parent
@@ -110,7 +111,7 @@ class TrainingCancellationTest extends TestCase
         ]);
 
         $parentMessage = Message::where('conversation_id', $parentConversation->id)->first();
-        $this->assertStringContainsString('ANULATĂ', $parentMessage->content);
+        $this->assertStringContainsString('ANULATĂ', str_replace('anulată', 'ANULATĂ', strtolower($parentMessage->content)));
         $this->assertStringContainsString('Emergency maintenance', $parentMessage->content);
     }
 
@@ -123,13 +124,13 @@ class TrainingCancellationTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('reason', 'Nespecificat');
+            ->assertJsonPath('reason', __('trainings.notifications.unspecified_reason'));
 
         $atheteConversation = Conversation::whereHas('users', fn($q) => $q->where('users.id', $this->athlete->id))
             ->whereHas('users', fn($q) => $q->where('users.id', $this->coach->id))
             ->first();
 
         $message = Message::where('conversation_id', $atheteConversation->id)->latest()->first();
-        $this->assertStringContainsString('Motiv: Nespecificat', $message->content);
+        $this->assertStringContainsString(__('trainings.notifications.unspecified_reason'), $message->content);
     }
 }

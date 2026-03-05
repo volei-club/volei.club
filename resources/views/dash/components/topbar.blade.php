@@ -14,7 +14,7 @@
 
             <!-- Right side: Date (Desktop) or Profile Pic (Mobile) -->
             <div class="flex items-center justify-end w-1/3 gap-3">
-                <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
+                <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
                 <button @click="$dispatch('open-profile-modal')" class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700">
                     <template x-if="user?.photo">
                         <img :src="'/storage/' + user.photo" @@error="user.photo = null" class="w-full h-full object-cover">
@@ -31,11 +31,11 @@
             <div class="bg-red-500 text-white px-4 py-3 flex items-center justify-between shrink-0 shadow-sm z-50 relative">
                 <div class="flex items-center">
                     <span class="material-symbols-outlined mr-2">group_add</span>
-                    <span class="font-semibold text-sm">Atenție! Acționați în contul unui alt membru (<span x-text="user?.name"></span>).</span>
+                    <span class="font-semibold text-sm">{{ __('dash.impersonation.warning', ['name' => '']) }}<span x-text="user?.name"></span>.</span>
                 </div>
                 <button @click="leaveImpersonation()" class="bg-white/20 hover:bg-white/30 text-white text-sm font-bold py-1.5 px-4 rounded-lg transition-colors flex items-center">
                     <span class="material-symbols-outlined text-[16px] mr-1">exit_to_app</span>
-                    Înapoi la contul tău
+                    {{ __('dash.impersonation.leave') }}
                 </button>
             </div>
         </template>

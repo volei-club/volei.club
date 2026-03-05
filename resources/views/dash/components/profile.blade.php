@@ -22,8 +22,8 @@
                     <span class="material-symbols-outlined">person_edit</span>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Editează Profilul</h3>
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Personal Settings</p>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ __('profile.title') }}</h3>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">{{ __('profile.settings_label') }}</p>
                 </div>
             </div>
             <button @click="showModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -48,35 +48,35 @@
                         <input type="file" @change="handlePhotoSelect" class="hidden" accept="image/*">
                     </label>
                 </div>
-                <p class="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-wider">Schimbă poza de profil</p>
+                <p class="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-wider">{{ __('profile.change_photo') }}</p>
             </div>
 
             <!-- Name -->
             <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Nume Complet</label>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">{{ __('profile.full_name') }}</label>
                 <input type="text" x-model="formData.name" required
                        class="w-full h-12 px-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all">
             </div>
 
             <!-- Email -->
             <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Adresă Email</label>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">{{ __('profile.email_address') }}</label>
                 <input type="email" x-model="formData.email" required
                        class="w-full h-12 px-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all">
             </div>
 
             <div class="pt-2 border-t border-slate-100 dark:border-slate-700">
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-4">Securitate (Opțional)</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-4">{{ __('profile.security_title') }}</p>
                 
                 <!-- Password -->
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Parolă Nouă</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">{{ __('profile.new_password') }}</label>
                         <input type="password" x-model="formData.password" placeholder="••••••••"
                                class="w-full h-12 px-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Confirmă Parola</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">{{ __('profile.confirm_password') }}</label>
                         <input type="password" x-model="formData.password_confirmation" placeholder="••••••••"
                                class="w-full h-12 px-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all">
                     </div>
@@ -87,12 +87,12 @@
             <div class="grid grid-cols-2 gap-3 pt-4">
                 <button type="button" @click="showModal = false"
                         class="h-12 rounded-2xl font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all">
-                    Anulează
+                    {{ __('admin.cancel') }}
                 </button>
                 <button type="submit" :disabled="saving"
                         class="h-12 rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold shadow-lg shadow-primary/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     <span x-show="saving" class="material-symbols-outlined animate-spin text-sm">progress_activity</span>
-                    <span x-text="saving ? 'Se salvează...' : 'Salvează Profilul'"></span>
+                    <span x-text="saving ? '{{ __('admin.saving') }}' : '{{ __('profile.save_profile') }}'"></span>
                 </button>
             </div>
         </form>

@@ -110,26 +110,26 @@ Alpine.data('clubManager', () => ({
                 if (isEdit) {
                     const idx = this.clubs.findIndex(c => c.id === this.form.id);
                     if (idx !== -1) this.clubs[idx].name = payload.data.name;
-                    window.showToast('Club actualizat cu succes!');
+                    window.showToast(`{{ __('admin.clubs.updated_success') }}`);
                 } else {
                     this.clubs.unshift(payload.data);
-                    window.showToast('Club creat cu succes!');
+                    window.showToast(`{{ __('admin.clubs.created_success') }}`);
                 }
                 window.dispatchEvent(new CustomEvent('clubs-updated'));
                 this.showModal = false;
             } else {
-                this.error = payload.message || 'Eroare la salvare.';
+                this.error = payload.message || `{{ __('admin.clubs.save_error') }}`;
                 window.showToast(this.error, 'error');
             }
         } catch (e) { 
-            this.error = "Eroare de rețea."; 
+            this.error = `{{ __('admin.error_network') }}`; 
             window.showToast(this.error, 'error');
         }
         this.saving = false;
     },
 
     async deleteClub(id) {
-        if(!confirm('Sigur dorești ștergerea acestui club? Acțiunea e ireversibilă!')) return;
+        if(!confirm(`{{ __('admin.clubs.delete_confirm') }}`)) return;
         
         try {
             const res = await fetch(`/api/clubs/${id}`, {
@@ -138,11 +138,11 @@ Alpine.data('clubManager', () => ({
             });
             if(res.ok) {
                 this.clubs = this.clubs.filter(c => c.id !== id);
-                window.showToast('Club șters cu succes!');
+                window.showToast(`{{ __('admin.clubs.deleted_success') }}`);
             } else {
                 const data = await res.json();
-                window.showToast(data.message || 'Eroare la ștergere.', 'error');
+                window.showToast(data.message || '{{ __('admin.clubs.delete_error') }}', 'error');
             }
-        } catch (e) { window.showToast('A apărut o eroare de rețea.', 'error'); }
+        } catch (e) { window.showToast(`{{ __('admin.error_network') }}`, 'error'); }
     }
 }));

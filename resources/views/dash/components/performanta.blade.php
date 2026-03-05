@@ -2,14 +2,14 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>
-            <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Performanță Sportivă</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Urmărirea progresului și a indicatorilor de performanță</p>
+            <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ __('performance.title') }}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ __('performance.subtitle') }}</p>
         </div>
         
         <template x-if="canAddEntry()">
             <button @click="openModal()" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none">
                 <span class="material-symbols-outlined text-[20px]">add_chart</span>
-                <span>Adaugă Progres</span>
+                <span>{{ __('performance.add_progress') }}</span>
             </button>
         </template>
     </div>
@@ -20,11 +20,11 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Club Selection (Admins only or info for managers) -->
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Club</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">{{ __('performance.filters.club') }}</label>
                     <template x-if="user.role === 'administrator'">
                         <select @change="onClubChange($event.target.value)" x-model="selectedClubId"
                                 class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all">
-                            <option value="">Toate Cluburile</option>
+                            <option value="">{{ __('performance.filters.all_clubs') }}</option>
                             <template x-for="club in clubs" :key="club.id">
                                 <option :value="club.id" x-text="club.name"></option>
                             </template>
@@ -38,10 +38,10 @@
 
                 <!-- Team/Grupa Selection -->
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Grupă</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">{{ __('performance.filters.team') }}</label>
                     <select @change="onTeamChange($event.target.value)" x-model="selectedTeamId"
                             class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all">
-                        <option value="">Toate Grupele</option>
+                        <option value="">{{ __('performance.filters.all_teams') }}</option>
                         <template x-for="team in teams" :key="team.id">
                             <option :value="team.id" x-text="team.name"></option>
                         </template>
@@ -50,10 +50,10 @@
 
                 <!-- Squad/Echipa Selection -->
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Echipă</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">{{ __('performance.filters.squad') }}</label>
                     <select @change="onSquadChange($event.target.value)" x-model="selectedSquadId"
                             class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all">
-                        <option value="">Toate Echipele</option>
+                        <option value="">{{ __('performance.filters.all_squads') }}</option>
                         <template x-for="squad in squads" :key="squad.id">
                             <option :value="squad.id" x-text="squad.name"></option>
                         </template>
@@ -63,11 +63,11 @@
 
                 <!-- Athlete Selection -->
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Sportiv</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">{{ __('performance.filters.athlete') }}</label>
                     <template x-if="availableAthletes.length > 0">
                         <select @change="selectAthleteById($event.target.value)" :value="selectedAthleteId"
                                 class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-primary">
-                            <option value="">Selectează Sportiv</option>
+                            <option value="">{{ __('performance.filters.select_athlete') }}</option>
                             <template x-for="athlete in filteredAthletes" :key="athlete.id">
                                 <option :value="athlete.id" x-text="athlete.name"></option>
                             </template>
@@ -75,7 +75,7 @@
                     </template>
                     <template x-if="availableAthletes.length === 0">
                          <div class="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-400">
-                             Se încarcă sportivii...
+                             {{ __('performance.loading_athletes') }}
                          </div>
                     </template>
                 </div>
@@ -85,7 +85,7 @@
             <div class="pt-2 border-t border-slate-100 dark:border-slate-700">
                 <div class="relative w-full">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                    <input type="text" x-model="athleteSearch" placeholder="Filtrează lista de sportivi de mai sus..." 
+                    <input type="text" x-model="athleteSearch" placeholder="{{ __('performance.filters.athlete_search_placeholder') }}" 
                            class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary outline-none transition-all italic">
                 </div>
             </div>
@@ -98,7 +98,7 @@
             <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-slate-400">child_care</span>
                 <div class="flex-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Vezi performanța pentru:</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">{{ __('performance.filters.parent_view_label') }}</label>
                     <select @change="selectAthleteById($event.target.value)" :value="selectedAthleteId"
                             class="w-full bg-transparent font-bold text-primary outline-none appearance-none cursor-pointer">
                         <template x-for="athlete in availableAthletes" :key="athlete.id">
@@ -117,19 +117,19 @@
             <!-- Main Stats Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Detentă</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase">{{ __('performance.metrics.vertical_jump') }}</span>
                     <div class="text-2xl font-bold text-primary mt-1" x-text="(latestEntry?.vertical_jump || '-') + ' cm'"></div>
                 </div>
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Viteză Serviciu</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase">{{ __('performance.metrics.serve_speed') }}</span>
                     <div class="text-2xl font-bold text-indigo-500 mt-1" x-text="(latestEntry?.serve_speed || '-') + ' km/h'"></div>
                 </div>
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Greutate</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase">{{ __('performance.metrics.weight') }}</span>
                     <div class="text-2xl font-bold text-slate-700 dark:text-slate-200 mt-1" x-text="(latestEntry?.weight || '-') + ' kg'"></div>
                 </div>
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Ultima Înregistrare</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase">{{ __('performance.metrics.latest_log') }}</span>
                     <div class="text-sm font-bold text-slate-500 mt-2" x-text="latestEntry ? formatDate(latestEntry.log_date) : '-'"></div>
                 </div>
             </div>
@@ -137,23 +137,23 @@
             <!-- Chart Card -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-h-[350px] flex flex-col">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                    <h4 class="font-bold text-slate-800 dark:text-white" x-text="'Evoluție ' + activeMetricLabel"></h4>
+                    <h4 class="font-bold text-slate-800 dark:text-white" x-text="'{{ __('performance.metrics.evolution_title', ['metric' => '']) }}' + activeMetricLabel"></h4>
                     <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 scrollbar-none -mr-2 sm:mr-0">
                         <button @click="setMetric('detenta')" 
                                 :class="activeMetric === 'detenta' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">Detentă</button>
+                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">{{ __('performance.metrics.vertical_jump') }}</button>
                         <button @click="setMetric('viteza')" 
                                 :class="activeMetric === 'viteza' ? 'bg-indigo-500/10 text-indigo-500' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">Viteză</button>
+                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">{{ __('performance.metrics.serve_speed') }}</button>
                         <button @click="setMetric('greutate')" 
                                 :class="activeMetric === 'greutate' ? 'bg-slate-500/10 text-slate-500' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">Greutate</button>
+                                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0">{{ __('performance.metrics.weight') }}</button>
                     </div>
                 </div>
                 
                 <div class="flex-1 relative flex items-center justify-center border-t border-slate-100 dark:border-slate-700 pt-8">
                     <template x-if="logs.length < 2">
-                        <div class="text-slate-400 text-sm">Sunt necesare cel puțin 2 înregistrări pentru grafic.</div>
+                        <div class="text-slate-400 text-sm">{{ __('performance.metrics.min_logs_chart') }}</div>
                     </template>
                     <template x-if="logs.length >= 2">
                          <div class="w-full h-full relative">
@@ -202,28 +202,28 @@
                                           x-text="formatDate(activeTooltip.raw.log_date)"></div>
                                      <div class="space-y-1 min-w-[120px]">
                                          <div class="flex justify-between gap-4 text-xs">
-                                             <span class="text-slate-400">Detentă:</span>
-                                             <span class="font-bold text-primary" x-text="activeTooltip.raw.vertical_jump + ' cm'"></span>
+                                             <span class="text-slate-400">{{ __('performance.metrics.vertical_jump') }}:</span>
+                                             <span class="font-bold text-primary" x-text="activeTooltip.raw.vertical_jump + ' ' + activeTooltip.unit"></span>
                                          </div>
                                          <div class="flex justify-between gap-4 text-xs">
-                                             <span class="text-slate-400">Viteză S.:</span>
+                                             <span class="text-slate-400">{{ __('performance.metrics.serve_speed') }}:</span>
                                              <span class="font-bold text-indigo-400" x-text="activeTooltip.raw.serve_speed + ' km/h'"></span>
                                          </div>
                                          <div class="flex justify-between gap-4 text-xs">
-                                             <span class="text-slate-400">Greutate:</span>
+                                             <span class="text-slate-400">{{ __('performance.metrics.weight') }}:</span>
                                              <span class="font-bold text-slate-200" x-text="activeTooltip.raw.weight + ' kg'"></span>
                                          </div>
                                          <div class="pt-1 mt-1 border-t border-white/10 space-y-1">
                                              <div class="flex justify-between gap-4 text-[10px]">
-                                                 <span class="text-slate-500 uppercase">Preluare:</span>
+                                                 <span class="text-slate-500 uppercase">{{ __('performance.technical_abilities.reception') }}:</span>
                                                  <span class="font-bold text-primary" x-text="(activeTooltip.raw.reception_rating || '-') + '/5'"></span>
                                              </div>
                                              <div class="flex justify-between gap-4 text-[10px]">
-                                                 <span class="text-slate-500 uppercase">Atac:</span>
+                                                 <span class="text-slate-500 uppercase">{{ __('performance.technical_abilities.attack') }}:</span>
                                                  <span class="font-bold text-indigo-400" x-text="(activeTooltip.raw.attack_rating || '-') + '/5'"></span>
                                              </div>
                                              <div class="flex justify-between gap-4 text-[10px]">
-                                                 <span class="text-slate-500 uppercase">Blocaj:</span>
+                                                 <span class="text-slate-500 uppercase">{{ __('performance.technical_abilities.block') }}:</span>
                                                  <span class="font-bold text-emerald-400" x-text="(activeTooltip.raw.block_rating || '-') + '/5'"></span>
                                              </div>
                                          </div>
@@ -243,11 +243,11 @@
         <div class="space-y-6">
             <!-- Ratings Card -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <h4 class="font-bold text-slate-800 dark:text-white mb-4">Abilități Tehnice</h4>
+                <h4 class="font-bold text-slate-800 dark:text-white mb-4">{{ __('performance.technical_abilities.title') }}</h4>
                 <div class="space-y-4">
                     <div>
                         <div class="flex justify-between text-xs font-bold text-slate-400 uppercase mb-1">
-                            <span>Preluare</span>
+                            <span>{{ __('performance.technical_abilities.reception') }}</span>
                             <span class="text-primary" x-text="latestEntry?.reception_rating ? latestEntry.reception_rating + '/5' : '-'"></span>
                         </div>
                         <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -256,7 +256,7 @@
                     </div>
                     <div>
                         <div class="flex justify-between text-xs font-bold text-slate-400 uppercase mb-1">
-                            <span>Atac</span>
+                            <span>{{ __('performance.technical_abilities.attack') }}</span>
                             <span class="text-indigo-500" x-text="latestEntry?.attack_rating ? latestEntry.attack_rating + '/5' : '-'"></span>
                         </div>
                         <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -265,7 +265,7 @@
                     </div>
                     <div>
                         <div class="flex justify-between text-xs font-bold text-slate-400 uppercase mb-1">
-                            <span>Blocaj</span>
+                            <span>{{ __('performance.technical_abilities.block') }}</span>
                             <span class="text-emerald-500" x-text="latestEntry?.block_rating ? latestEntry.block_rating + '/5' : '-'"></span>
                         </div>
                         <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -278,7 +278,7 @@
             <!-- Entry List -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                 <div class="p-4 border-b border-slate-100 dark:border-slate-700">
-                    <h4 class="font-bold text-slate-800 dark:text-white">Istoric Înregistrări</h4>
+                    <h4 class="font-bold text-slate-800 dark:text-white">{{ __('performance.history.title') }}</h4>
                 </div>
                 <div class="divide-y divide-slate-100 dark:divide-slate-700 max-h-[400px] overflow-y-auto">
                     <template x-for="log in logs" :key="log.id">
@@ -291,7 +291,7 @@
                                     </button>
                                 </template>
                             </div>
-                            <div class="text-xs text-slate-500" x-text="'Înregistrat de: ' + (log.coach?.name || 'Sistem')"></div>
+                            <div class="text-xs text-slate-500" x-text="'{{ __('performance.history.recorded_by', ['name' => '']) }}' + (log.coach?.name || '{{ __('performance.history.system') }}')"></div>
                             <template x-if="log.notes">
                                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 italic" x-text="log.notes"></p>
                             </template>
@@ -299,7 +299,7 @@
                     </template>
                 </div>
                 <template x-if="logs.length === 0">
-                    <div class="p-8 text-center text-slate-400 text-sm">Nicio înregistrare găsită.</div>
+                    <div class="p-8 text-center text-slate-400 text-sm">{{ __('performance.history.empty') }}</div>
                 </template>
             </div>
         </div>
@@ -317,7 +317,7 @@
              @click.away="showModal = false">
             
             <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                <h3 class="text-xl font-bold text-slate-800 dark:text-white">Adaugă Progres</h3>
+                <h3 class="text-xl font-bold text-slate-800 dark:text-white">{{ __('performance.modal.title') }}</h3>
                 <button @click="showModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
@@ -326,10 +326,10 @@
             <form @submit.prevent="saveEntry()" class="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
                 <template x-if="canAddEntry()">
                     <div class="space-y-1.5 flex flex-col">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Sportiv</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.athlete') }}</label>
                         <select x-model="formData.user_id" required @change="onModalAthleteChange($event.target.value)"
                                 class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all">
-                            <option value="">Selectează un sportiv...</option>
+                            <option value="">{{ __('performance.modal.select_athlete_placeholder') }}</option>
                             <template x-for="athlete in availableAthletes" :key="athlete.id">
                                 <option :value="athlete.id" x-text="athlete.name" :selected="formData.user_id === athlete.id"></option>
                             </template>
@@ -339,43 +339,43 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Dată Înregistrare</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.log_date') }}</label>
                         <input type="date" x-model="formData.log_date" required class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Greutate (kg)</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.weight') }}</label>
                         <input type="number" step="0.1" x-model="formData.weight" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Detentă (cm)</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.vertical_jump') }}</label>
                         <input type="number" step="1" x-model="formData.vertical_jump" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Viteză Serviciu (km/h)</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.serve_speed') }}</label>
                         <input type="number" step="1" x-model="formData.serve_speed" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Preluare (1-5)</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.reception') }}</label>
                         <select x-model="formData.reception_rating" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm appearance-none cursor-pointer">
                             <option value="">-</option>
                             <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Atac (1-5)</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.attack') }}</label>
                         <select x-model="formData.attack_rating" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm appearance-none cursor-pointer">
                             <option value="">-</option>
                             <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Blocaj (1-5)</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.block') }}</label>
                         <select x-model="formData.block_rating" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm appearance-none cursor-pointer">
                             <option value="">-</option>
                             <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -384,19 +384,19 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Observații</label>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">{{ __('performance.modal.notes') }}</label>
                     <textarea x-model="formData.notes" rows="3" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all resize-none"></textarea>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-2">
                     <button type="button" @click="showModal = false" class="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-all order-2 sm:order-1">
-                        Anulează
+                        {{ __('admin.cancel') }}
                     </button>
                     <button type="submit" 
                             :disabled="saving"
                             class="flex-1 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2">
                         <span x-show="saving" class="animate-spin h-4 w-4 border-2 border-white/30 border-t-white rounded-full"></span>
-                        <span x-text="saving ? 'Se salvează...' : 'Salvează'"></span>
+                        <span x-text="saving ? '{{ __('admin.saving') }}' : '{{ __('admin.save') }}'"></span>
                     </button>
                 </div>
             </form>

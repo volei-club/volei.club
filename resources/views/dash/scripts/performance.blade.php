@@ -3,6 +3,7 @@ Alpine.data('performanceManager', () => ({
     availableAthletes: [],
     athleteSearch: '',
     selectedAthleteId: null,
+    locale: document.documentElement.lang || 'ro-RO',
 
     activeMetric: 'detenta', // 'detenta', 'viteza', 'greutate'
     activeTooltip: null,
@@ -269,15 +270,15 @@ Alpine.data('performanceManager', () => ({
     },
 
     get activeMetricLabel() {
-        if (this.activeMetric === 'viteza') return 'Viteză Serviciu';
-        if (this.activeMetric === 'greutate') return 'Greutate';
-        return 'Detentă';
+        if (this.activeMetric === 'viteza') return '{{ __('performance.metrics.serve_speed') }}';
+        if (this.activeMetric === 'greutate') return '{{ __('performance.metrics.weight') }}';
+        return '{{ __('performance.metrics.vertical_jump') }}';
     },
 
     get activeMetricUnit() {
-        if (this.activeMetric === 'viteza') return 'km/h';
-        if (this.activeMetric === 'greutate') return 'kg';
-        return 'cm';
+        if (this.activeMetric === 'viteza') return '{{ __('dash.units.kmh') }}';
+        if (this.activeMetric === 'greutate') return 'kg'; // kg is same, but maybe I should add it to dash.units too?
+        return '{{ __('dash.units.cm') }}';
     },
 
     setMetric(m) {
@@ -296,7 +297,7 @@ Alpine.data('performanceManager', () => ({
     },
 
     formatDate(date) {
-        return new Date(date).toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return new Date(date).toLocaleDateString(this.locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
     },
 
     openModal() {
@@ -328,28 +329,28 @@ Alpine.data('performanceManager', () => ({
                 body: JSON.stringify(this.formData)
             });
             if (res.ok) {
-                window.showToast('Progres salvat cu succes!');
+                window.showToast('{{ __('performance.modal.save_success') }}');
                 this.showModal = false;
                 this.fetchHistory();
             } else {
                 const data = await res.json();
-                window.showToast(data.message || 'Eroare la salvare', 'error');
+                window.showToast(data.message || '{{ __('performance.modal.save_error') }}', 'error');
             }
         } catch (e) {
-            window.showToast('Eroare de rețea', 'error');
+            window.showToast('{{ __('performance.modal.network_error') }}', 'error');
         }
         this.saving = false;
     },
 
     async deleteEntry(id) {
-        if (!confirm('Ești sigur că vrei să ștergi această înregistrare?')) return;
+        if (!confirm('{{ __('performance.history.delete_confirm') }}')) return;
         try {
             const res = await fetch(`/api/performance/${id}`, {
                 method: 'DELETE',
                 headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
             });
             if (res.ok) {
-                window.showToast('Înregistrare ștearsă.');
+                window.showToast('{{ __('performance.history.delete_success') }}');
                 this.fetchHistory();
             }
         } catch (e) {}
@@ -399,7 +400,7 @@ Alpine.data('performanceManager', () => ({
             y: 280 - (((l[field] || 0) - chartMin) / range) * 250,
             val: (l[field] || 0),
             unit: this.activeMetricUnit,
-            label: this.formatDate(l.log_date).slice(0, 5), // dd.mm
+            label: new Date(l.log_date).toLocaleDateString(this.locale, { day: '2-digit', month: '2-digit' }), // dynamic day/month formatting
             raw: l
         }));
     },

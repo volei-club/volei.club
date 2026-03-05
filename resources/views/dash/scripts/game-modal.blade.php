@@ -114,12 +114,12 @@ Alpine.store('gameModal', {
             const url = this.editingId ? `/api/games/${this.editingId}` : '/api/games';
             const method = this.editingId ? 'put' : 'post';
             await axios[method](url, this.formData);
-            window.showToast(this.editingId ? 'Meci actualizat' : 'Meci creat');
+            window.showToast(this.editingId ? '{{ __('matches.messages.success_saved') }}' : '{{ __('matches.messages.success_saved') }}');
             this.show = false;
             window.dispatchEvent(new CustomEvent('game-saved'));
             window.dispatchEvent(new CustomEvent('refresh-calendar'));
         } catch (e) {
-             window.showToast('Eroare la salvare', 'error');
+             window.showToast('{{ __('matches.modal.error_save') }}', 'error');
         } finally {
             this.saving = false;
         }

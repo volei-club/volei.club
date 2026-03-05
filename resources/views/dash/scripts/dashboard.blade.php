@@ -11,16 +11,24 @@ Alpine.data('dashboard', () => ({
     isImpersonating: false,
     currentPage: window.location.pathname, // Route Tracker Simplu
     unreadMessagesCount: 0,
+    locale: document.documentElement.lang || 'ro-RO',
+    roleLabels: {
+        'administrator': '{{ __('dash.roles.administrator') }}',
+        'manager': '{{ __('dash.roles.manager') }}',
+        'antrenor': '{{ __('dash.roles.antrenor') }}',
+        'sportiv': '{{ __('dash.roles.sportiv') }}',
+        'parinte': '{{ __('dash.roles.parinte') }}'
+    },
 
         getPageTitle() {
-            if(this.currentPage === '/dash') return 'Acasă';
-            if(this.currentPage.startsWith('/dash/cluburi')) return 'Management Cluburi';
-            if(this.currentPage.startsWith('/dash/membri')) return 'Membri';
-            if(this.currentPage.startsWith('/dash/echipe')) return 'Echipe';
-            if(this.currentPage.startsWith('/dash/abonamente')) return 'Abonamente';
-            if(this.currentPage.startsWith('/dash/calendar')) return 'Calendar';
-            if(this.currentPage.startsWith('/dash/meciuri')) return 'Meciuri';
-            if(this.currentPage.startsWith('/dash/performanta')) return 'Performanță';
+            if(this.currentPage === '/dash') return '{{ __('dash.nav.home') }}';
+            if(this.currentPage.startsWith('/dash/cluburi')) return '{{ __('dash.nav.clubs') }}';
+            if(this.currentPage.startsWith('/dash/membri')) return '{{ __('dash.nav.members') }}';
+            if(this.currentPage.startsWith('/dash/echipe')) return '{{ __('dash.nav.teams') }}';
+            if(this.currentPage.startsWith('/dash/abonamente')) return '{{ __('dash.nav.subscriptions') }}';
+            if(this.currentPage.startsWith('/dash/calendar')) return '{{ __('dash.nav.calendar') }}';
+            if(this.currentPage.startsWith('/dash/meciuri')) return '{{ __('dash.nav.matches') }}';
+            if(this.currentPage.startsWith('/dash/performanta')) return '{{ __('dash.nav.performance') }}';
             return 'Dashboard';
         },
 
@@ -160,10 +168,10 @@ Alpine.data('dashboard', () => ({
             const adminToken = localStorage.getItem('original_admin_token');
             localStorage.setItem('auth_token', adminToken);
             localStorage.removeItem('original_admin_token');
-            window.showToast('Ai revenit la contul tău de administrator.');
+            window.showToast('{{ __('dash.impersonation.success_leave') }}');
             setTimeout(() => window.location.reload(), 1500);
         } catch (e) {
-            window.showToast('Eroare la delogare din impersonare.', 'error');
+            window.showToast('{{ __('dash.impersonation.error_leave') }}', 'error');
         }
     },
 

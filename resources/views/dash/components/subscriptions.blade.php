@@ -2,13 +2,13 @@
             <div x-show="currentPage.startsWith('/dash/abonamente')" x-data="subscriptionManager()" class="h-full flex flex-col relative">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
                     <div>
-                        <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Tipuri Abonamente</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Planuri de abonament disponibile pentru sportivi</p>
+                        <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ __('subscriptions.title') }}</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ __('subscriptions.subtitle') }}</p>
                     </div>
                     <template x-if="user?.role === 'manager' || user?.role === 'administrator'">
                         <button @click="openModal()" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20 outline-none">
                             <span class="material-symbols-outlined text-[20px]">add_card</span>
-                            <span>Adaugă Abonament</span>
+                            <span>{{ __('subscriptions.add') }}</span>
                         </button>
                     </template>
                 </div>
@@ -16,7 +16,7 @@
                 <!-- Loading Overlay -->
                 <div x-show="loading" style="display:none" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl">
                     <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-2">sync</span>
-                    <p class="text-slate-500 font-medium">Se încarcă abonamentele...</p>
+                    <p class="text-slate-500 font-medium">{{ __('subscriptions.loading') }}</p>
                 </div>
 
                 <!-- ADMIN / MANAGER VIEW -->
@@ -26,7 +26,7 @@
                     <div class="mb-6 flex flex-col md:flex-row gap-4">
                         <div class="w-full md:w-64">
                             <select id="subFilterClub" x-model="filters.club_id" @change="fetchSubscriptions(); updateHash()" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer text-sm">
-                                <option value="">Toate Cluburile</option>
+                                <option value="">{{ __('subscriptions.filters.all_clubs') }}</option>
                                 <template x-for="c in availableClubs" :key="c.id">
                                     <option :value="c.id" x-text="c.name"></option>
                                 </template>
@@ -41,11 +41,11 @@
                         <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead>
                                 <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 uppercase text-xs tracking-wider">
-                                    <th class="px-6 py-4 font-bold">Nume Abonament</th>
-                                    <th class="px-6 py-4 font-bold">Preț</th>
-                                    <th class="px-6 py-4 font-bold">Perioadă</th>
-                                    <th x-show="user?.role === 'administrator'" class="px-6 py-4 font-bold">Club</th>
-                                    <th class="px-6 py-4 font-bold text-right">Acțiuni</th>
+                                    <th class="px-6 py-4 font-bold">{{ __('subscriptions.table.name') }}</th>
+                                    <th class="px-6 py-4 font-bold">{{ __('subscriptions.table.price') }}</th>
+                                    <th class="px-6 py-4 font-bold">{{ __('subscriptions.table.period') }}</th>
+                                    <th x-show="user?.role === 'administrator'" class="px-6 py-4 font-bold">{{ __('subscriptions.table.club') }}</th>
+                                    <th class="px-6 py-4 font-bold text-right">{{ __('subscriptions.table.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
@@ -61,20 +61,20 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             <span class="font-extrabold text-primary text-lg" x-text="sub.price"></span>
-                                            <span class="text-slate-500 text-sm ml-1">lei</span>
+                                            <span class="text-slate-500 text-sm ml-1">{{ __('subscriptions.currency') }}</span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="px-2 py-1 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="sub.period.replace(/_/g, ' ')"></span>
+                                            <span class="px-2 py-1 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="periodLabels[sub.period] || sub.period.replace(/_/g, ' ')"></span>
                                         </td>
                                         <td x-show="user?.role === 'administrator'" class="px-6 py-4">
-                                            <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="sub.club?.name || 'N/A'"></span>
+                                            <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide inline-flex items-center" x-text="sub.club?.name || '{{ __('admin.unknown') }}'"></span>
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex justify-end gap-2">
-                                                <button @click="openModal(sub)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editează">
+                                                <button @click="openModal(sub)" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="{{ __('admin.edit') }}">
                                                     <span class="material-symbols-outlined text-[20px]">edit</span>
                                                 </button>
-                                                <button @click="deleteSubscription(sub.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Șterge">
+                                                <button @click="deleteSubscription(sub.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="{{ __('admin.delete') }}">
                                                     <span class="material-symbols-outlined text-[20px]">delete</span>
                                                 </button>
                                             </div>
@@ -97,7 +97,7 @@
                                         <h4 class="font-bold text-slate-900 dark:text-white" x-text="sub.name"></h4>
                                         <div class="flex items-baseline gap-1">
                                             <span class="font-extrabold text-primary text-lg" x-text="sub.price"></span>
-                                            <span class="text-slate-500 text-xs">lei / <span x-text="sub.period.replace(/_/g, ' ')"></span></span>
+                                            <span class="text-slate-500 text-xs">{{ __('subscriptions.currency') }} / <span x-text="periodLabels[sub.period] || sub.period.replace(/_/g, ' ')"></span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -105,18 +105,18 @@
                                 <template x-if="user?.role === 'administrator'">
                                     <div class="flex items-center gap-2">
                                         <span class="material-symbols-outlined text-[18px] text-slate-400">domain</span>
-                                        <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="sub.club?.name || 'N/A'"></span>
+                                        <span class="px-2 py-1 bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[11px] font-bold uppercase tracking-wide" x-text="sub.club?.name || '{{ __('admin.unknown') }}'"></span>
                                     </div>
                                 </template>
 
                                 <div class="pt-3 border-t border-slate-50 dark:border-slate-800 flex gap-2">
                                     <button @click="openModal(sub)" class="flex-1 flex items-center justify-center gap-2 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-sm transition-colors">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
-                                        Editează
+                                        {{ __('admin.edit') }}
                                     </button>
                                     <button @click="deleteSubscription(sub.id)" class="flex-1 flex items-center justify-center gap-2 py-2 bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl font-bold text-sm transition-colors">
                                         <span class="material-symbols-outlined text-[18px]">delete</span>
-                                        Șterge
+                                        {{ __('admin.delete') }}
                                     </button>
                                 </div>
                             </div>
@@ -126,7 +126,7 @@
                     <template x-if="subscriptions.length === 0 && !loading">
                         <div class="py-20 text-center border-t border-slate-100 dark:border-slate-700 border-dashed">
                             <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700 mb-4">payments</span>
-                            <p class="text-slate-500">Acest club nu are definit niciun plan de abonament.</p>
+                            <p class="text-slate-500">{{ __('subscriptions.messages.empty_state') }}</p>
                         </div>
                     </template>
                 </div>
@@ -142,7 +142,7 @@
                             <div class="flex items-center gap-3 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
                                 <span class="material-symbols-outlined text-slate-400">child_care</span>
                                 <div class="flex-1">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Vezi abonamentele pentru:</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{{ __('subscriptions.athlete.view_for') }}</p>
                                     <select x-model="selectedChildId" @change="fetchMySubscriptions()" class="w-full bg-transparent font-bold text-slate-900 dark:text-white outline-none">
                                         <template x-for="child in children" :key="child.id">
                                             <option :value="child.id" x-text="child.name"></option>
@@ -157,26 +157,26 @@
                             <div class="bg-gradient-to-br from-primary to-primary-dark rounded-[20px] md:rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
                                 <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl text-white/10 select-none pointer-events-none">card_membership</span>
                                 
-                                <h3 class="text-white/80 font-bold uppercase tracking-wider text-xs mb-4">Abonament Curent</h3>
+                                <h3 class="text-white/80 font-bold uppercase tracking-wider text-xs mb-4">{{ __('subscriptions.athlete.current_title') }}</h3>
                                 
                                 <template x-if="mySubscriptions.length > 0 && (mySubscriptions[0].status === 'active_paid' || mySubscriptions[0].status === 'active_pending')">
                                     <div>
-                                        <div class="text-3xl font-extrabold mb-1" x-text="mySubscriptions[0].subscription?.name || 'Abonament Activ'"></div>
+                                        <div class="text-3xl font-extrabold mb-1" x-text="mySubscriptions[0].subscription?.name || '{{ __('subscriptions.athlete.active_name') }}'"></div>
                                         <div class="text-white/80 flex items-center gap-2 mb-6">
                                             <span class="material-symbols-outlined text-sm">event</span>
-                                            Valabil până la <span class="font-bold text-white ml-1" x-text="new Date(mySubscriptions[0].expires_at).toLocaleDateString('ro-RO')"></span>
+                                            {{ __('subscriptions.athlete.expires_at', ['date' => '<span class="font-bold text-white ml-1" x-text="new Date(mySubscriptions[0].expires_at).toLocaleDateString(locale)"></span>']) }}
                                         </div>
                                         <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-lg text-sm font-semibold">
                                             <span class="w-2 h-2 rounded-full" :class="mySubscriptions[0].status === 'active_paid' ? 'bg-green-400' : 'bg-amber-400'"></span>
-                                            <span x-text="mySubscriptions[0].status === 'active_paid' ? 'Abonament Plătit' : 'Plată în Așteptare'"></span>
+                                            <span x-text="mySubscriptions[0].status === 'active_paid' ? '{{ __('subscriptions.athlete.paid_status') }}' : '{{ __('subscriptions.athlete.pending_status') }}'"></span>
                                         </div>
                                     </div>
                                 </template>
 
                                 <template x-if="!mySubscriptions.length || (mySubscriptions[0].status !== 'active_paid' && mySubscriptions[0].status !== 'active_pending')">
                                     <div>
-                                        <div class="text-2xl font-bold mb-2">Niciun abonament activ</div>
-                                        <p class="text-white/70 text-sm mb-6">Nu ai un plan de abonament valabil în acest moment. Pentru informații suplimentare, te rugăm să contactezi antrenorul sau administrația clubului.</p>
+                                        <div class="text-2xl font-bold mb-2">{{ __('subscriptions.athlete.no_active') }}</div>
+                                        <p class="text-white/70 text-sm mb-6">{{ __('subscriptions.athlete.no_active_desc') }}</p>
                                     </div>
                                 </template>
                             </div>
@@ -187,7 +187,7 @@
                             <div class="p-5 md:p-6 border-b border-slate-50 dark:border-slate-800/60">
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     <span class="material-symbols-outlined text-primary">history</span>
-                                    Istoric Abonamente
+                                    {{ __('subscriptions.athlete.history_title') }}
                                 </h3>
                             </div>
                             
@@ -195,19 +195,19 @@
                                 <table class="w-full text-left border-collapse min-w-[500px]">
                                     <thead>
                                         <tr class="bg-slate-50/50 dark:bg-slate-900/20 border-b border-slate-50 dark:border-slate-800/60 text-slate-500 uppercase text-[11px] font-bold tracking-wider">
-                                            <th class="px-6 py-4">Plan Abonament</th>
-                                            <th class="px-6 py-4">Status</th>
-                                            <th class="px-6 py-4">Data Activării</th>
-                                            <th class="px-6 py-4">Data Expirării</th>
+                                            <th class="px-6 py-4">{{ __('subscriptions.athlete.table.plan') }}</th>
+                                            <th class="px-6 py-4">{{ __('subscriptions.athlete.table.status') }}</th>
+                                            <th class="px-6 py-4">{{ __('subscriptions.athlete.table.activation') }}</th>
+                                            <th class="px-6 py-4">{{ __('subscriptions.athlete.table.expiration') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-50 dark:divide-slate-800/60 text-sm">
                                         <template x-for="ms in mySubscriptions" :key="ms.id">
                                             <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
                                                 <td class="px-6 py-4">
-                                                    <span class="font-bold text-slate-900 dark:text-white" x-text="ms.subscription?.name || 'Abonament'"></span>
+                                                    <span class="font-bold text-slate-900 dark:text-white" x-text="ms.subscription?.name || '{{ __('members.status.no_subscription') }}'"></span>
                                                     <div class="text-xs text-slate-500 mt-0.5">
-                                                        <span x-text="ms.subscription?.price || '-'"></span> lei / <span x-text="ms.subscription?.period ? ms.subscription.period.replace(/_/g, ' ') : '-'"></span>
+                                                        <span x-text="ms.subscription?.price || '-'"></span> {{ __('subscriptions.currency') }} / <span x-text="ms.subscription?.period ? (periodLabels[ms.subscription.period] || ms.subscription.period.replace(/_/g, ' ')) : '-'"></span>
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4">
@@ -219,11 +219,11 @@
                                                             'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400': ms.status === 'cancelled'
                                                         }">
                                                         <span class="material-symbols-outlined text-[14px]" x-text="ms.status === 'active_paid' ? 'check_circle' : (ms.status === 'active_pending' ? 'pending' : (ms.status === 'expired' ? 'history' : 'cancel'))"></span>
-                                                        <span x-text="ms.status.replace('_', ' ')"></span>
+                                                        <span x-text="getStatusLabel(ms.status)"></span>
                                                     </span>
                                                 </td>
-                                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400" x-text="new Date(ms.starts_at).toLocaleDateString('ro-RO')"></td>
-                                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium" x-text="new Date(ms.expires_at).toLocaleDateString('ro-RO')"></td>
+                                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400" x-text="new Date(ms.starts_at).toLocaleDateString(locale)"></td>
+                                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium" x-text="new Date(ms.expires_at).toLocaleDateString(locale)"></td>
                                             </tr>
                                         </template>
                                         <template x-if="mySubscriptions.length === 0 && !loading">
@@ -231,7 +231,7 @@
                                                 <td colspan="4" class="px-6 py-12 text-center text-slate-500">
                                                     <div class="flex flex-col items-center justify-center">
                                                         <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-700 mb-2">inbox</span>
-                                                        <p>Nu există abonamente înregistrate pe acest cont.</p>
+                                                        <p>{{ __('subscriptions.athlete.empty_history') }}</p>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -256,9 +256,9 @@
 
                                         <div class="flex justify-between items-start mb-3">
                                             <div>
-                                                <h4 class="font-bold text-slate-900 dark:text-white text-base" x-text="ms.subscription?.name || 'Abonament'"></h4>
+                                                <h4 class="font-bold text-slate-900 dark:text-white text-base" x-text="ms.subscription?.name || '{{ __('members.status.no_subscription') }}'"></h4>
                                                 <div class="text-sm text-slate-500 mt-0.5">
-                                                    <span class="font-bold text-primary" x-text="ms.subscription?.price || '-'"></span> lei / <span x-text="ms.subscription?.period ? ms.subscription.period.replace(/_/g, ' ') : '-'"></span>
+                                                    <span class="font-bold text-primary" x-text="ms.subscription?.price || '-'"></span> {{ __('subscriptions.currency') }} / <span x-text="ms.subscription?.period ? (periodLabels[ms.subscription.period] || ms.subscription.period.replace(/_/g, ' ')) : '-'"></span>
                                                 </div>
                                             </div>
                                             <span class="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wide inline-flex items-center gap-1 shrink-0"
@@ -269,23 +269,23 @@
                                                     'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400': ms.status === 'cancelled'
                                                 }">
                                                 <span class="material-symbols-outlined text-[13px]" x-text="ms.status === 'active_paid' ? 'check_circle' : (ms.status === 'active_pending' ? 'pending' : (ms.status === 'expired' ? 'history' : 'cancel'))"></span>
-                                                <span x-text="ms.status.replace('_', ' ')"></span>
+                                                <span x-text="getStatusLabel(ms.status)"></span>
                                             </span>
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/60 text-sm">
                                             <div>
-                                                <p class="text-xs text-slate-400 uppercase tracking-wide font-bold mb-1">Activare</p>
+                                                <p class="text-xs text-slate-400 uppercase tracking-wide font-bold mb-1">{{ __('subscriptions.athlete.activation_label') }}</p>
                                                 <p class="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1.5 flex-wrap">
                                                     <span class="material-symbols-outlined text-[16px] text-slate-400">event_available</span>
-                                                    <span x-text="new Date(ms.starts_at).toLocaleDateString('ro-RO')"></span>
+                                                    <span x-text="new Date(ms.starts_at).toLocaleDateString(locale)"></span>
                                                 </p>
                                             </div>
                                             <div>
-                                                <p class="text-xs text-slate-400 uppercase tracking-wide font-bold mb-1">Expirare</p>
+                                                <p class="text-xs text-slate-400 uppercase tracking-wide font-bold mb-1">{{ __('subscriptions.athlete.expiration_label') }}</p>
                                                 <p class="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1.5 flex-wrap">
                                                     <span class="material-symbols-outlined text-[16px] text-slate-400">event_busy</span>
-                                                    <span x-text="new Date(ms.expires_at).toLocaleDateString('ro-RO')"></span>
+                                                    <span x-text="new Date(ms.expires_at).toLocaleDateString(locale)"></span>
                                                 </p>
                                             </div>
                                         </div>
@@ -295,7 +295,7 @@
                                 <template x-if="mySubscriptions.length === 0 && !loading">
                                     <div class="py-12 text-center border border-slate-100 dark:border-slate-800/60 border-dashed rounded-2xl bg-slate-50/30 dark:bg-slate-900/10">
                                         <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-700 mb-2">inbox</span>
-                                        <p class="text-slate-500 text-sm">Nu există abonamente.</p>
+                                        <p class="text-slate-500 text-sm">{{ __('subscriptions.athlete.empty_history') }}</p>
                                     </div>
                                 </template>
                             </div>
@@ -309,38 +309,38 @@
                 <div x-show="showModal" style="display: none;" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
                         <div class="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-                            <h3 class="text-xl font-bold" x-text="form.id ? 'Editează Abonament' : 'Adaugă Abonament Nou'"></h3>
+                            <h3 class="text-xl font-bold" x-text="form.id ? '{{ __('subscriptions.edit') }}' : '{{ __('subscriptions.add_new') }}'"></h3>
                         </div>
                         <form @submit.prevent="saveSubscription()" class="flex flex-col overflow-hidden">
                             <div class="p-6 overflow-y-auto max-h-[70vh]">
                                 
                                 <div class="mb-4">
-                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nume Abonament</label>
-                                    <input x-model="form.name" type="text" placeholder="Ex: Abonament Standard" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"/>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('subscriptions.form.name') }}</label>
+                                    <input x-model="form.name" type="text" placeholder="{{ __('subscriptions.form.name_placeholder') }}" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"/>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Preț (LEI)</label>
-                                    <input x-model="form.price" type="number" step="0.01" min="0" placeholder="Ex: 250" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"/>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('subscriptions.form.price') }}</label>
+                                    <input x-model="form.price" type="number" step="0.01" min="0" placeholder="{{ __('subscriptions.form.price_placeholder') }}" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"/>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Perioadă Recurență</label>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('subscriptions.form.period') }}</label>
                                     <select x-model="form.period" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
-                                        <option value="1_saptamana">O Săptămână</option>
-                                        <option value="2_saptamani">2 Săptămâni</option>
-                                        <option value="1_luna">O Lună</option>
-                                        <option value="3_luni">3 Luni</option>
-                                        <option value="6_luni">6 Luni</option>
-                                        <option value="1_an">Un An</option>
+                                        <option value="1_saptamana">{{ __('subscriptions.form.periods.1_saptamana') }}</option>
+                                        <option value="2_saptamani">{{ __('subscriptions.form.periods.2_saptamani') }}</option>
+                                        <option value="1_luna">{{ __('subscriptions.form.periods.1_luna') }}</option>
+                                        <option value="3_luni">{{ __('subscriptions.form.periods.3_luni') }}</option>
+                                        <option value="6_luni">{{ __('subscriptions.form.periods.6_luni') }}</option>
+                                        <option value="1_an">{{ __('subscriptions.form.periods.1_an') }}</option>
                                     </select>
                                 </div>
 
                                 <template x-if="user?.role === 'administrator'">
                                     <div class="mb-4">
-                                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Club Aparținător</label>
+                                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('subscriptions.form.club') }}</label>
                                         <select x-model="form.club_id" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
-                                            <option value="" disabled selected>Selectează clubul</option>
+                                            <option value="" disabled selected>{{ __('subscriptions.form.choose_club') }}</option>
                                             <template x-for="c in availableClubs" :key="c.id">
                                                 <option :value="c.id" x-text="c.name"></option>
                                             </template>
@@ -354,10 +354,10 @@
 
                             </div>
                             <div class="p-6 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 shrink-0">
-                                <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Anulare</button>
+                                <button type="button" @click="showModal = false" class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">{{ __('admin.cancel') }}</button>
                                 <button type="submit" :disabled="saving" class="px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center disabled:opacity-50 shadow-sm hover:shadow">
                                     <span x-show="saving" class="material-symbols-outlined animate-spin mr-2 text-sm">progress_activity</span>
-                                    Salvează
+                                    {{ __('admin.save') }}
                                 </button>
                             </div>
                         </form>

@@ -2,6 +2,7 @@ Alpine.data('calendarManager', () => ({
     loading: false,
     sessions: [],
     currentWeekStart: null,
+    locale: document.documentElement.lang || 'ro-RO',
 
     // Attendance modal (coach)
     showAttendanceModal: false,
@@ -102,7 +103,15 @@ Alpine.data('calendarManager', () => ({
 
     get weekDays() {
         const days = [];
-        const dayNames = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică'];
+        const dayNames = [
+            '{{ __('calendar.days.monday') }}', 
+            '{{ __('calendar.days.tuesday') }}', 
+            '{{ __('calendar.days.wednesday') }}', 
+            '{{ __('calendar.days.thursday') }}', 
+            '{{ __('calendar.days.friday') }}', 
+            '{{ __('calendar.days.saturday') }}', 
+            '{{ __('calendar.days.sunday') }}'
+        ];
         for (let i = 0; i < 7; i++) {
             const d = new Date(this.currentWeekStart);
             d.setDate(d.getDate() + i);
@@ -126,7 +135,7 @@ Alpine.data('calendarManager', () => ({
     get weekLabel() {
         const end = new Date(this.currentWeekStart);
         end.setDate(end.getDate() + 6);
-        const fmt = (d) => d.toLocaleDateString('ro-RO', { day: '2-digit', month: 'short' });
+        const fmt = (d) => d.toLocaleDateString(this.locale, { day: '2-digit', month: 'short' });
         return `${fmt(this.currentWeekStart)} – ${fmt(end)} ${end.getFullYear()}`;
     },
 
@@ -152,10 +161,10 @@ Alpine.data('calendarManager', () => ({
     },
 
     statusLabel(status) {
-        if (status === 'prezent') return 'Prezent';
-        if (status === 'absent') return 'Absent';
-        if (status === 'motivat') return 'Motivat';
-        return 'Neînregistrat';
+        if (status === 'prezent') return '{{ __('calendar.status.prezent') }}';
+        if (status === 'absent') return '{{ __('calendar.status.absent') }}';
+        if (status === 'motivat') return '{{ __('calendar.status.motivat') }}';
+        return '{{ __('calendar.status.neinregistrat') }}';
     },
 
     canMarkAttendance() {
@@ -244,7 +253,7 @@ Alpine.data('calendarManager', () => ({
         let method = s.is_cancelled ? 'DELETE' : 'POST';
         
         if (s.is_cancelled) {
-            if (!confirm("Ești sigur că vrei să restaurezi această sesiune?")) return;
+            if (!confirm("{{ __('calendar.messages.restore_confirm') }}")) return;
         }
 
         this.cancelling = true;
@@ -266,19 +275,19 @@ Alpine.data('calendarManager', () => ({
             const data = await res.json();
 
             if (res.ok) {
-                window.showToast(data.message || (s.is_cancelled ? 'Sesiune restaurată.' : 'Sesiune anulată.'));
+                window.showToast(data.message || (s.is_cancelled ? '{{ __('calendar.messages.restore_success') }}' : '{{ __('calendar.messages.cancel_success') }}'));
                 this.closeCancelModal();
                 this.closeAttendance();
                 this.fetchSessions();
             } else {
-                let msg = data.message || 'Eroare la modificare.';
+                let msg = data.message || '{{ __('calendar.messages.modify_error') }}';
                 if (data.errors) {
                     msg = Object.values(data.errors).flat().join(' ');
                 }
                 window.showToast(msg, 'error');
             }
         } catch(e) {
-            window.showToast("Eroare de rețea.", 'error');
+            window.showToast("{{ __('calendar.messages.network_error') }}", 'error');
         } finally {
             this.cancelling = false;
         }

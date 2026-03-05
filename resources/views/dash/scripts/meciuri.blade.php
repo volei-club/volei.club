@@ -55,7 +55,7 @@ Alpine.data('gameManager', () => ({
             const res = await axios.get('/api/games', { params });
             this.games = res.data;
         } catch (e) {
-            window.showToast('Eroare la încărcarea meciurilor', 'error');
+            window.showToast('{{ __('matches.messages.fetch_error') }}', 'error');
         } finally {
             this.loading = false;
         }
@@ -75,9 +75,9 @@ Alpine.data('gameManager', () => ({
     },
 
     deleteGame(id) {
-        if (!confirm('Ești sigur că vrei să ștergi acest meci?')) return;
+        if (!confirm('{{ __('matches.messages.delete_confirm') }}')) return;
         axios.delete(`/api/games/${id}`).then(() => {
-            window.showToast('Meci șters');
+            window.showToast('{{ __('matches.messages.delete_success') }}');
             this.fetchGames();
             window.dispatchEvent(new CustomEvent('refresh-calendar'));
         });
@@ -86,13 +86,13 @@ Alpine.data('gameManager', () => ({
     formatDate(dateStr) {
         if (!dateStr) return '';
         const d = new Date(dateStr);
-        return d.toLocaleDateString('ro-RO', { weekday: 'short', day: 'numeric', month: 'short' });
+        return d.toLocaleDateString(document.documentElement.lang || 'ro-RO', { weekday: 'short', day: 'numeric', month: 'short' });
     },
 
     formatTime(dateStr) {
         if (!dateStr) return '';
         const d = new Date(dateStr);
-        return d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+        return d.toLocaleTimeString(document.documentElement.lang || 'ro-RO', { hour: '2-digit', minute: '2-digit' });
     },
 
     getFinalScore(game) {

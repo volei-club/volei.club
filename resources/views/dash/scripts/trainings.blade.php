@@ -270,21 +270,21 @@ Alpine.data('trainingManager', () => ({
                 this.showModal = false;
                 this.updateHash();
                 this.fetchTrainings();
-                window.showToast(this.editingId ? 'Antrenament actualizat!' : 'Antrenament programat!');
+                window.showToast(this.editingId ? '{{ __('trainings.messages.update_success') }}' : '{{ __('trainings.messages.create_success') }}');
             } else {
                 const data = await res.json();
-                this.error = data.message || "Eroare la salvarea antrenamentului.";
+                this.error = data.message || "{{ __('trainings.messages.save_error') }}";
                 window.showToast(this.error, 'error');
             }
         } catch (e) {
-            window.showToast("Eroare de rețea la salvarea antrenamentului.", 'error');
+            window.showToast("{{ __('trainings.messages.network_error') }}", 'error');
         } finally {
             this.saving = false;
         }
     },
 
     async deleteTraining(id) {
-        if (!confirm("Ești sigur că vrei să ștergi acest antrenament?")) return;
+        if (!confirm("{{ __('trainings.messages.delete_confirm') }}")) return;
 
         try {
             const res = await fetch(`/api/trainings/${id}`, {
@@ -297,13 +297,26 @@ Alpine.data('trainingManager', () => ({
 
             if (res.ok) {
                 this.fetchTrainings();
-                window.showToast('Antrenament șters cu succes!');
+                window.showToast('{{ __('trainings.messages.delete_success') }}');
             } else {
                 const data = await res.json();
-                window.showToast(data.message || 'Eroare la ștergere.', 'error');
+                window.showToast(data.message || '{{ __('trainings.messages.delete_error') }}', 'error');
             }
         } catch (e) {
-            window.showToast("Eroare de rețea la ștergere.", 'error');
+            window.showToast("{{ __('trainings.messages.delete_network_error') }}", 'error');
         }
+    },
+
+    getDayLabel(day) {
+        const days = {
+            'luni': '{{ __('trainings.form.days.luni') }}',
+            'marti': '{{ __('trainings.form.days.marti') }}',
+            'miercuri': '{{ __('trainings.form.days.miercuri') }}',
+            'joi': '{{ __('trainings.form.days.joi') }}',
+            'vineri': '{{ __('trainings.form.days.vineri') }}',
+            'sambata': '{{ __('trainings.form.days.sambata') }}',
+            'duminica': '{{ __('trainings.form.days.duminica') }}'
+        };
+        return days[day] || day;
     }
 }));
