@@ -172,7 +172,7 @@ Alpine.data('dashboard', () => ({
         try {
             const response = await axios.get('/api/chat/unread-count');
             if (response.data.status === 'success') {
-                this.unreadMessagesCount = response.data.count;
+                this.unreadMessagesCount = response.data.unread_count;
             }
         } catch (error) {
             console.error('Error fetching unread count:', error);
