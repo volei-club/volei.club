@@ -149,20 +149,18 @@ Alpine.data('userManager', () => ({
 
         this.$watch('form.club_id', async (val) => {
             if (this.showModal) {
+                await this.fetchTeamsBasedOnClub();
                 if (this.form.role === 'antrenor') {
                     await this.fetchSquadsBasedOnClub();
-                } else {
-                    await this.fetchTeamsBasedOnClub();
                 }
                 if (this.form.role === 'parinte') await this.fetchAvailableStudents(val);
             }
         });
         this.$watch('form.role', async (val) => {
             if (this.showModal) {
+                await this.fetchTeamsBasedOnClub();
                 if (val === 'antrenor') {
                     await this.fetchSquadsBasedOnClub();
-                } else if (val === 'sportiv') {
-                    await this.fetchTeamsBasedOnClub();
                 } else if (val === 'parinte') {
                     await this.fetchAvailableStudents(this.form.club_id || this.user?.club_id);
                 }
