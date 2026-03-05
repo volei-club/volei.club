@@ -94,6 +94,7 @@ class AttendanceController extends Controller
         $user = $request->user();
         $weeks = (int)$request->input('weeks', 4);
         $childId = $request->input('child_id');
+        $startDateStr = $request->input('start_date');
 
         if ($user->role === 'parinte' && $childId) {
             $isParent = $user->children()->where('users.id', $childId)->exists();
@@ -106,7 +107,7 @@ class AttendanceController extends Controller
             $subject = $user;
         }
 
-        $sessions = $this->attendanceService->generateCalendar($subject, $weeks);
+        $sessions = $this->attendanceService->generateCalendar($subject, $weeks, $startDateStr);
 
         return response()->json(['status' => 'success', 'data' => $sessions]);
     }

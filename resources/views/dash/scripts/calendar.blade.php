@@ -23,6 +23,9 @@ Alpine.data('calendarManager', () => ({
         // Listen for refresh events
         window.addEventListener('game-saved', () => this.fetchSessions());
         window.addEventListener('refresh-calendar', () => this.fetchSessions());
+
+        // Re-fetch when navigating to a different week
+        this.$watch('currentWeekStart', () => this.fetchSessions());
     },
 
     async loadChildren() {
@@ -43,7 +46,12 @@ Alpine.data('calendarManager', () => ({
     async fetchSessions() {
         this.loading = true;
         try {
-            const params = new URLSearchParams({ weeks: 8 });
+            // Request 3 weeks centred on the current week for smooth prev/next navigation
+            const prevMonday = new Date(this.currentWeekStart);
+            prevMonday.setDate(prevMonday.getDate() - 7);
+            const startDateStr = prevMonday.toISOString().split('T')[0];
+
+            const params = new URLSearchParams({ weeks: 3, start_date: startDateStr });
             if (this.user?.role === 'parinte' && this.selectedChildId) {
                 params.append('child_id', this.selectedChildId);
             }

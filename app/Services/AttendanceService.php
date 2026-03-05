@@ -56,17 +56,16 @@ class AttendanceService
             'status' => $data['status'],
             'notes' => $data['notes'] ?? null,
             'marked_by' => $markedBy->id,
-        ]
-        );
+        ]);
     }
 
     /**
      * Generate calendar sessions for a user (trainings and games).
      */
-    public function generateCalendar(User $user, int $weeks = 4)
+    public function generateCalendar(User $user, int $weeks = 4, ?string $startDateStr = null)
     {
-        $startDate = now()->startOfDay();
-        $endDate = now()->addWeeks($weeks)->endOfDay();
+        $startDate = $startDateStr ? Carbon::parse($startDateStr)->startOfDay() : now()->startOfDay();
+        $endDate = $startDate->copy()->addWeeks($weeks)->endOfDay();
         $period = CarbonPeriod::create($startDate, $endDate);
 
         $trainingQuery = Training::with(['location', 'team', 'squad']);
@@ -99,14 +98,15 @@ class AttendanceService
         $sessions = [];
 
         // Romanian day names mapping to Carbon dayOfWeek (0=Sun, 1=Mon...)
+        // Includes versions with and without diacritics to be robust
         $dayMap = [
-            'duminica' => 0,
-            'luni' => 1,
-            'marti' => 2,
+            'duminica' => 0, 'duminică' => 0,
+            'luni'     => 1,
+            'marti'    => 2, 'marți'    => 2,
             'miercuri' => 3,
-            'joi' => 4,
-            'vineri' => 5,
-            'sambata' => 6,
+            'joi'      => 4,
+            'vineri'   => 5,
+            'sambata'  => 6, 'sâmbătă'  => 6,
         ];
 
         // Generate training instances
