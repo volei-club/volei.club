@@ -169,7 +169,7 @@ class DashboardService
         $attendanceService = app(AttendanceService::class);
         $calendar = $attendanceService->generateCalendar($athlete, 2); // Get next 2 weeks
         $nextSession = collect($calendar)
-            ->filter(fn($s) => !$s['is_cancelled'] && Carbon::parse($s['start'])->isFuture())
+            ->filter(fn($s) => !($s['is_cancelled'] ?? false) && Carbon::parse($s['start'])->isFuture())
             ->first();
 
         // 2. Latest Performance
