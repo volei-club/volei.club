@@ -95,18 +95,27 @@ class AttendanceService
         $trainings = $trainingQuery->get();
         $games = $gameQuery->get();
 
+        // Get attendances for this user in the date range (if sportiv)
+        $attendances = collect();
+        if ($user->role === 'sportiv') {
+            $attendances = Attendance::where('user_id', $user->id)
+                ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->get()
+                ->groupBy(fn($a) => $a->training_id . '_' . ($a->date instanceof Carbon ? $a->date->format('Y-m-d') : $a->date));
+        }
+
         $sessions = [];
 
         // Romanian day names mapping to Carbon dayOfWeek (0=Sun, 1=Mon...)
         // Includes versions with and without diacritics to be robust
         $dayMap = [
-            'duminica' => 0, 'duminica' => 0,
+            'duminica' => 0, 'duminică' => 0,
             'luni'     => 1,
-            'marti'    => 2, 'mar?i'    => 2,
+            'marti'    => 2, 'marți'    => 2,
             'miercuri' => 3,
             'joi'      => 4,
             'vineri'   => 5,
-            'sambata'  => 6, 's�mbata'  => 6,
+            'sambata'  => 6, 'sâmbătă'  => 6,
         ];
 
         // Generate training instances
@@ -143,6 +152,9 @@ class AttendanceService
                     return $cDate === $dateStr;
                 });
 
+                $attKey = $training->id . '_' . $dateStr;
+                $userAttendance = $attendances->get($attKey)?->first();
+
                 $sessions[] = [
                     'id' => 'training_' . $training->id . '_' . $dateStr,
                     'type' => 'training',
@@ -158,6 +170,8 @@ class AttendanceService
                     'squad' => $training->squad->name ?? null,
                     'team' => $training->team->name ?? null,
                     'date' => $dateStr,
+                    'status' => $userAttendance?->status,
+                    'attendance_id' => $userAttendance?->id,
                 ];
             }
         }
