@@ -81,8 +81,11 @@
                                 (canMarkAttendance() || session.type === 'game') ? 'cursor-pointer hover:shadow-md hover:scale-[1.02]' : ''
                             ]"
                         >
-                            <div x-show="session.is_cancelled" class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none z-10">
+                            <div x-show="session.is_cancelled" class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none z-10 px-1">
                                 <span class="bg-red-500/90 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm rotate-[-12deg] tracking-wider">Anulat</span>
+                                <template x-if="session.cancellation_reason">
+                                    <p class="text-[8px] font-bold text-red-600 dark:text-red-400 mt-4 bg-white/80 dark:bg-slate-900/80 px-1 rounded line-clamp-2 text-center" x-text="session.cancellation_reason"></p>
+                                </template>
                             </div>
 
                             <div :class="{'opacity-50 grayscale': session.is_cancelled}">
@@ -160,10 +163,10 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <template x-if="canMarkAttendance() && attendanceSession && attendanceSession.type === 'training' && attendanceSession.training_id">
-                         <button @click="toggleCancelInstance()" class="text-sm px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1"
+                         <button @click="openCancelModal()" class="text-sm px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1"
                                  :class="attendanceSession.is_cancelled ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'">
                              <span class="material-symbols-outlined text-[16px]" x-text="attendanceSession.is_cancelled ? 'restore' : 'cancel'"></span>
-                             <span x-text="attendanceSession.is_cancelled ? 'Restaurează' : 'Anulează Sesiunea'"></span>
+                             <span x-text="attendanceSession.is_cancelled ? 'Restaurează / Anulează' : 'Anulează Sesiunea'"></span>
                          </button>
                     </template>
                     <button @click="closeAttendance()" class="text-slate-400 hover:text-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl p-2 transition-colors">
@@ -265,6 +268,50 @@
                         <p class="text-2xl font-black text-slate-400" x-text="attendanceMembers.filter(m => !m.status).length"></p>
                         <p class="text-xs text-slate-500">Neînregistrați</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ====== Instance Cancellation Modal ====== --}}
+    <div x-show="showCancelModal" style="display:none" @keydown.escape.window="closeCancelModal()"
+         class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div @click.outside="closeCancelModal()" class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 flex flex-col">
+            
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <h2 class="font-bold text-slate-900 dark:text-white text-lg">Anulare Antrenament</h2>
+                <button @click="closeCancelModal()" class="text-slate-400 hover:text-slate-600 rounded-xl p-2 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="p-6">
+                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 mb-6 flex gap-3">
+                    <span class="material-symbols-outlined text-amber-500">warning</span>
+                    <div class="text-sm text-amber-800 dark:text-amber-300">
+                        <p class="font-bold">Atenție!</p>
+                        <p>Anularea acestei sesiuni va fi vizibilă pentru toți membrii și aceștia vor primi o notificare pe mesagerie.</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 shadow-sm block">Motivul Anulării (Opțional)</label>
+                    <textarea x-model="cancelReason" rows="3" placeholder="ex: Antrenorul este indisponibil, Sala este ocupată..."
+                              class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary shadow-sm resize-none"></textarea>
+                </div>
+
+                <div class="flex gap-3">
+                    <button @click="closeCancelModal()"
+                            class="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-50 transition-all">
+                        Renunță
+                    </button>
+                    <button @click="confirmToggleCancel()" :disabled="cancelling"
+                            class="flex-[2] px-4 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 flex items-center justify-center gap-2">
+                        <template x-if="cancelling">
+                            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        </template>
+                        <span>Anulează Sesiunea</span>
+                    </button>
                 </div>
             </div>
         </div>

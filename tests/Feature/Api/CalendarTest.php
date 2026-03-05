@@ -79,7 +79,7 @@ class CalendarTest extends TestCase
         $this->assertNotContains('2026-03-13', $dates);
     }
 
-    public function test_calendar_excludes_cancelled_training_instances(): void
+    public function test_calendar_marks_cancelled_training_instances(): void
     {
         // Monday, March 9, 2026
         $targetMonday = '2026-03-09';
@@ -107,10 +107,15 @@ class CalendarTest extends TestCase
         $response->assertStatus(200);
         $data = $response->json('data');
 
-        $dates = collect($data)->where('training_id', $training->id)->pluck('date')->toArray();
+        // March 2 should be there and NOT cancelled
+        $sessionMarch2 = collect($data)->first(fn($s) => $s['training_id'] === $training->id && $s['date'] === '2026-03-02');
+        $this->assertNotNull($sessionMarch2);
+        $this->assertFalse($sessionMarch2['is_cancelled']);
 
-        // March 2 should be there, March 9 should NOT
-        $this->assertContains('2026-03-02', $dates);
-        $this->assertNotContains('2026-03-09', $dates);
+        // March 9 should be there AND marked as cancelled
+        $sessionMarch9 = collect($data)->first(fn($s) => $s['training_id'] === $training->id && $s['date'] === '2026-03-09');
+        $this->assertNotNull($sessionMarch9, 'Cancelled session should still be in the calendar response');
+        $this->assertTrue($sessionMarch9['is_cancelled']);
+        $this->assertEquals('Holiday', $sessionMarch9['cancellation_reason']);
     }
 }

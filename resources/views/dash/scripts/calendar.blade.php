@@ -181,6 +181,7 @@ Alpine.data('calendarManager', () => ({
     },
 
     closeAttendance() {
+        if (this.showCancelModal) return;
         this.showAttendanceModal = false;
         this.attendanceSession = null;
         this.attendanceMembers = [];
@@ -215,22 +216,38 @@ Alpine.data('calendarManager', () => ({
         this.savingAttendance = { ...this.savingAttendance, [member.user_id]: false };
     },
 
-    async toggleCancelInstance() {
+    // --- Cancellation Modal ---
+    showCancelModal: false,
+    cancelReason: '',
+    cancelling: false,
+
+    openCancelModal() {
         if (!this.attendanceSession) return;
-        const s = this.attendanceSession;
-        
+        if (this.attendanceSession.is_cancelled) {
+            // If already cancelled, we use the restore logic directly with a confirm
+            this.confirmToggleCancel();
+            return;
+        }
+        this.cancelReason = '';
+        this.showCancelModal = true;
+    },
+
+    closeCancelModal() {
+        this.showCancelModal = false;
+    },
+
+    async confirmToggleCancel() {
+        const s = this.attendanceSession;        
+        if (!s) return;
+
         let url = `/api/trainings/${s.training_id}/cancel-instance`;
         let method = s.is_cancelled ? 'DELETE' : 'POST';
-        let body = {};
-
-        if (!s.is_cancelled) {
-            let reason = prompt("Motivul anulării (opțional):");
-            if (reason === null) return; // User cancelled prompt
-            body.reason = reason;
-        } else {
+        
+        if (s.is_cancelled) {
             if (!confirm("Ești sigur că vrei să restaurezi această sesiune?")) return;
         }
 
+        this.cancelling = true;
         try {
             const req = {
                 method: method,
@@ -239,7 +256,10 @@ Alpine.data('calendarManager', () => ({
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                 },
-                body: JSON.stringify({ date: s.date, ...body })
+                body: JSON.stringify({ 
+                    date: s.date,
+                    reason: this.cancelReason 
+                })
             };
 
             const res = await fetch(url, req);
@@ -247,13 +267,20 @@ Alpine.data('calendarManager', () => ({
 
             if (res.ok) {
                 window.showToast(data.message || (s.is_cancelled ? 'Sesiune restaurată.' : 'Sesiune anulată.'));
+                this.closeCancelModal();
                 this.closeAttendance();
                 this.fetchSessions();
             } else {
-                window.showToast(data.message || 'Eroare la modificare.', 'error');
+                let msg = data.message || 'Eroare la modificare.';
+                if (data.errors) {
+                    msg = Object.values(data.errors).flat().join(' ');
+                }
+                window.showToast(msg, 'error');
             }
         } catch(e) {
             window.showToast("Eroare de rețea.", 'error');
+        } finally {
+            this.cancelling = false;
         }
     },
 

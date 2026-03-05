@@ -133,18 +133,16 @@ class AttendanceService
                     return false;
                 }
 
-                // Check cancellations
-                if ($t->cancellations->contains(function($c) use ($dateStr) {
-                    $cDate = $c->date instanceof Carbon ? $c->date->format('Y-m-d') : $c->date;
-                    return $cDate === $dateStr;
-                })) {
-                    return false;
-                }
-
                 return true;
             });
 
             foreach ($todaysTrainings as $training) {
+                // Check if cancelled
+                $cancellation = $training->cancellations->first(function($c) use ($dateStr) {
+                    $cDate = $c->date instanceof Carbon ? $c->date->format('Y-m-d') : $c->date;
+                    return $cDate === $dateStr;
+                });
+
                 $sessions[] = [
                     'id' => 'training_' . $training->id . '_' . $dateStr,
                     'type' => 'training',
@@ -155,6 +153,8 @@ class AttendanceService
                     'end_time' => $training->end_time,
                     'location' => $training->location->name ?? 'Nespecificat',
                     'training_id' => $training->id,
+                    'is_cancelled' => (bool)$cancellation,
+                    'cancellation_reason' => $cancellation?->reason,
                     'squad' => $training->squad->name ?? null,
                     'team' => $training->team->name ?? null,
                     'date' => $dateStr,

@@ -11,11 +11,13 @@ class TrainingController extends Controller
 {
     protected $eventService;
     protected $teamSquadService;
+    protected $chatService;
 
-    public function __construct(EventService $eventService, TeamSquadService $teamSquadService)
+    public function __construct(EventService $eventService, TeamSquadService $teamSquadService, \App\Services\ChatService $chatService)
     {
         $this->eventService = $eventService;
         $this->teamSquadService = $teamSquadService;
+        $this->chatService = $chatService;
     }
 
     public function index(Request $request)
@@ -136,15 +138,64 @@ class TrainingController extends Controller
 
         $validated = $request->validate([
             'date' => 'required|date_format:Y-m-d',
-            'reason' => 'nullable|string|max:255',
+            'reason' => 'nullable|string|max:1000',
         ]);
+
+        \Log::info('Training cancellation attempt', [
+            'training_id' => $id,
+            'date' => $validated['date'],
+            'reason' => $validated['reason'] ?? 'none'
+        ]);
+
+        $reason = $request->input('reason');
+        if (empty(trim($reason ?? ''))) {
+            $reason = 'Nespecificat';
+        }
 
         $training->cancellations()->updateOrCreate(
         ['date' => $validated['date']],
-        ['reason' => $validated['reason'] ?? null]
+        ['reason' => $reason === 'Nespecificat' ? null : $reason]
         );
 
-        return response()->json(['message' => 'Sesiunea de antrenament a fost anulată.']);
+        // Send notifications
+        $this->sendCancellationNotifications($training, $validated['date'], $reason, $user);
+
+        \Log::info('Training cancellation successful', ['id' => $id]);
+
+        return response()->json([
+            'message' => 'Sesiunea de antrenament a fost anulată și notificările au fost trimise.',
+            'reason' => $reason
+        ]);
+    }
+
+    protected function sendCancellationNotifications($training, $date, $reason, $sender)
+    {
+        $squad = $training->squad()->with('users.parents')->first();
+        if (!$squad)
+            return;
+
+        $formattedDate = \Carbon\Carbon::parse($date)->locale('ro')->translatedFormat('l, d F');
+        $messageContent = "Bună ziua! Sesiunea de antrenament din data de {$formattedDate} ({$training->start_time}) a fost ANULATĂ. Motiv: {$reason}";
+
+        $notifiedUserIds = [];
+
+        foreach ($squad->users as $athlete) {
+            // Send to athlete
+            if (!isset($notifiedUserIds[$athlete->id])) {
+                $conversation = $this->chatService->getConversation($sender->id, $athlete->id);
+                $this->chatService->sendMessage($conversation, $sender->id, $messageContent);
+                $notifiedUserIds[$athlete->id] = true;
+            }
+
+            // Send to parents
+            foreach ($athlete->parents as $parent) {
+                if (!isset($notifiedUserIds[$parent->id])) {
+                    $conversation = $this->chatService->getConversation($sender->id, $parent->id);
+                    $this->chatService->sendMessage($conversation, $sender->id, $messageContent);
+                    $notifiedUserIds[$parent->id] = true;
+                }
+            }
+        }
     }
 
     public function uncancelInstance(Request $request, $id)
