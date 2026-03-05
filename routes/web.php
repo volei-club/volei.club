@@ -2,10 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashAuthController;
+use App\Http\Controllers\LanguageController;
 
 Route::get('/', function () {
     return view('home');
 });
+
+Route::get('/lang/{locale}', [LanguageController::class , 'setLocale'])->name('lang.switch');
 
 Route::get('/login', function () {
     return redirect()->route('dash.login');

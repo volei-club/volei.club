@@ -13,7 +13,7 @@ return [
         'about' => 'About the app',
         'how_it_works' => 'How it works?',
         'notify_me' => 'Keep me updated',
-        'early_access' => 'Acces timpuriu',
+        'early_access' => 'Early access',
     ],
     'hero' => [
         'in_development' => 'The application is in development stage',

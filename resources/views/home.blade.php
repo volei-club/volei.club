@@ -204,7 +204,11 @@
                         href="#cum-functioneaza">{{ __('home.nav.how_it_works') }}</a>
                 </div>
                 <div class="flex items-center gap-4">
-
+                    <div class="flex items-center gap-2 mr-2">
+                        <a href="{{ route('lang.switch', 'ro') }}" class="text-xs font-bold {{ App::getLocale() == 'ro' ? 'text-primary' : 'text-slate-400 hover:text-slate-600' }}">RO</a>
+                        <span class="text-slate-300 text-xs">|</span>
+                        <a href="{{ route('lang.switch', 'en') }}" class="text-xs font-bold {{ App::getLocale() == 'en' ? 'text-primary' : 'text-slate-400 hover:text-slate-600' }}">EN</a>
+                    </div>
                     <a class="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-md shadow-primary/20"
                         href="#contact">
                         {{ __('home.nav.notify_me') }}
