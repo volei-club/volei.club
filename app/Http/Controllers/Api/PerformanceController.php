@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\PerformanceLog;
 use App\Services\PerformanceService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
