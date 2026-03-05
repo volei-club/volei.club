@@ -22,7 +22,7 @@ class AuditController extends Controller
         $logs = $this->auditService->listLogs($request->user(), $request);
 
         if ($logs === null) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_audit.unauthorized')], 403);
         }
 
         return response()->json($logs);

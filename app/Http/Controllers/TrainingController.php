@@ -26,7 +26,7 @@ class TrainingController extends Controller
     {
         $trainings = $this->eventService->listTrainings($request);
         if ($trainings === null) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
         }
         return response()->json($trainings);
     }
@@ -36,7 +36,7 @@ class TrainingController extends Controller
         $user = $request->user();
 
         if (!in_array($user->role, ['administrator', 'manager'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -73,11 +73,11 @@ class TrainingController extends Controller
         $training = $this->eventService->getTrainingById($id);
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('api_trainings.forbidden')], 403);
         }
 
         if ($user->role !== 'administrator' && $user->role !== 'manager') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -114,11 +114,11 @@ class TrainingController extends Controller
         $training = $this->eventService->getTrainingById($id);
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('api_trainings.forbidden')], 403);
         }
 
         if ($user->role !== 'administrator' && $user->role !== 'manager') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
         }
 
         $training->delete();
@@ -131,11 +131,11 @@ class TrainingController extends Controller
         $training = $this->eventService->getTrainingById($id);
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('api_trainings.forbidden')], 403);
         }
 
         if ($user->role !== 'administrator' && $user->role !== 'manager' && $user->role !== 'antrenor') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -151,12 +151,12 @@ class TrainingController extends Controller
 
         $reason = $request->input('reason');
         if (empty(trim($reason ?? ''))) {
-            $reason = __('trainings.notifications.unspecified_reason');
+            $reason = __('api_trainings.notifications.unspecified_reason');
         }
 
         $training->cancellations()->updateOrCreate(
         ['date' => $validated['date']],
-        ['reason' => $reason === __('trainings.notifications.unspecified_reason') ? null : $reason]
+        ['reason' => $reason === __('api_trainings.notifications.unspecified_reason') ? null : $reason]
         );
 
         // Send notifications
@@ -165,7 +165,7 @@ class TrainingController extends Controller
         Log::info('Training cancellation successful', ['id' => $id]);
 
         return response()->json([
-            'message' => __('trainings.notifications.cancellation_success'),
+            'message' => __('api_trainings.notifications.cancellation_success'),
             'reason' => $reason
         ]);
     }
@@ -176,8 +176,10 @@ class TrainingController extends Controller
         if (!$squad)
             return;
 
-        $formattedDate = Carbon::parse($date)->locale(app()->getLocale())->isoFormat('dddd, D MMMM');
-        $messageContent = __('trainings.notifications.cancellation_message', [
+        /** @var \Carbon\Carbon $parsedDate */
+        $parsedDate = Carbon::parse($date);
+        $formattedDate = $parsedDate->locale(app()->getLocale())->isoFormat('dddd, D MMMM');
+        $messageContent = __('api_trainings.notifications.cancellation_message', [
             'date' => $formattedDate,
             'time' => substr($training->start_time, 0, 5),
             'reason' => $reason
@@ -210,11 +212,11 @@ class TrainingController extends Controller
         $training = $this->eventService->getTrainingById($id);
 
         if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('api_trainings.forbidden')], 403);
         }
 
         if ($user->role !== 'administrator' && $user->role !== 'manager' && $user->role !== 'antrenor') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -223,6 +225,6 @@ class TrainingController extends Controller
 
         $training->cancellations()->where('date', $validated['date'])->delete();
 
-        return response()->json(['message' => __('trainings.notifications.restore_success')]);
+        return response()->json(['message' => __('api_trainings.notifications.restore_success')]);
     }
 }

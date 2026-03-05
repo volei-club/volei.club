@@ -24,7 +24,7 @@ class LocationController extends Controller
     {
         $user = $request->user();
         if (!in_array($user->role, ['administrator', 'manager'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_locations.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -47,11 +47,11 @@ class LocationController extends Controller
         $location = $this->clubService->getLocationById($id);
 
         if (!in_array($user->role, ['administrator', 'manager'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_locations.unauthorized')], 403);
         }
 
         if ($user->role === 'manager' && $location->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('api_locations.forbidden')], 403);
         }
 
         $validated = $request->validate([
@@ -69,11 +69,11 @@ class LocationController extends Controller
         $location = $this->clubService->getLocationById($id);
 
         if (!in_array($user->role, ['administrator', 'manager'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_locations.unauthorized')], 403);
         }
 
         if ($user->role === 'manager' && $location->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('api_locations.forbidden')], 403);
         }
 
         $error = $this->clubService->canDeleteLocation($location);

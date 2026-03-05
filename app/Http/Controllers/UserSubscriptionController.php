@@ -28,13 +28,13 @@ class UserSubscriptionController extends Controller
         ]);
 
         if (!$this->subscriptionService->canManageSubscription($request->user(), $request->user_id)) {
-            return response()->json(['message' => 'Nu poti asocia abonamente acestui sportiv.'], 403);
+            return response()->json(['message' => __('api_user_subscriptions.cannot_assign')], 403);
         }
 
         $userSubscription = $this->subscriptionService->assignToUser($request->all());
 
         return response()->json([
-            'message' => 'Subscription assigned to user successfully.',
+            'message' => __('api_user_subscriptions.assigned_success'),
             'data' => $userSubscription->load('subscription')
         ], 201);
     }
@@ -53,13 +53,13 @@ class UserSubscriptionController extends Controller
         $userSubscription = $this->subscriptionService->getUserSubscriptionById($id);
 
         if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
-            return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
+            return response()->json(['message' => __('api_user_subscriptions.no_permission')], 403);
         }
 
         $this->subscriptionService->updateUserSubscription($userSubscription, $request->only(['status', 'starts_at', 'subscription_id']));
 
         return response()->json([
-            'message' => 'Abonament actualizat.',
+            'message' => __('api_user_subscriptions.updated_success'),
             'data' => $userSubscription->load('subscription')
         ]);
     }
@@ -72,12 +72,12 @@ class UserSubscriptionController extends Controller
         $userSubscription = $this->subscriptionService->getUserSubscriptionById($id);
 
         if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
-            return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
+            return response()->json(['message' => __('api_user_subscriptions.no_permission')], 403);
         }
 
         $userSubscription->delete();
 
-        return response()->json(['message' => 'Abonament șters.']);
+        return response()->json(['message' => __('api_user_subscriptions.deleted_success')]);
     }
 
     /**
@@ -92,13 +92,13 @@ class UserSubscriptionController extends Controller
         $userSubscription = $this->subscriptionService->getUserSubscriptionById($id);
 
         if (!$this->subscriptionService->canManageSubscription($request->user(), $userSubscription->user_id)) {
-            return response()->json(['message' => 'Nu aveti permisiunea.'], 403);
+            return response()->json(['message' => __('api_user_subscriptions.no_permission')], 403);
         }
 
         $userSubscription->update(['status' => $request->status]);
 
         return response()->json([
-            'message' => 'Status actualizat.',
+            'message' => __('api_user_subscriptions.status_updated'),
             'data' => $userSubscription->load('subscription')
         ]);
     }
@@ -112,7 +112,7 @@ class UserSubscriptionController extends Controller
         $targetUserId = $request->query('user_id', $user->id);
 
         if (!$this->subscriptionService->canViewSubscription($user, $targetUserId)) {
-            return response()->json(['message' => 'Acces interzis.'], 403);
+            return response()->json(['message' => __('api_user_subscriptions.forbidden')], 403);
         }
 
         $subscriptions = $this->subscriptionService->getAthleteSubscriptions($targetUserId);

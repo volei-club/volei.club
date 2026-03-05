@@ -44,7 +44,7 @@ class DashAuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Datele de autentificare sunt incorecte.',
+            'email' => __('auth.failed'),
         ])->onlyInput('email');
     }
 
@@ -67,7 +67,7 @@ class DashAuthController extends Controller
         $user = $this->userService->getUserById($userId);
 
         if (!$user || !$this->authService->verify2FA($user, $request->code)) {
-            return back()->withErrors(['code' => 'Codul este invalid sau a expirat.']);
+            return back()->withErrors(['code' => __('auth.2fa_invalid')]);
         }
 
         $remember = $request->session()->get('2fa_remember', false);
@@ -82,17 +82,17 @@ class DashAuthController extends Controller
     {
         $userId = $request->session()->get('2fa_user_id');
         if (!$userId) {
-            return response()->json(['success' => false, 'message' => 'User not found in session'], 400);
+            return response()->json(['success' => false, 'message' => __('auth.user_not_found')], 400);
         }
 
         $user = $this->userService->getUserById($userId);
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+            return response()->json(['success' => false, 'message' => __('auth.user_not_found')], 404);
         }
 
         $this->authService->generateAndSend2FA($user);
 
-        return response()->json(['success' => true, 'message' => 'Codul a fost retrimis.']);
+        return response()->json(['success' => true, 'message' => __('auth.2fa_resent')]);
     }
 
     public function showRecovery()
@@ -104,7 +104,7 @@ class DashAuthController extends Controller
     {
         if (!$this->authService->validateResetToken($token)) {
             return redirect()->route('dash.login')
-                ->withErrors(['email' => 'Link-ul de resetare este invalid sau a fost deja folosit.']);
+                ->withErrors(['email' => __('auth.password_reset_error')]);
         }
 
         return view('dash.auth.reset', ['token' => $token]);
@@ -121,7 +121,7 @@ class DashAuthController extends Controller
             $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->user();
         }
         catch (\Exception $e) {
-            return redirect()->route('dash.login')->withErrors(['email' => 'Eroare la conectarea cu Google. Trebuie instalat pachetul laravel/socialite sau configurat client id/secret.']);
+            return redirect()->route('dash.login')->withErrors(['email' => __('auth.google_error')]);
         }
 
         $user = $this->userService->getUserByEmail($googleUser->getEmail());

@@ -21,7 +21,7 @@ class GameController extends Controller
     {
         $games = $this->eventService->listGames($request);
         if ($games === null) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_games.unauthorized')], 403);
         }
         return response()->json($games);
     }
@@ -30,7 +30,7 @@ class GameController extends Controller
     {
         $user = $request->user();
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_games.unauthorized')], 403);
         }
 
         $squad = $this->teamSquadService->getSquadById($request->squad_id, ['team']);
@@ -73,12 +73,12 @@ class GameController extends Controller
     {
         $user = $request->user();
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_games.unauthorized')], 403);
         }
         $game = $this->eventService->getGameById($id);
 
         if ($user->role === 'manager' && $game->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_games.unauthorized')], 403);
         }
 
         if ($request->has('squad_id')) {
@@ -122,12 +122,12 @@ class GameController extends Controller
     {
         $user = $request->user();
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_games.unauthorized')], 403);
         }
         $game = $this->eventService->getGameById($id);
 
         if ($user->role === 'manager' && $game->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_games.unauthorized')], 403);
         }
 
         $game->delete();

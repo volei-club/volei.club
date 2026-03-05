@@ -23,7 +23,7 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         if (!in_array($user->role, ['administrator', 'manager'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_subscriptions.unauthorized')], 403);
         }
 
         $definitions = $this->subscriptionService->listDefinitions($request);
@@ -53,11 +53,11 @@ class SubscriptionController extends Controller
             $clubId = $request->club_id;
         }
         else {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_subscriptions.unauthorized')], 403);
         }
 
         if (!$clubId) {
-            return response()->json(['message' => 'Club ID is required.'], 400);
+            return response()->json(['message' => __('api_subscriptions.club_required')], 400);
         }
 
         $subscription = $this->subscriptionService->createDefinition([
@@ -68,7 +68,7 @@ class SubscriptionController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Subscription created successfully',
+            'message' => __('api_subscriptions.created_success'),
             'data' => $subscription->load('club')
         ], 201);
     }
@@ -82,7 +82,7 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         if ($user->role === 'manager' && $subscription->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_subscriptions.unauthorized')], 403);
         }
 
         $request->validate([
@@ -94,7 +94,7 @@ class SubscriptionController extends Controller
         $updated = $this->subscriptionService->updateDefinition($subscription, $request->only(['name', 'price', 'period']));
 
         return response()->json([
-            'message' => 'Subscription updated successfully',
+            'message' => __('api_subscriptions.updated_success'),
             'data' => $updated->load('club')
         ]);
     }
@@ -108,15 +108,15 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         if ($user->role === 'manager' && $subscription->club_id !== $user->club_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_subscriptions.unauthorized')], 403);
         }
 
         if ($subscription->userSubscriptions()->count() > 0) {
-            return response()->json(['message' => 'Acest abonament este in uz de catre unii membri. Nu poate fi sters.'], 400);
+            return response()->json(['message' => __('api_subscriptions.in_use_error')], 400);
         }
 
         $subscription->delete();
 
-        return response()->json(['message' => 'Subscription deleted successfully']);
+        return response()->json(['message' => __('api_subscriptions.deleted_success')]);
     }
 }
