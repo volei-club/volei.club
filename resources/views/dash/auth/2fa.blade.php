@@ -2,7 +2,7 @@
 <html lang="ro"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Volei.Club Verificare 2FA</title>
+<title>{{ __('frontend.auth.2fa.title') }}</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
@@ -52,9 +52,9 @@
 <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Volei.Club</span>
 </div>
 <div class="text-center mb-8">
-<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Securitate cont</h1>
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ __('frontend.auth.2fa.account_security') }}</h1>
 <p class="text-slate-500 dark:text-slate-400 text-[15px] leading-relaxed">
-    Am trimis un cod de verificare prin email la adresa contului tău. Te rugăm să introduci codul de 6 cifre mai jos.
+    {{ __('frontend.auth.2fa.email_sent') }}
 </p>
 </div>
 <form @submit.prevent="verifyCode" class="space-y-6" x-data="twoFactorForm()">
@@ -67,15 +67,15 @@
 
 <div class="text-center" x-data="resendTimer()">
 <p class="text-sm text-slate-500 dark:text-slate-400">
-                    Nu ai primit codul? 
+                    {{ __('frontend.auth.2fa.not_received') }} 
                     <button @click="resend()" :disabled="timeLeft > 0 || isLoading" :class="timeLeft > 0 ? 'text-slate-400 cursor-not-allowed' : 'text-primary hover:text-primary-dark cursor-pointer'" class="ml-1 font-semibold transition-colors" type="button">
-                        Retrimite codul <span x-show="timeLeft > 0" x-text="`(${formattedTime})`" class="text-primary/60 font-mono"></span>
+                        {{ __('frontend.auth.2fa.resend') }} <span x-show="timeLeft > 0" x-text="`(${formattedTime})`" class="text-primary/60 font-mono"></span>
 </button>
 </p>
 </div>
 
 <button type="submit" :disabled="isLoading" class="w-full h-14 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] flex items-center justify-center gap-2">
-    <span x-show="!isLoading">Verifică și continuă</span>
+    <span x-show="!isLoading">{{ __('frontend.auth.2fa.verify_continue') }}</span>
     <span x-show="isLoading" class="material-symbols-outlined animate-spin" style="display: none;">progress_activity</span>
 </button>
 </form>
@@ -120,10 +120,10 @@
                         sessionStorage.removeItem('2fa_user_id');
                         window.location.href = '/dash';
                     } else {
-                        this.errorMessage = data.message || 'Cod invalid.';
+                        this.errorMessage = data.message || '{{ __('frontend.auth.2fa.invalid_code') }}';
                     }
                 } catch (error) {
-                    this.errorMessage = 'Eroare de conexiune.';
+                    this.errorMessage = '{{ __('frontend.auth.2fa.connection_error') }}';
                 } finally {
                     this.isLoading = false;
                 }
@@ -172,10 +172,10 @@
                         this.formattedTime = '01:00';
                         this.startTimer();
                     } else {
-                        alert(data.message || 'Eroare la retrimitere');
+                        alert(data.message || '{{ __('frontend.auth.2fa.resend_error') }}');
                     }
                 } catch (error) {
-                    alert('Eroare de conexiune');
+                    alert('{{ __('frontend.auth.2fa.connection_error') }}');
                 }
             }
         }));

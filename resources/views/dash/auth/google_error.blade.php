@@ -2,7 +2,7 @@
 <html lang="ro"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Volei.Club Eroare Autentificare</title>
+<title>{{ __('frontend.auth.google_error.title') }}</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -49,14 +49,14 @@
 <span class="material-symbols-outlined" style="font-size: 36px;">error</span>
 </div>
 
-<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Cont inexistent</h1>
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">{{ __('frontend.auth.google_error.account_not_found') }}</h1>
 <p class="text-slate-500 dark:text-slate-400 text-[15px] leading-relaxed mb-8">
-    Adresa de e-mail <br/><strong class="text-slate-700 dark:text-slate-200">{{ $email }}</strong><br/> nu este asociată niciunui cont administrativ existent în sistemul <span class="font-semibold text-slate-800 dark:text-slate-100">Volei.Club</span>.<br><br>Te rugăm să te conectezi cu o altă adresă de e-mail sau să contactezi administratorul sistemului.
+    {{ __('frontend.auth.google_error.message_p1') }} <br/><strong class="text-slate-700 dark:text-slate-200">{{ $email }}</strong><br/> {{ __('frontend.auth.google_error.message_p2') }} <span class="font-semibold text-slate-800 dark:text-slate-100">Volei.Club</span>.<br><br>{{ __('frontend.auth.google_error.message_p3') }}
 </p>
 
 <a href="{{ route('dash.login') }}" class="w-full h-12 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/25 active:scale-[0.98] flex items-center justify-center gap-2 mb-4">
     <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-    Înapoi la Autentificare
+    {{ __('frontend.auth.google_error.back_to_login') }}
 </a>
 
 </div>

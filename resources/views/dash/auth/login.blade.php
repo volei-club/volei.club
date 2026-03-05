@@ -3,7 +3,7 @@
 <html lang="ro"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Volei.Club Admin Login</title>
+<title>{{ __('frontend.auth.login.title') }}</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
@@ -47,8 +47,8 @@
 <span class="text-2xl font-bold tracking-tight self-center text-slate-900 dark:text-white">Volei.Club</span>
 </div>
 <div class="text-center lg:text-left mb-8">
-<h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Bine ai revenit!</h1>
-<p class="text-slate-500 dark:text-slate-400">Introdu datele pentru a accesa panoul de control</p>
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">{{ __('frontend.auth.login.welcome_back') }}</h1>
+<p class="text-slate-500 dark:text-slate-400">{{ __('frontend.auth.login.enter_details') }}</p>
 </div>
 <form @submit.prevent="submitLogin" class="space-y-6" x-data="loginForm()">
 <!-- Global Error Message -->
@@ -59,9 +59,9 @@
 
 <!-- Email Field -->
 <div class="space-y-2">
-<label class="text-sm font-medium text-slate-900 dark:text-slate-100" for="email">Email</label>
+<label class="text-sm font-medium text-slate-900 dark:text-slate-100" for="email">{{ __('frontend.auth.login.email_label') }}</label>
 <div class="relative">
-<input x-model="email" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="ex: admin@volei.club" type="email" :disabled="isLoading"/>
+<input x-model="email" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="{{ __('frontend.auth.login.email_placeholder') }}" type="email" :disabled="isLoading"/>
 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
 <span class="material-symbols-outlined">mail</span>
 </div>
@@ -69,7 +69,7 @@
 </div>
 <!-- Password Field -->
 <div class="space-y-2">
-<label class="text-sm font-medium text-slate-900 dark:text-slate-100" for="password">Parolă</label>
+<label class="text-sm font-medium text-slate-900 dark:text-slate-100" for="password">{{ __('frontend.auth.login.password_label') }}</label>
 <div class="relative">
 <input x-model="password" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="password" placeholder="••••••••" :type="show ? 'text' : 'password'" :disabled="isLoading"/>
 <button @click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" type="button">
@@ -81,13 +81,13 @@
 <div class="flex items-center justify-between text-sm">
 <label class="flex items-center gap-2 cursor-pointer">
 <input x-model="remember" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
-<span class="text-slate-600 dark:text-slate-300">Ține-mă minte</span>
+<span class="text-slate-600 dark:text-slate-300">{{ __('frontend.auth.login.remember_me') }}</span>
 </label>
-<a class="font-semibold text-primary hover:text-primary-dark transition-colors" href="{{ route('dash.recovery') }}">Ai uitat parola?</a>
+<a class="font-semibold text-primary hover:text-primary-dark transition-colors" href="{{ route('dash.recovery') }}">{{ __('frontend.auth.login.forgot_password') }}</a>
 </div>
 <!-- Submit Button -->
 <button type="submit" :disabled="isLoading" class="w-full h-12 bg-primary hover:bg-primary-dark disabled:opacity-75 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] flex items-center justify-center gap-2">
-        <span x-show="!isLoading">Autentificare</span>
+        <span x-show="!isLoading">{{ __('frontend.auth.login.login_button') }}</span>
         <span x-show="isLoading" class="material-symbols-outlined animate-spin" style="display: none;">progress_activity</span>
 </button>
 </form>
@@ -127,10 +127,10 @@
                         sessionStorage.setItem('2fa_user_id', data.user_id);
                         window.location.href = '/dash/2fa';
                     } else {
-                        this.errorMessage = data.message || 'Date incorecte.';
+                        this.errorMessage = data.message || '{{ __('frontend.auth.login.invalid_credentials') }}';
                     }
                 } catch (error) {
-                    this.errorMessage = 'A apărut o eroare de conexiune. Te rugăm să încerci din nou.';
+                    this.errorMessage = '{{ __('frontend.auth.login.connection_error') }}';
                 } finally {
                     this.isLoading = false;
                 }
@@ -144,7 +144,7 @@
 <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
 </div>
 <div class="relative flex justify-center text-xs uppercase">
-<span class="bg-white dark:bg-slate-900 px-2 text-slate-500">Sau continuă cu</span>
+<span class="bg-white dark:bg-slate-900 px-2 text-slate-500">{{ __('frontend.auth.login.or_continue_with') }}</span>
 </div>
 </div>
 <!-- Google Login -->
@@ -155,7 +155,7 @@
 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
 </svg>
-                    Conectează-te cu Google
+                    {{ __('frontend.auth.login.login_with_google') }}
                 </a>
 </div>
 </div>
@@ -169,7 +169,7 @@
 <!-- Floating Badge -->
 <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 mb-8 shadow-xl animate-bounce" style="animation-duration: 3s;">
 <span class="w-2 h-2 rounded-full bg-green-400"></span>
-<span class="text-sm font-medium tracking-wide">Management Complet</span>
+<span class="text-sm font-medium tracking-wide">{{ __('frontend.auth.login.badge') }}</span>
 </div>
 <!-- Mockup Card -->
 <div class="relative group perspective-1000">
@@ -230,9 +230,9 @@
 <div class="absolute -z-20 -right-12 -bottom-12 w-full h-full bg-white/5 rounded-2xl transform rotate-6"></div>
 </div>
 <div class="mt-12 text-center">
-<h2 class="text-2xl font-bold mb-2">Gestionează totul dintr-un singur loc</h2>
+<h2 class="text-2xl font-bold mb-2">{{ __('frontend.auth.login.manage_everything') }}</h2>
 <p class="text-blue-100 text-sm leading-relaxed max-w-xs mx-auto">
-                        Monitorizează jucătorii, programează antrenamentele și gestionează finanțele clubului cu ușurință.
+                        {{ __('frontend.auth.login.manage_description') }}
                     </p>
 </div>
 </div>

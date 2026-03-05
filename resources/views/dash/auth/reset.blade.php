@@ -2,7 +2,7 @@
 <html lang="ro"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Volei.Club Resetare Parolă</title>
+<title>{{ __('frontend.auth.reset.title') }}</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
@@ -53,9 +53,9 @@
 <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Volei.Club</span>
 </div>
 <div class="text-center mb-8">
-<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Setați o parolă nouă</h1>
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ __('frontend.auth.reset.set_new_password') }}</h1>
 <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                    Introduceți o nouă parolă de cel puțin 8 caractere pentru contul dumneavoastră.
+                    {{ __('frontend.auth.reset.instructions') }}
                 </p>
 </div>
 <form @submit.prevent="submitReset" class="space-y-6" x-data="resetForm('{{ $token }}')">
@@ -66,9 +66,9 @@
 </div>
 
 <div class="space-y-2">
-<label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1" for="email">Adresă de email</label>
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1" for="email">{{ __('frontend.auth.reset.email_label') }}</label>
 <div class="relative">
-<input x-model="email" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="Introdu adresa de email" type="email" :disabled="isLoading"/>
+<input x-model="email" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-slate-400" id="email" placeholder="{{ __('frontend.auth.reset.email_placeholder') }}" type="email" :disabled="isLoading"/>
 <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400">
 <span class="material-symbols-outlined text-[20px]">mail</span>
 </div>
@@ -76,7 +76,7 @@
 </div>
 
 <div class="space-y-2">
-<label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1" for="password">Noua parolă</label>
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1" for="password">{{ __('frontend.auth.reset.new_password_label') }}</label>
 <div class="relative">
 <input x-model="password" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="password" :type="show ? 'text' : 'password'" :disabled="isLoading"/>
 <button @click="show = !show" type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -86,7 +86,7 @@
 </div>
 
 <div class="space-y-2">
-<label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1" for="password_confirmation">Confirmare parolă</label>
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1" for="password_confirmation">{{ __('frontend.auth.reset.confirm_password_label') }}</label>
 <div class="relative">
 <input x-model="password_confirmation" required class="w-full h-12 pl-4 pr-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="password_confirmation" :type="showConf ? 'text' : 'password'" :disabled="isLoading"/>
 <button @click="showConf = !showConf" type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -96,7 +96,7 @@
 </div>
 
 <button type="submit" :disabled="isLoading" class="w-full h-12 bg-primary hover:bg-primary-dark disabled:opacity-75 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/25 active:scale-[0.98] flex items-center justify-center gap-2">
-    <span x-show="!isLoading">Schimbă parola</span>
+    <span x-show="!isLoading">{{ __('frontend.auth.reset.reset_password_button') }}</span>
     <span x-show="isLoading" class="material-symbols-outlined animate-spin" style="display: none;">progress_activity</span>
 </button>
 </form>
@@ -138,17 +138,17 @@
                     
                     if (response.ok && data.status === 'success') {
                         this.isSuccess = true;
-                        this.message = data.message || 'Parola a fost resetată cu succes!';
+                        this.message = data.message || '{{ __('frontend.auth.reset.success_message') }}';
                         setTimeout(() => {
                             window.location.href = '/dash/login';
                         }, 2000);
                     } else {
                         this.isSuccess = false;
-                        this.message = data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Te rugăm să verifici datele introduse.');
+                        this.message = data.message || (data.errors ? Object.values(data.errors)[0][0] : '{{ __('frontend.auth.reset.check_data') }}');
                     }
                 } catch (error) {
                     this.isSuccess = false;
-                    this.message = 'A apărut o eroare de conexiune. Te rugăm să încerci din nou.';
+                    this.message = '{{ __('frontend.auth.reset.connection_error') }}';
                 } finally {
                     this.isLoading = false;
                 }
@@ -159,7 +159,7 @@
 <div class="mt-10 flex justify-center">
 <a class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary transition-colors group" href="{{ route('dash.login') }}">
 <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                    Înapoi la autentificare
+                    {{ __('frontend.auth.reset.back_to_login') }}
                 </a>
 </div>
 </div>

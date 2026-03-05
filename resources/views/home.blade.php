@@ -5,19 +5,19 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Volei.Club - Aplicație Abonamente pentru Cluburi de Volei din Iași</title>
+    <title>{{ __('home.meta.title') }}</title>
     <meta name="description"
-        content="Gestionează-ți clubul de volei din Iași cu Volei.Club. Aplicație completă pentru abonamente, prezență, antrenamente și management sportiv eficient.">
+        content="{{ __('home.meta.description') }}">
     <meta name="keywords"
-        content="club volei iasi, aplicatie abonamente volei, management club sportiv iasi, volei club, abonamente sportivi">
+        content="{{ __('home.meta.keywords') }}">
     <link rel="canonical" href="https://volei.club" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://volei.club">
-    <meta property="og:title" content="Volei.Club - Aplicație Abonamente pentru Cluburi de Volei din Iași">
+    <meta property="og:title" content="{{ __('home.meta.og_title') }}">
     <meta property="og:description"
-        content="Platforma completă pentru managementul clubului tău de volei - Abonamente, Prezență, Scoruri.">
+        content="{{ __('home.meta.og_description') }}">
     <meta property="og:image" content="https://volei.club/og-image.jpg">
 
     <!-- Structured Data -->
@@ -28,7 +28,7 @@
       "name": "Volei.Club",
       "operatingSystem": "Web, iOS, Android",
       "applicationCategory": "SportsApplication",
-      "description": "Platforma de management sportiv dedicată cluburilor de volei, inclusiv gestionarea abonamentelor și prezenței.",
+      "description": "{{ __('home.meta.schema_description') }}",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -199,15 +199,15 @@
                 </div>
                 <div class="hidden md:flex space-x-8">
                     <a class="text-slate-600 hover:text-primary font-medium transition-colors"
-                        href="#despre-aplicatie">Despre aplicație</a>
+                        href="#despre-aplicatie">{{ __('home.nav.about') }}</a>
                     <a class="text-slate-600 hover:text-primary font-medium transition-colors"
-                        href="#cum-functioneaza">Cum funcționează ?</a>
+                        href="#cum-functioneaza">{{ __('home.nav.how_it_works') }}</a>
                 </div>
                 <div class="flex items-center gap-4">
 
                     <a class="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-md shadow-primary/20"
                         href="#contact">
-                        Ține-mă la curent
+                        {{ __('home.nav.notify_me') }}
                     </a>
                 </div>
             </div>
@@ -231,26 +231,24 @@
                         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                Aplicația se află în stadiul de dezvoltare
+                {{ __('home.hero.in_development') }}
             </span>
             <h1
                 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
-                Platforma completă pentru <br class="hidden md:block" />
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sky-500">managementul
-                    clubului tău</span> de volei
+                {{ __('home.hero.title_p1') }} <br class="hidden md:block" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sky-500">{{ __('home.hero.title_p2') }}</span> {{ __('home.hero.title_p3') }}
             </h1>
             <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-                Simplifică administrarea, planificarea antrenamentelor și comunicarea cu părinții. Tot ce ai nevoie
-                pentru a duce clubul tău la nivelul următor.
+                {{ __('home.hero.subtitle') }}
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a class="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-lg shadow-lg shadow-primary/25 transition-all transform hover:-translate-y-1"
                     href="#contact">
-                    Ține-mă la curent
+                    {{ __('home.hero.notify_me') }}
                 </a>
                 <a class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-bold text-lg shadow-sm transition-all"
                     href="{{ route('dash.login') }}">
-                    Acces anticipat
+                    {{ __('home.hero.early_access') }}
                 </a>
             </div>
         </div>
@@ -273,7 +271,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-1">
                             <div class="flex justify-between items-start">
-                                <p class="text-slate-500 text-sm font-medium">Jucători Activi</p>
+                                <p class="text-slate-500 text-sm font-medium">{{ __('home.dashboard_preview.active_players') }}</p>
                                 <span
                                     class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">+5%</span>
                             </div>
@@ -281,7 +279,7 @@
                         </div>
                         <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-1">
                             <div class="flex justify-between items-start">
-                                <p class="text-slate-500 text-sm font-medium">Meciuri Viitoare</p>
+                                <p class="text-slate-500 text-sm font-medium">{{ __('home.dashboard_preview.upcoming_matches') }}</p>
                                 <span
                                     class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">+5</span>
                             </div>
@@ -289,7 +287,7 @@
                         </div>
                         <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-1">
                             <div class="flex justify-between items-start">
-                                <p class="text-slate-500 text-sm font-medium">Venituri (RON)</p>
+                                <p class="text-slate-500 text-sm font-medium">{{ __('home.dashboard_preview.revenue') }}</p>
                                 <span
                                     class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">+12%</span>
                             </div>
@@ -298,9 +296,9 @@
                         </div>
                         <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-1">
                             <div class="flex justify-between items-start">
-                                <p class="text-slate-500 text-sm font-medium">Prezență</p>
+                                <p class="text-slate-500 text-sm font-medium">{{ __('home.dashboard_preview.attendance') }}</p>
                                 <span
-                                    class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">Avg</span>
+                                    class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">{{ __('home.dashboard_preview.avg') }}</span>
                             </div>
                             <p class="text-slate-900 text-2xl font-bold counter" data-target="92" data-suffix="%">
                                 92%
@@ -311,11 +309,11 @@
                         <!-- Chart Section -->
                         <div class="lg:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-6">
                             <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-lg font-bold text-slate-900">Performanță Jucători</h3>
+                                <h3 class="text-lg font-bold text-slate-900">{{ __('home.dashboard_preview.player_performance') }}</h3>
                                 <select
                                     class="text-sm border-slate-200 rounded-md py-1 px-2 text-slate-600 focus:ring-primary focus:border-primary">
-                                    <option>Ultima lună</option>
-                                    <option>Ultimul trimestru</option>
+                                    <option>{{ __('home.dashboard_preview.last_month') }}</option>
+                                    <option>{{ __('home.dashboard_preview.last_quarter') }}</option>
                                 </select>
                             </div>
                             <div
@@ -359,12 +357,12 @@
                                 </div>
                             </div>
                             <div class="flex justify-between mt-2 text-xs text-slate-400 font-medium px-2">
-                                <span>Ian</span><span>Feb</span><span>Mar</span><span>Apr</span><span>Mai</span><span>Iun</span>
+                                <span>{{ __('home.dashboard_preview.months.jan') }}</span><span>{{ __('home.dashboard_preview.months.feb') }}</span><span>{{ __('home.dashboard_preview.months.mar') }}</span><span>{{ __('home.dashboard_preview.months.apr') }}</span><span>{{ __('home.dashboard_preview.months.may') }}</span><span>{{ __('home.dashboard_preview.months.jun') }}</span>
                             </div>
                         </div>
                         <!-- Mini List Section -->
                         <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-6 flex flex-col">
-                            <h3 class="text-lg font-bold text-slate-900 mb-4">Antrenamente Azi</h3>
+                            <h3 class="text-lg font-bold text-slate-900 mb-4">{{ __('home.dashboard_preview.trainings_today') }}</h3>
                             <div class="flex flex-col gap-3 flex-1 overflow-y-auto">
                                 <div
                                     class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 cursor-pointer">
@@ -373,8 +371,8 @@
                                         <span class="material-symbols-outlined text-xl">sports_volleyball</span>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm font-bold text-slate-900">Juniori U18</p>
-                                        <p class="text-xs text-slate-500">16:00 - 18:00 • Sala Polivalentă</p>
+                                        <p class="text-sm font-bold text-slate-900">{{ __('home.dashboard_preview.training_1_title') }}</p>
+                                        <p class="text-xs text-slate-500">{{ __('home.dashboard_preview.training_1_desc') }}</p>
                                     </div>
                                     <span class="material-symbols-outlined text-slate-300">chevron_right</span>
                                 </div>
@@ -385,8 +383,8 @@
                                         <span class="material-symbols-outlined text-xl">fitness_center</span>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm font-bold text-slate-900">Pregătire Fizică</p>
-                                        <p class="text-xs text-slate-500">18:30 - 19:30 • Gym</p>
+                                        <p class="text-sm font-bold text-slate-900">{{ __('home.dashboard_preview.training_2_title') }}</p>
+                                        <p class="text-xs text-slate-500">{{ __('home.dashboard_preview.training_2_desc') }}</p>
                                     </div>
                                     <span class="material-symbols-outlined text-slate-300">chevron_right</span>
                                 </div>
@@ -397,8 +395,8 @@
                                         <span class="material-symbols-outlined text-xl">groups</span>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm font-bold text-slate-900">Cadete Fete</p>
-                                        <p class="text-xs text-slate-500">19:00 - 21:00 • Sala 2</p>
+                                        <p class="text-sm font-bold text-slate-900">{{ __('home.dashboard_preview.training_3_title') }}</p>
+                                        <p class="text-xs text-slate-500">{{ __('home.dashboard_preview.training_3_desc') }}</p>
                                     </div>
                                     <span class="material-symbols-outlined text-slate-300">chevron_right</span>
                                 </div>
@@ -413,10 +411,8 @@
     <section class="py-20 bg-white" id="despre-aplicatie">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">Despre aplicație</h2>
-                <p class="text-lg text-slate-600">Tot ce ai nevoie pentru a gestiona un club de succes, într-o
-                    singură
-                    aplicație intuitivă.</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">{{ __('home.features.title') }}</h2>
+                <p class="text-lg text-slate-600">{{ __('home.features.subtitle') }}</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal">
                 <!-- Feature 1 -->
@@ -426,10 +422,8 @@
                         class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Administrare Club Iași</h3>
-                    <p class="text-slate-600">Gestionează echipe, antrenori și membri din Iași dintr-un singur loc.
-                        Roluri și
-                        permisiuni personalizabile.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f1_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f1_desc') }}</p>
                 </div>
                 <!-- Feature 2 -->
                 <div
@@ -438,10 +432,8 @@
                         class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">sports_handball</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Conectare</h3>
-                    <p class="text-slate-600">Definește staff-ul tehnic, lotul de jucători și conectează părinții
-                        pentru
-                        o comunicare transparentă și eficientă..</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f2_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f2_desc') }}</p>
                 </div>
                 <!-- Feature 3 -->
                 <div
@@ -450,9 +442,8 @@
                         class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">calendar_month</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Planificare &amp; Calendar</h3>
-                    <p class="text-slate-600">Calendar interactiv pentru antrenamente. Notificări automate pentru
-                        modificări de program.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f3_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f3_desc') }}</p>
                 </div>
                 <!-- Feature 4 -->
                 <div
@@ -461,9 +452,8 @@
                         class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">scoreboard</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Programare Meciuri</h3>
-                    <p class="text-slate-600">Organizează meciuri amicale și oficiale. Ține evidența scorurilor și a
-                        locațiilor.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f4_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f4_desc') }}</p>
                 </div>
                 <!-- Feature 5 -->
                 <div
@@ -472,9 +462,8 @@
                         class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">fact_check</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Prezență Digitală</h3>
-                    <p class="text-slate-600">Monitorizare prezență în timp real prin aplicația mobilă. Rapoarte
-                        detaliate de participare.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f5_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f5_desc') }}</p>
                 </div>
                 <!-- Feature 6 -->
                 <div
@@ -483,10 +472,8 @@
                         class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">payments</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Abonamente &amp; Plăți</h3>
-                    <p class="text-slate-600">Urmărește abonamentele sportivilor din clubul tău de volei. Generează
-                        facturi și trimite
-                        remindere automate părinților.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f6_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f6_desc') }}</p>
                 </div>
                 <!-- Feature 7 -->
                 <div
@@ -495,9 +482,8 @@
                         class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">monitoring</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Statistici Jucători</h3>
-                    <p class="text-slate-600">Analizează progresul sportivilor. Grafice de performanță și istoric
-                        medical.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f7_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f7_desc') }}</p>
                 </div>
                 <!-- Feature 8 -->
                 <div
@@ -506,9 +492,8 @@
                         class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">family_restroom</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Portal Părinți</h3>
-                    <p class="text-slate-600">Acces dedicat pentru părinți pentru a vedea programul, mesajele și a
-                        efectua plăți.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f8_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f8_desc') }}</p>
                 </div>
                 <!-- Feature 9 -->
                 <div
@@ -517,9 +502,8 @@
                         class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center text-cyan-600 mb-6 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-2xl">dashboard</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Dashboards dedicate</h3>
-                    <p class="text-slate-600">Interfețe specifice pentru antrenori, admini și jucători, adaptate
-                        nevoilor fiecărui rol.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ __('home.features.f9_title') }}</h3>
+                    <p class="text-slate-600">{{ __('home.features.f9_desc') }}</p>
                 </div>
             </div>
         </div>
@@ -531,18 +515,17 @@
                 <div class="lg:w-1/2">
                     <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100">
                         <div class="flex items-center justify-between mb-4">
-                            <h4 class="font-bold text-slate-800">Management Meciuri</h4>
-                            <button class="text-primary text-sm font-bold bg-blue-50 px-3 py-1 rounded-md">Adaugă
-                                Meci</button>
+                            <h4 class="font-bold text-slate-800">{{ __('home.match_management.card_title') }}</h4>
+                            <button class="text-primary text-sm font-bold bg-blue-50 px-3 py-1 rounded-md">{{ __('home.match_management.add_match') }}</button>
                         </div>
                         <div class="space-y-3">
                             <!-- Header (Hidden on small mobile) -->
                             <div
                                 class="hidden sm:grid sm:grid-cols-4 gap-4 px-4 py-3 bg-slate-50 rounded-lg text-xs text-slate-700 uppercase font-bold">
-                                <div>Echipa</div>
-                                <div>Data</div>
-                                <div>Status</div>
-                                <div class="text-right">Scor</div>
+                                <div>{{ __('home.match_management.table.team') }}</div>
+                                <div>{{ __('home.match_management.table.date') }}</div>
+                                <div>{{ __('home.match_management.table.status') }}</div>
+                                <div class="text-right">{{ __('home.match_management.table.score') }}</div>
                             </div>
 
                             <!-- List / Rows -->
@@ -550,12 +533,11 @@
                                 <!-- Row 1 -->
                                 <div
                                     class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-4 sm:px-4 sm:py-3 bg-white border border-slate-100 sm:border-0 sm:border-b rounded-2xl sm:rounded-none shadow-sm sm:shadow-none items-center">
-                                    <div class="col-span-2 sm:col-span-1 font-bold text-slate-900 truncate">vs CSM
-                                        București</div>
+                                    <div class="col-span-2 sm:col-span-1 font-bold text-slate-900 truncate">{{ __('home.match_management.vs_csm') }}</div>
                                     <div class="text-slate-500 text-xs sm:text-sm">12 Oct, 18:00</div>
                                     <div class="flex items-center">
                                         <span
-                                            class="bg-green-100 text-green-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">Confirmat</span>
+                                            class="bg-green-100 text-green-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">{{ __('home.match_management.status_confirmed') }}</span>
                                     </div>
                                     <div class="text-right font-black sm:font-normal text-slate-400 sm:text-slate-900">
                                         -
@@ -565,13 +547,12 @@
                                 <!-- Row 2 -->
                                 <div
                                     class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-4 sm:px-4 sm:py-3 bg-white border border-slate-100 sm:border-0 sm:border-b rounded-2xl sm:rounded-none shadow-sm sm:shadow-none items-center">
-                                    <div class="col-span-2 sm:col-span-1 font-bold text-slate-900 truncate">vs Rapid
+                                    <div class="col-span-2 sm:col-span-1 font-bold text-slate-900 truncate">{{ __('home.match_management.vs_rapid') }}
                                     </div>
                                     <div class="text-slate-500 text-xs sm:text-sm">19 Oct, 11:00</div>
                                     <div class="flex items-center">
                                         <span
-                                            class="bg-yellow-100 text-yellow-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">În
-                                            așteptare</span>
+                                            class="bg-yellow-100 text-yellow-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">{{ __('home.match_management.status_pending') }}</span>
                                     </div>
                                     <div class="text-right font-black sm:font-normal text-slate-400 sm:text-slate-900">
                                         -
@@ -581,13 +562,12 @@
                                 <!-- Row 3 -->
                                 <div
                                     class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-4 sm:px-4 sm:py-3 bg-white border border-slate-100 sm:border-0 rounded-2xl sm:rounded-none shadow-sm sm:shadow-none items-center">
-                                    <div class="col-span-2 sm:col-span-1 font-bold text-slate-900 truncate">vs
-                                        Dinamo
+                                    <div class="col-span-2 sm:col-span-1 font-bold text-slate-900 truncate">{{ __('home.match_management.vs_dinamo') }}
                                     </div>
                                     <div class="text-slate-500 text-xs sm:text-sm">05 Oct, 17:00</div>
                                     <div class="flex items-center">
                                         <span
-                                            class="bg-slate-100 text-slate-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">Finalizat</span>
+                                            class="bg-slate-100 text-slate-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">{{ __('home.match_management.status_finished') }}</span>
                                     </div>
                                     <div class="text-right font-black text-primary">3 - 1</div>
                                 </div>
@@ -596,26 +576,21 @@
                     </div>
                 </div>
                 <div class="lg:w-1/2">
-                    <span class="text-primary font-bold tracking-wider uppercase text-sm">Organizare
-                        Eficientă</span>
-                    <h2 class="text-3xl font-extrabold text-slate-900 mt-2 mb-4">Nu pierde niciodată un detaliu
-                        important</h2>
-                    <p class="text-lg text-slate-600 mb-6">Fie că e vorba de programarea meciurilor, gestionarea
-                        transportului sau evidența scorurilor, aplicația îți oferă un tabel de bord centralizat
-                        pentru
-                        toate activitățile competiționale.</p>
+                    <span class="text-primary font-bold tracking-wider uppercase text-sm">{{ __('home.match_management.badge') }}</span>
+                    <h2 class="text-3xl font-extrabold text-slate-900 mt-2 mb-4">{{ __('home.match_management.title') }}</h2>
+                    <p class="text-lg text-slate-600 mb-6">{{ __('home.match_management.description') }}</p>
                     <ul class="space-y-3">
                         <li class="flex items-center gap-3 text-slate-700">
                             <span class="material-symbols-outlined text-green-500">check_circle</span>
-                            Notificări automate pentru părinți și jucători
+                            {{ __('home.match_management.checks.notifications') }}
                         </li>
                         <li class="flex items-center gap-3 text-slate-700">
                             <span class="material-symbols-outlined text-green-500">check_circle</span>
-                            Export rapid în format PDF sau Excel
+                            {{ __('home.match_management.checks.export') }}
                         </li>
                         <li class="flex items-center gap-3 text-slate-700">
                             <span class="material-symbols-outlined text-green-500">check_circle</span>
-                            Istoric complet al rezultatelor
+                            {{ __('home.match_management.checks.history') }}
                         </li>
                     </ul>
                 </div>
@@ -624,29 +599,28 @@
                 <div class="lg:w-1/2 w-full">
                     <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100">
                         <div class="mb-4 pb-4 border-b border-slate-100">
-                            <h4 class="font-bold text-slate-800">Configurare Club</h4>
-                            <p class="text-xs text-slate-500">Setări generale și preferințe</p>
+                            <h4 class="font-bold text-slate-800">{{ __('home.club_config.card_title') }}</h4>
+                            <p class="text-xs text-slate-500">{{ __('home.club_config.card_subtitle') }}</p>
                         </div>
                         <div class="space-y-4">
                             <div>
-                                <label class="block mb-1 text-sm font-medium text-slate-700">Nume Club</label>
+                                <label class="block mb-1 text-sm font-medium text-slate-700">{{ __('home.club_config.labels.club_name') }}</label>
                                 <input
                                     class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
-                                    type="text" value="Volei Club Junior" />
+                                    type="text" value="{{ __('home.club_config.placeholder_club') }}" />
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block mb-1 text-sm font-medium text-slate-700">Sport
-                                        Principal</label>
+                                    <label class="block mb-1 text-sm font-medium text-slate-700">{{ __('home.club_config.labels.main_sport') }}</label>
                                     <select
                                         class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5">
-                                        <option selected="">Volei</option>
-                                        <option>Baschet</option>
-                                        <option>Handbal</option>
+                                        <option selected="">{{ __('home.club_config.sports.volleyball') }}</option>
+                                        <option>{{ __('home.club_config.sports.basketball') }}</option>
+                                        <option>{{ __('home.club_config.sports.handball') }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block mb-1 text-sm font-medium text-slate-700">Sezon</label>
+                                    <label class="block mb-1 text-sm font-medium text-slate-700">{{ __('home.club_config.labels.season') }}</label>
                                     <input
                                         class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
                                         type="text" value="2023-2024" />
@@ -656,39 +630,32 @@
                                 role="alert">
                                 <span class="material-symbols-outlined mr-2 text-primary">info</span>
                                 <div>
-                                    <span class="font-medium">Sfat:</span> Activează plățile online pentru a
-                                    automatiza
-                                    încasările lunare.
+                                    <span class="font-medium">{{ __('home.club_config.tip') }}</span> {{ __('home.club_config.tip_message') }}
                                 </div>
                             </div>
                             <button
-                                class="w-full text-white bg-primary hover:bg-primary-dark focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Salvează
-                                Modificările</button>
+                                class="w-full text-white bg-primary hover:bg-primary-dark focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">{{ __('home.club_config.save_button') }}</button>
                         </div>
                     </div>
                 </div>
                 <div class="lg:w-1/2">
-                    <span class="text-primary font-bold tracking-wider uppercase text-sm">Personalizare
-                        Totală</span>
-                    <h2 class="text-3xl font-extrabold text-slate-900 mt-2 mb-4">Adaptează platforma nevoilor tale
+                    <span class="text-primary font-bold tracking-wider uppercase text-sm">{{ __('home.club_config.badge') }}</span>
+                    <h2 class="text-3xl font-extrabold text-slate-900 mt-2 mb-4">{{ __('home.club_config.title') }}
                     </h2>
-                    <p class="text-lg text-slate-600 mb-6">Indiferent dacă gestionezi un mic club școlar sau o
-                        academie
-                        de performanță, aplicația se configurează ușor pentru a reflecta structura organizației
-                        tale.
+                    <p class="text-lg text-slate-600 mb-6">{{ __('home.club_config.description') }}
                     </p>
                     <ul class="space-y-3">
                         <li class="flex items-center gap-3 text-slate-700">
                             <span class="material-symbols-outlined text-green-500">check_circle</span>
-                            Definire categorii de vârstă
+                            {{ __('home.club_config.checks.age_categories') }}
                         </li>
                         <li class="flex items-center gap-3 text-slate-700">
                             <span class="material-symbols-outlined text-green-500">check_circle</span>
-                            Gestionare locații și săli
+                            {{ __('home.club_config.checks.locations') }}
                         </li>
                         <li class="flex items-center gap-3 text-slate-700">
                             <span class="material-symbols-outlined text-green-500">check_circle</span>
-                            Setare structură taxe și abonamente
+                            {{ __('home.club_config.checks.fees') }}
                         </li>
                     </ul>
                 </div>
@@ -699,8 +666,8 @@
     <section class="py-20 bg-white" id="cum-functioneaza">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">Cum funcționează?</h2>
-                <p class="text-lg text-slate-600">Patru pași simpli pentru a digitaliza clubul tău.</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">{{ __('home.how_it_works.title') }}</h2>
+                <p class="text-lg text-slate-600">{{ __('home.how_it_works.subtitle') }}</p>
             </div>
             <div class="relative">
                 <!-- Connecting Line (Desktop) -->
@@ -712,37 +679,32 @@
                         <div
                             class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 ring-4 ring-white relative z-10">
                             1</div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2">Înregistrează-te</h3>
-                        <p class="text-slate-500 text-sm">Creează contul clubului și configurează detaliile de bază
-                            în
-                            câteva minute.</p>
+                        <h3 class="font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">{{ __('home.how_it_works.step1_title') }}</h3>
+                    <p class="text-slate-500 text-sm italic">{{ __('home.how_it_works.step1_desc') }}</p>
                     </div>
                     <!-- Step 2 -->
                     <div class="bg-white p-6 rounded-xl border border-slate-100 text-center shadow-sm">
                         <div
                             class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 ring-4 ring-white relative z-10">
                             2</div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2">Adaugă Echipe</h3>
-                        <p class="text-slate-500 text-sm">Importă lista de jucători, creează grupele și asignează
-                            antrenorii.</p>
+                        <h3 class="font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">{{ __('home.how_it_works.step2_title') }}</h3>
+                    <p class="text-slate-500 text-sm italic">{{ __('home.how_it_works.step2_desc') }}</p>
                     </div>
                     <!-- Step 3 -->
                     <div class="bg-white p-6 rounded-xl border border-slate-100 text-center shadow-sm">
                         <div
                             class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 ring-4 ring-white relative z-10">
                             3</div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2">Planifică</h3>
-                        <p class="text-slate-500 text-sm">Setează orarul antrenamentelor și meciurilor în calendarul
-                            interactiv.</p>
+                        <h3 class="font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">{{ __('home.how_it_works.step3_title') }}</h3>
+                    <p class="text-slate-500 text-sm italic">{{ __('home.how_it_works.step3_desc') }}</p>
                     </div>
                     <!-- Step 4 -->
                     <div class="bg-white p-6 rounded-xl border border-slate-100 text-center shadow-sm">
                         <div
                             class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 ring-4 ring-white relative z-10">
                             4</div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2">Monitorizează</h3>
-                        <p class="text-slate-500 text-sm">Urmărește prezența, plățile și performanța în timp real.
-                        </p>
+                        <h3 class="font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">{{ __('home.how_it_works.step4_title') }}</h3>
+                    <p class="text-slate-500 text-sm italic">{{ __('home.how_it_works.step4_desc') }}</p>
                     </div>
                 </div>
             </div>
@@ -758,21 +720,17 @@
                 <div class="lg:w-1/2 relative">
                     <span class="step-number">1</span>
                     <div class="relative z-10">
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">Înregistrare și
-                            Configurare
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">{{ __('home.steps_details.step1.title') }}
                         </h2>
                         <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                            Creează profilul clubului tău în câteva secunde. Platforma este optimizată exclusiv
-                            pentru
-                            volei, asigurând că toate setările sunt relevante pentru nevoile tale.
+                            {{ __('home.steps_details.step1.description') }}
                         </p>
                         <ul class="space-y-4">
                             <li class="flex items-start gap-3">
                                 <span class="material-symbols-outlined text-primary mt-1 text-xl">check_circle</span>
                                 <div>
-                                    <strong class="block text-slate-900">Identitate Digitală</strong>
-                                    <span class="text-slate-500 text-sm">Încarcă logo-ul și definește culorile
-                                        clubului.</span>
+                                    <strong class="block text-slate-900">{{ __('home.steps_details.step1.digital_identity') }}</strong>
+                                    <span class="text-slate-500 text-sm">{{ __('home.steps_details.step1.digital_identity_desc') }}</span>
                                 </div>
                             </li>
                         </ul>
@@ -799,33 +757,33 @@
                                     <div
                                         class="w-24 h-24 rounded-full bg-slate-50 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 cursor-pointer">
                                         <span class="material-symbols-outlined text-3xl">add_photo_alternate</span>
-                                        <span class="text-[10px] mt-1 font-bold">Upload Logo</span>
+                                        <span class="text-[10px] mt-1 font-bold">{{ __('home.steps_details.step1.upload_logo') }}</span>
                                     </div>
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="text-xs font-bold text-slate-700 uppercase">Nume Club</label>
+                                    <label class="text-xs font-bold text-slate-700 uppercase">{{ __('home.club_config.labels.club_name') }}</label>
                                     <input
                                         class="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50 text-sm font-bold"
-                                        type="text" value="CS Volei Elite" />
+                                        type="text" value="{{ __('home.steps_details.step1.placeholder_club') }}" />
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="text-xs font-bold text-slate-700 uppercase">Sport</label>
+                                    <label class="text-xs font-bold text-slate-700 uppercase">{{ __('home.steps_details.step1.digital_identity') }}</label>
                                     <div
                                         class="border-2 border-primary bg-blue-50 rounded-xl p-3 flex items-center gap-2">
                                         <span class="material-symbols-outlined text-primary">sports_volleyball</span>
-                                        <span class="text-sm font-bold text-primary">Volei</span>
+                                        <span class="text-sm font-bold text-primary">{{ __('home.club_config.sports.volleyball') }}</span>
                                     </div>
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="text-xs font-bold text-slate-700 uppercase">Localitate</label>
+                                    <label class="text-xs font-bold text-slate-700 uppercase">{{ __('home.steps_details.step1.city') }}</label>
                                     <input
                                         class="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50 text-sm font-bold"
-                                        type="text" value="Iași" />
+                                        type="text" value="{{ __('home.steps_details.step1.city') }}" />
                                 </div>
                             </div>
                             <button
                                 class="w-full bg-primary text-white py-3.5 rounded-xl font-bold mt-8 shadow-lg shadow-primary/20">
-                                Continuă
+                                {{ __('home.steps_details.step1.continue') }}
                             </button>
                         </div>
                     </div>
@@ -850,41 +808,39 @@
                         <div class="flex-1 overflow-hidden flex flex-col relative bg-white">
                             <div class="px-5 pt-6 pb-2">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h3 class="text-xl font-bold text-slate-900">Echipa și Staff</h3>
+                                    <h3 class="text-xl font-bold text-slate-900">{{ __('home.steps_details.step2.card_title') }}</h3>
                                     <button class="bg-primary/10 text-primary p-2 rounded-lg"><span
                                             class="material-symbols-outlined">person_add</span></button>
                                 </div>
                                 <div class="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
                                     <div
                                         class="px-4 py-1.5 bg-primary text-white rounded-full text-xs font-bold whitespace-nowrap">
-                                        Jucători</div>
+                                        {{ __('home.steps_details.step2.tabs.players') }}</div>
                                     <div
                                         class="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold whitespace-nowrap">
-                                        Antrenori</div>
+                                        {{ __('home.steps_details.step2.tabs.coaches') }}</div>
                                     <div
                                         class="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold whitespace-nowrap">
-                                        Părinți</div>
+                                        {{ __('home.steps_details.step2.tabs.parents') }}</div>
                                 </div>
                             </div>
                             <div class="flex-1 overflow-y-auto px-5 pt-2 space-y-4 pb-20">
                                 <div class="pt-2">
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                                        Staff
-                                        Tehnic</p>
+                                        {{ __('home.steps_details.step2.technical_staff') }}</p>
                                     <div class="flex items-center p-3 border border-slate-100 rounded-xl bg-blue-50/50">
                                         <div
                                             class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold mr-3">
                                             MR</div>
                                         <div class="flex-1">
                                             <h4 class="font-bold text-slate-900 text-sm">Marius Radu</h4>
-                                            <span class="text-[10px] text-primary font-bold uppercase">Antrenor
-                                                Principal</span>
+                                            <span class="text-[10px] text-primary font-bold uppercase">{{ __('home.steps_details.step2.head_coach') }}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                                        Jucători Activi</p>
+                                        {{ __('home.steps_details.step2.active_players') }}</p>
                                     <div class="space-y-2">
                                         <div class="flex items-center p-3 border border-slate-100 rounded-xl">
                                             <div
@@ -892,7 +848,7 @@
                                                 IC</div>
                                             <div class="flex-1">
                                                 <h4 class="font-bold text-slate-900 text-sm">Ioana Costin</h4>
-                                                <span class="text-xs text-slate-500">Libero • Parinte: Ion C.</span>
+                                                <span class="text-xs text-slate-500">{{ __('home.steps_details.step2.libero') }} • {{ __('home.steps_details.step2.parent') }}: Ion C.</span>
                                             </div>
                                             <span class="text-sm font-black text-slate-300">#5</span>
                                         </div>
@@ -902,7 +858,7 @@
                                                 VM</div>
                                             <div class="flex-1">
                                                 <h4 class="font-bold text-slate-900 text-sm">Vlad Marin</h4>
-                                                <span class="text-xs text-slate-500">Ridicător • Parinte: Ana
+                                                <span class="text-xs text-slate-500">{{ __('home.steps_details.step2.setter') }} • {{ __('home.steps_details.step2.parent') }}: Ana
                                                     M.</span>
                                             </div>
                                             <span class="text-sm font-black text-slate-300">#8</span>
@@ -911,8 +867,7 @@
                                 </div>
                             </div>
                             <div class="p-4 border-t border-slate-100 bg-white">
-                                <button class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Invită
-                                    Membru Nou</button>
+                                <button class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">{{ __('home.steps_details.step2.invite_member') }}</button>
                             </div>
                         </div>
                     </div>
@@ -920,30 +875,23 @@
                 <div class="lg:w-1/2 relative">
                     <span class="step-number text-slate-200">2</span>
                     <div class="relative z-10">
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">Adaugă Antrenori,
-                            Jucători
-                            și Părinți</h2>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">{{ __('home.steps_details.step2.title') }}</h2>
                         <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                            Organizează întreaga comunitate a clubului tău. Definește staff-ul tehnic, lotul de
-                            jucători
-                            și conectează părinții pentru o comunicare transparentă și eficientă.
+                            {{ __('home.steps_details.step2.description') }}
                         </p>
                         <ul class="space-y-4">
                             <li class="flex items-start gap-3">
                                 <span class="material-symbols-outlined text-primary mt-1 text-xl">check_circle</span>
                                 <div>
-                                    <strong class="block text-slate-900">Roluri bine definite</strong>
-                                    <span class="text-slate-500 text-sm">Fiecare utilizator are acces la
-                                        funcționalitățile potrivite rolului său.</span>
+                                    <strong class="block text-slate-900">{{ __('home.steps_details.step2.roles_title') }}</strong>
+                                    <span class="text-slate-500 text-sm">{{ __('home.steps_details.step2.roles_desc') }}</span>
                                 </div>
                             </li>
                             <li class="flex items-start gap-3">
                                 <span class="material-symbols-outlined text-primary mt-1 text-xl">check_circle</span>
                                 <div>
-                                    <strong class="block text-slate-900">Grupuri de Părinți</strong>
-                                    <span class="text-slate-500 text-sm">Menține părinții informați despre program
-                                        și
-                                        progresul copiilor.</span>
+                                    <strong class="block text-slate-900">{{ __('home.steps_details.step2.parents_groups') }}</strong>
+                                    <span class="text-slate-500 text-sm">{{ __('home.steps_details.step2.parents_groups_desc') }}</span>
                                 </div>
                             </li>
                         </ul>
@@ -958,22 +906,16 @@
                 <div class="lg:w-1/2 relative">
                     <span class="step-number">3</span>
                     <div class="relative z-10">
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">Programează și Marchează
-                            Prezența</h2>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">{{ __('home.steps_details.step3.title') }}</h2>
                         <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                            Transformă modul în care gestionezi antrenamentele. După crearea unui eveniment, poți
-                            marca
-                            prezența instant direct din aplicație. Fără liste pe hârtie, totul digital și gata
-                            pentru
-                            analiză.
+                            {{ __('home.steps_details.step3.description') }}
                         </p>
                         <ul class="space-y-4">
                             <li class="flex items-start gap-3">
                                 <span class="material-symbols-outlined text-primary mt-1 text-xl">check_circle</span>
                                 <div>
-                                    <strong class="block text-slate-900">Interfață Rapidă de Prezență</strong>
-                                    <span class="text-slate-500 text-sm">Toggle simplu pentru prezent/absent/motivat
-                                        pentru fiecare jucător.</span>
+                                    <strong class="block text-slate-900">{{ __('home.steps_details.step3.interface_title') }}</strong>
+                                    <span class="text-slate-500 text-sm">{{ __('home.steps_details.step3.interface_desc') }}</span>
                                 </div>
                             </li>
                         </ul>
@@ -994,9 +936,9 @@
                             <div class="p-5 border-b border-slate-100">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="material-symbols-outlined text-primary">event_available</span>
-                                    <h3 class="font-bold text-slate-900">Prezență Antrenament</h3>
+                                    <h3 class="font-bold text-slate-900">{{ __('home.steps_details.step3.card_title') }}</h3>
                                 </div>
-                                <p class="text-xs text-slate-500 font-medium">Azi, 14 Oct • Sala Polivalentă</p>
+                                <p class="text-xs text-slate-500 font-medium">{{ __('home.steps_details.step3.today_info') }}</p>
                             </div>
                             <div class="flex-1 p-4 space-y-3">
                                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
@@ -1058,8 +1000,7 @@
                             </div>
                             <div class="p-5">
                                 <button
-                                    class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-md">Finalizează
-                                    Raport</button>
+                                    class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-md">{{ __('home.steps_details.step3.finalize_report') }}</button>
                             </div>
                         </div>
                     </div>
@@ -1083,25 +1024,24 @@
                         </div>
                         <div class="flex-1 overflow-y-auto p-5 relative bg-gradient-to-b from-slate-900 to-slate-800">
                             <div class="flex justify-between items-center mb-6 mt-2">
-                                <h3 class="text-xl font-bold">Monitorizare</h3>
-                                <span class="text-xs font-bold bg-white/10 px-2 py-1 rounded text-slate-300">Ultima
-                                    lună</span>
+                                <h3 class="text-xl font-bold">{{ __('home.steps_details.step4.card_title') }}</h3>
+                                <span class="text-xs font-bold bg-white/10 px-2 py-1 rounded text-slate-300">{{ __('home.steps_details.step4.last_month') }}</span>
                             </div>
                             <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div class="bg-primary rounded-2xl p-4 relative overflow-hidden shadow-lg">
-                                    <p class="text-blue-100 text-xs font-bold mb-1">Prezență Lot</p>
+                                    <p class="text-blue-100 text-xs font-bold mb-1">{{ __('home.steps_details.step4.attendance_lot') }}</p>
                                     <p class="text-3xl font-black">92%</p>
                                     <div class="w-full bg-white/20 h-1 mt-2 rounded-full overflow-hidden">
                                         <div class="bg-white h-full w-[92%]"></div>
                                     </div>
                                 </div>
                                 <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-lg">
-                                    <p class="text-slate-400 text-xs font-bold mb-1">Evoluție</p>
+                                    <p class="text-slate-400 text-xs font-bold mb-1">{{ __('home.steps_details.step4.evolution') }}</p>
                                     <p class="text-3xl font-black text-green-400">+5%</p>
-                                    <p class="text-[10px] text-slate-500 mt-1">vs luna trecută</p>
+                                    <p class="text-[10px] text-slate-500 mt-1">{{ __('home.steps_details.step4.vs_last_month') }}</p>
                                 </div>
                             </div>
-                            <h4 class="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Top Prezență
+                            <h4 class="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">{{ __('home.steps_details.step4.top_attendance') }}
                             </h4>
                             <div class="space-y-3">
                                 <div
@@ -1112,7 +1052,7 @@
                                         AP</div>
                                     <div class="flex-1">
                                         <p class="font-bold text-sm">Andrei P.</p>
-                                        <p class="text-[10px] text-slate-400">100% Prezență</p>
+                                        <p class="text-[10px] text-slate-400">100% {{ __('home.steps_details.step4.presence') }}</p>
                                     </div>
                                     <span class="material-symbols-outlined text-yellow-500">star</span>
                                 </div>
@@ -1124,7 +1064,7 @@
                                         MI</div>
                                     <div class="flex-1">
                                         <p class="font-bold text-sm">Maria I.</p>
-                                        <p class="text-[10px] text-slate-400">98% Prezență</p>
+                                        <p class="text-[10px] text-slate-400">98% {{ __('home.steps_details.step4.presence') }}</p>
                                     </div>
                                 </div>
                                 <div
@@ -1135,7 +1075,7 @@
                                         DV</div>
                                     <div class="flex-1">
                                         <p class="font-bold text-sm">Dan V.</p>
-                                        <p class="text-[10px] text-slate-400">95% Prezență</p>
+                                        <p class="text-[10px] text-slate-400">95% {{ __('home.steps_details.step4.presence') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1145,29 +1085,24 @@
                 <div class="lg:w-1/2 relative">
                     <span class="step-number text-slate-200">4</span>
                     <div class="relative z-10">
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">Monitorizează Evoluția
-                            Clubului tău din Iași
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">{{ __('home.steps_details.step4.title') }}
                         </h2>
                         <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                            Ia decizii bazate pe date, nu pe presupuneri. aplicația analizează automat datele de
-                            prezență și performanță, oferindu-ți rapoarte clare despre implicarea fiecărui membru.
+                            {{ __('home.steps_details.step4.description') }}
                         </p>
                         <ul class="space-y-4">
                             <li class="flex items-start gap-3">
                                 <span class="material-symbols-outlined text-primary mt-1 text-xl">check_circle</span>
                                 <div>
-                                    <strong class="block text-slate-900">Statistici Automate</strong>
-                                    <span class="text-slate-500 text-sm">Vezi dintr-o privire cine sunt cei mai
-                                        activi
-                                        jucători din club.</span>
+                                    <strong class="block text-slate-900">{{ __('home.steps_details.step4.stats_title') }}</strong>
+                                    <span class="text-slate-500 text-sm">{{ __('home.steps_details.step4.stats_desc') }}</span>
                                 </div>
                             </li>
                             <li class="flex items-start gap-3">
                                 <span class="material-symbols-outlined text-primary mt-1 text-xl">check_circle</span>
                                 <div>
-                                    <strong class="block text-slate-900">Rapoarte Exportabile</strong>
-                                    <span class="text-slate-500 text-sm">Perfecte pentru contabilitate sau rapoarte
-                                        către conducerea clubului.</span>
+                                    <strong class="block text-slate-900">{{ __('home.steps_details.step4.reports_title') }}</strong>
+                                    <span class="text-slate-500 text-sm">{{ __('home.steps_details.step4.reports_desc') }}</span>
                                 </div>
                             </li>
                         </ul>
@@ -1188,27 +1123,25 @@
                     <!-- Decorative Circle -->
                     <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
                     <div>
-                        <h3 class="text-2xl font-bold mb-4">Ține-mă la curent</h3>
-                        <p class="text-blue-100 mb-6">Completează formularul și te vom contacta pentru a-ți prezenta
-                            cum
-                            aplicația poate transforma clubul tău.</p>
+                        <h3 class="text-2xl font-bold mb-4">{{ __('home.contact.badge') }}</h3>
+                        <p class="text-blue-100 mb-6">{{ __('home.contact.description') }}</p>
                         <ul class="space-y-4">
                             <li class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-blue-200">check</span>
-                                <span>Acces beta la aplicație</span>
+                                <span>{{ __('home.contact.benefits.beta') }}</span>
                             </li>
                             <li class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-blue-200">check</span>
-                                <span>Suport la configurare</span>
+                                <span>{{ __('home.contact.benefits.support') }}</span>
                             </li>
                             <li class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-blue-200">check</span>
-                                <span>Fără obligații</span>
+                                <span>{{ __('home.contact.benefits.no_obligations') }}</span>
                             </li>
                         </ul>
                     </div>
                     <div class="mt-8 text-sm text-blue-200">
-                        Preferi email? <br />
+                        {{ __('home.contact.prefer_email') }} <br />
                         <a class="text-white font-bold underline decoration-blue-300"
                             href="mailto:contact@volei.club">contact@volei.club</a>
                     </div>
@@ -1220,46 +1153,41 @@
                         target="_blank">
                         <div class="grid grid-cols-1 gap-6">
                             <div>
-                                <label class="block mb-2 text-sm font-medium text-slate-900" for="name">Nume
-                                    Complet</label>
+                                <label class="block mb-2 text-sm font-medium text-slate-900" for="name">{{ __('home.contact.form.name') }}</label>
                                 <input
                                     class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3"
                                     id="name" placeholder="Ion Popescu" name="FNAME" required type="text" />
                             </div>
                             <div>
-                                <label class="block mb-2 text-sm font-medium text-slate-900" for="email">Adresă
-                                    Email</label>
+                                <label class="block mb-2 text-sm font-medium text-slate-900" for="email">{{ __('home.contact.form.email') }}</label>
                                 <input
                                     class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3"
                                     id="email" placeholder="ion@exemplu.ro" name="EMAIL" required type="email" />
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium text-slate-900" for="club">Nume
-                                        Club</label>
+                                    <label class="block mb-2 text-sm font-medium text-slate-900" for="club">{{ __('home.contact.form.club') }}</label>
                                     <input
                                         class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3"
                                         id="club" placeholder="CS Volei" name="LNAME" required type="text" />
                                 </div>
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium text-slate-900" for="role">Rolul
-                                        Tău</label>
+                                    <label class="block mb-2 text-sm font-medium text-slate-900" for="role">{{ __('home.contact.form.role') }}</label>
                                     <select name="RTAU"
                                         class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3"
                                         id="role">
-                                        <option>Antrenor</option>
-                                        <option>Manager Club</option>
-                                        <option>Admin</option>
-                                        <option>Altul</option>
+                                        <option>{{ __('home.contact.form.roles.coach') }}</option>
+                                        <option>{{ __('home.contact.form.roles.manager') }}</option>
+                                        <option>{{ __('home.contact.form.roles.admin') }}</option>
+                                        <option>{{ __('home.contact.form.roles.other') }}</option>
                                     </select>
                                 </div>
                             </div>
                             <div>
-                                <label class="block mb-2 text-sm font-medium text-slate-900" for="message">Mesaj
-                                    (Opțional)</label>
+                                <label class="block mb-2 text-sm font-medium text-slate-900" for="message">{{ __('home.contact.form.message') }}</label>
                                 <textarea
                                     class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3"
-                                    id="message" name="MESAJ" placeholder="Spune-ne mai multe despre clubul tău..."
+                                    id="message" name="MESAJ" placeholder="{{ __('home.contact.form.message_placeholder') }}"
                                     rows="3"></textarea>
                             </div>
                             <div style="position: absolute; left: -5000px;" aria-hidden="true">
@@ -1271,7 +1199,7 @@
                             <button
                                 class="w-full text-white bg-slate-900 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-bold rounded-lg text-sm px-5 py-3.5 focus:outline-none transition-colors"
                                 type="submit">
-                                Înregistrează-mi cererea
+                                {{ __('home.contact.form.submit') }}
                             </button>
                         </div>
                     </form>
@@ -1285,11 +1213,11 @@
     <footer class="bg-gray">
         <div class="max-w-7xl mx-auto px-4 pb-4 sm:px-6 lg:px-8">
             <div class="border-slate-200 pt-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-sm text-slate-500">© 2026 volei.club. Toate drepturile rezervate.</p>
+                <p class="text-sm text-slate-500">{{ __('home.footer.rights') }}</p>
                 <span
                     class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
                     <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                    Platformă în dezvoltare
+                    {{ __('home.footer.in_development') }}
                 </span>
             </div>
         </div>

@@ -86,8 +86,8 @@ class DashboardService
         return $query->limit(5)->get()->map(function ($sub) {
             return [
                 'id' => $sub->id,
-                'plan_name' => $sub->subscription->name ?? 'Abonament',
-                'user_name' => $sub->user->name ?? 'Utilizator',
+                'plan_name' => $sub->subscription->name ?? __('calendar.unspecified_plan'),
+                'user_name' => $sub->user->name ?? __('calendar.unspecified_user'),
                 'status' => $sub->status,
                 'created_at' => $sub->created_at->format('d.m.Y')
             ];
@@ -108,9 +108,9 @@ class DashboardService
             $partner = $conv->users->first(fn($u) => $u->id !== $user->id);
             return [
                 'conversation_id' => $conv->id,
-                'other_name' => $partner->name ?? 'Necunoscut',
+                'other_name' => $partner->name ?? __('calendar.unknown_partner'),
                 'other_photo' => $partner->photo ?? null,
-                'last_message' => $conv->lastMessage->content ?? 'Niciun mesaj',
+                'last_message' => $conv->lastMessage->content ?? __('calendar.no_message'),
                 'time' => $conv->updated_at->format('H:i'),
                 'unread' => 0 // Simplified for dash
             ];
@@ -197,7 +197,7 @@ class DashboardService
         $subscriptionData = null;
         if ($activeSubscription) {
             $subscriptionData = [
-                'plan_name' => $activeSubscription->subscription->name ?? 'Abonament',
+                'plan_name' => $activeSubscription->subscription->name ?? __('calendar.unspecified_plan'),
                 'status' => $activeSubscription->status,
                 'expiry' => $activeSubscription->expires_at ?Carbon::parse($activeSubscription->expires_at)->format('d.m.Y') : '-',
             ];

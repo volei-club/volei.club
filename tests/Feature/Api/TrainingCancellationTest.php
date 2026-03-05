@@ -96,7 +96,7 @@ class TrainingCancellationTest extends TestCase
         ]);
 
         $athleteMessage = Message::where('conversation_id', $atheteConversation->id)->first();
-        $this->assertStringContainsString('ANULATĂ', str_replace('anulată', 'ANULATĂ', strtolower($athleteMessage->content)));
+        $this->assertStringContainsStringIgnoringCase('anulat', $athleteMessage->content);
         $this->assertStringContainsString('Emergency maintenance', $athleteMessage->content);
 
         // Check if messages were sent to parent
@@ -111,7 +111,7 @@ class TrainingCancellationTest extends TestCase
         ]);
 
         $parentMessage = Message::where('conversation_id', $parentConversation->id)->first();
-        $this->assertStringContainsString('ANULATĂ', str_replace('anulată', 'ANULATĂ', strtolower($parentMessage->content)));
+        $this->assertStringContainsStringIgnoringCase('anulat', $parentMessage->content);
         $this->assertStringContainsString('Emergency maintenance', $parentMessage->content);
     }
 
@@ -124,13 +124,13 @@ class TrainingCancellationTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('reason', __('trainings.notifications.unspecified_reason'));
+            ->assertJsonPath('reason', __('api_trainings.notifications.unspecified_reason'));
 
         $atheteConversation = Conversation::whereHas('users', fn($q) => $q->where('users.id', $this->athlete->id))
             ->whereHas('users', fn($q) => $q->where('users.id', $this->coach->id))
             ->first();
 
         $message = Message::where('conversation_id', $atheteConversation->id)->latest()->first();
-        $this->assertStringContainsString(__('trainings.notifications.unspecified_reason'), $message->content);
+        $this->assertStringContainsString(__('api_trainings.notifications.unspecified_reason'), $message->content);
     }
 }
