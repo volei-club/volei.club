@@ -39,7 +39,7 @@ class ChatController extends Controller
 
         // Authorization: Check if user is part of the conversation
         if (!$conversation->users->contains($user->id)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_chat.unauthorized')], 403);
         }
 
         // Mark as read when opening conversation
@@ -74,7 +74,7 @@ class ChatController extends Controller
             $conversation = $this->chatService->getConversationById($request->conversation_id, ['users']);
             // Check if user is part of the conversation
             if (!$conversation->users->contains($sender->id)) {
-                return response()->json(['message' => 'Unauthorized'], 403);
+                return response()->json(['message' => __('api_chat.unauthorized')], 403);
             }
         }
         else {
@@ -88,7 +88,7 @@ class ChatController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Mesaj trimis.',
+            'message' => __('api_chat.sent'),
             'data' => $message->load('sender')
         ]);
     }
@@ -129,7 +129,7 @@ class ChatController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Conversație marcată ca citită.'
+            'message' => __('api_chat.marked_read')
         ]);
     }
 }

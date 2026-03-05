@@ -21,7 +21,7 @@ class SquadController extends Controller
     public function index(Request $request)
     {
         if (!in_array($request->user()->role, ['administrator', 'manager', 'antrenor', 'sportiv', 'parinte'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_squads.forbidden')], 403);
         }
 
         $paginator = $this->teamSquadService->listSquads($request);
@@ -46,7 +46,7 @@ class SquadController extends Controller
         $role = $request->user()->role;
 
         if (!in_array($role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_squads.forbidden')], 403);
         }
 
         $validated = $request->validate([
@@ -56,7 +56,7 @@ class SquadController extends Controller
 
         if ($role !== 'administrator') {
             if (!$this->teamSquadService->teamBelongsToClub($validated['team_id'], $request->user()->club_id)) {
-                return response()->json(['status' => 'error', 'message' => 'Eroare: Grupa selectată nu aparține clubului tău.'], 403);
+                return response()->json(['status' => 'error', 'message' => __('api_squads.team_not_in_club')], 403);
             }
         }
 
@@ -65,7 +65,7 @@ class SquadController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Echipă adăugată cu succes!',
+            'message' => __('api_squads.created_success'),
             'data' => $squad->load(['team', 'team.club'])
         ], 201);
     }
@@ -87,14 +87,14 @@ class SquadController extends Controller
         $role = $request->user()->role;
 
         if (!in_array($role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_squads.forbidden')], 403);
         }
 
         $squad = $this->teamSquadService->getSquadById($id);
 
         if ($role !== 'administrator') {
             if ($squad->team->club_id !== $request->user()->club_id) {
-                return response()->json(['status' => 'error', 'message' => 'Vă este permis să editați doar echipele clubului dumneavoastră.'], 403);
+                return response()->json(['status' => 'error', 'message' => __('api_squads.edit_own_club_only')], 403);
             }
         }
 
@@ -105,7 +105,7 @@ class SquadController extends Controller
 
         if ($role !== 'administrator') {
             if (!$this->teamSquadService->teamBelongsToClub($validated['team_id'], $request->user()->club_id)) {
-                return response()->json(['status' => 'error', 'message' => 'Eroare: Noua grupă selectată nu aparține clubului tău.'], 403);
+                return response()->json(['status' => 'error', 'message' => __('api_squads.new_team_not_in_club')], 403);
             }
         }
 
@@ -113,7 +113,7 @@ class SquadController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Echipă actualizată!',
+            'message' => __('api_squads.updated_success'),
             'data' => $updatedSquad->load(['team', 'team.club'])
         ]);
     }
@@ -126,14 +126,14 @@ class SquadController extends Controller
         $role = $request->user()->role;
 
         if (!in_array($role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_squads.forbidden')], 403);
         }
 
         $squad = $this->teamSquadService->getSquadById($id);
 
         if ($role !== 'administrator') {
             if ($squad->team->club_id !== $request->user()->club_id) {
-                return response()->json(['status' => 'error', 'message' => 'Vă este permis să ștergeți doar echipele clubului dumneavoastră.'], 403);
+                return response()->json(['status' => 'error', 'message' => __('api_squads.delete_own_club_only')], 403);
             }
         }
 
@@ -149,7 +149,7 @@ class SquadController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Echipă ștearsă!',
+            'message' => __('api_squads.deleted_success'),
         ]);
     }
 }

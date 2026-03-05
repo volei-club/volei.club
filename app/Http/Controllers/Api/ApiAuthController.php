@@ -33,14 +33,14 @@ class ApiAuthController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Credentials verified, 2FA code sent.',
+                'message' => __('auth.2fa_sent'),
                 'user_id' => $user->id
             ]);
         }
 
         return response()->json([
             'status' => 'error',
-            'message' => 'Datele de autentificare sunt incorecte.'
+            'message' => __('auth.failed')
         ], 401);
     }
 
@@ -56,7 +56,7 @@ class ApiAuthController extends Controller
         if (!$user || !$this->authService->verify2FA($user, $request->code)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Codul este invalid sau a expirat.'
+                'message' => __('auth.2fa_invalid')
             ], 401);
         }
 
@@ -68,7 +68,7 @@ class ApiAuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => '2FA verified successfully.',
+            'message' => __('auth.2fa_verified'),
             'token' => $token,
             'user' => $user
         ]);
@@ -85,7 +85,7 @@ class ApiAuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Codul a fost retrimis.'
+            'message' => __('auth.2fa_resent')
         ]);
     }
 
@@ -95,7 +95,7 @@ class ApiAuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Logged out successfully.'
+            'message' => __('auth.logout')
         ]);
     }
 
@@ -108,13 +108,13 @@ class ApiAuthController extends Controller
         if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Ți-am trimis prin e-mail linkul pentru resetarea parolei!'
+                'message' => __('auth.recovery_sent')
             ]);
         }
 
         return response()->json([
             'status' => 'error',
-            'message' => 'Nu am putut găsi un utilizator cu această adresă de e-mail.'
+            'message' => __('auth.user_not_found')
         ], 400);
     }
 
@@ -133,13 +133,13 @@ class ApiAuthController extends Controller
         if ($status === \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Parola a fost resetată cu succes! Te poți autentifica acum.'
+                'message' => __('auth.password_reset')
             ]);
         }
 
         return response()->json([
             'status' => 'error',
-            'message' => 'Eroare la resetarea parolei. Legătura este invalidă sau a expirat.'
+            'message' => __('auth.password_reset_error')
         ], 400);
     }
 }

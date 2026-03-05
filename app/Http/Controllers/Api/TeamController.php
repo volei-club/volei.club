@@ -42,7 +42,7 @@ class TeamController extends Controller
         $role = $request->user()->role;
 
         if (!in_array($role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_teams.forbidden')], 403);
         }
 
         $rules = [
@@ -63,7 +63,7 @@ class TeamController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Grupa a fost creată cu succes!',
+            'message' => __('api_teams.created_success'),
             'data' => $team
         ], 201);
     }
@@ -76,7 +76,7 @@ class TeamController extends Controller
         $team = $this->teamSquadService->getTeamById($id);
 
         if ($request->user()->role !== 'administrator' && $team->club_id !== $request->user()->club_id) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_teams.unauthorized')], 403);
         }
 
         return response()->json([
@@ -91,13 +91,13 @@ class TeamController extends Controller
     public function update(Request $request, string $id)
     {
         if (!in_array($request->user()->role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_teams.forbidden')], 403);
         }
 
         $team = $this->teamSquadService->getTeamById($id);
 
         if ($request->user()->role !== 'administrator' && $team->club_id !== $request->user()->club_id) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_teams.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -108,7 +108,7 @@ class TeamController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Grupa a fost actualizată!',
+            'message' => __('api_teams.updated_success'),
             'data' => $updatedTeam
         ]);
     }
@@ -119,13 +119,13 @@ class TeamController extends Controller
     public function destroy(Request $request, string $id)
     {
         if (!in_array($request->user()->role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_teams.forbidden')], 403);
         }
 
         $team = $this->teamSquadService->getTeamById($id);
 
         if ($request->user()->role !== 'administrator' && $team->club_id !== $request->user()->club_id) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_teams.unauthorized')], 403);
         }
 
         $error = $this->teamSquadService->canDeleteTeam($team);
@@ -140,7 +140,7 @@ class TeamController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Grupa a fost ștearsă.'
+            'message' => __('api_teams.deleted_success')
         ]);
     }
 }

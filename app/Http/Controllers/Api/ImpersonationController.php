@@ -31,7 +31,7 @@ class ImpersonationController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Te-ai logat ca ' . $targetUser->name,
+                'message' => __('api_impersonation.impersonate_success') . $targetUser->name,
                 'token' => $targetToken->plainTextToken
             ]);
         }
@@ -50,7 +50,7 @@ class ImpersonationController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Sesiunea de impersonare s-a incheiat.'
+            'message' => __('api_impersonation.leave_success')
         ]);
     }
 }

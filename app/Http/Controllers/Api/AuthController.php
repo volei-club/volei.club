@@ -28,14 +28,14 @@ class AuthController extends Controller
 
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
-                'message' => 'Invalid matching credentials'
+                'message' => __('api_auth_standard.invalid_credentials')
             ], 401);
         }
 
         $user = $this->userService->getUserByEmail($request->email);
         if (!$user) {
             return response()->json([
-                'message' => 'User not found'
+                'message' => __('api_auth_standard.user_not_found')
             ], 404);
         }
 

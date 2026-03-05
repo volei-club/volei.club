@@ -24,7 +24,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if (!in_array($request->user()->role, ['administrator', 'manager', 'antrenor', 'parinte'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_users.forbidden')], 403);
         }
 
         $paginator = $this->userService->listUsers($request);
@@ -49,7 +49,7 @@ class UserController extends Controller
         $creator = $request->user();
 
         if (!in_array($creator->role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_users.forbidden')], 403);
         }
 
         $validated = $request->validate([
@@ -72,7 +72,7 @@ class UserController extends Controller
         // Security rules
         if ($creator->role !== 'administrator') {
             if ($validated['role'] === 'administrator' || $validated['role'] === 'manager') {
-                return response()->json(['status' => 'error', 'message' => 'Rol invalid pentru nivelul tău de acces.'], 403);
+                return response()->json(['status' => 'error', 'message' => __('api_users.invalid_role')], 403);
             }
             $validated['club_id'] = $creator->club_id;
         }
@@ -81,7 +81,7 @@ class UserController extends Controller
         if (!empty($validated['team_ids'])) {
             $clubId = $validated['club_id'] ?? $creator->club_id;
             if (!$this->teamSquadService->validateTeamsBelongToClub($validated['team_ids'], $clubId)) {
-                return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
+                return response()->json(['status' => 'error', 'message' => __('api_users.teams_not_in_club')], 422);
             }
         }
 
@@ -89,7 +89,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Utilizator adăugat cu succes!',
+            'message' => __('api_users.created_success'),
             'data' => $newUser
         ], 201);
     }
@@ -102,13 +102,13 @@ class UserController extends Controller
         $creator = $request->user();
 
         if (!in_array($creator->role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_users.forbidden')], 403);
         }
 
         $userToEdit = $this->userService->getUserById($id);
 
         if ($creator->role !== 'administrator' && $userToEdit->club_id !== $creator->club_id) {
-            return response()->json(['status' => 'error', 'message' => 'Nu aveți acces să editați acest utilizator.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_users.cannot_edit')], 403);
         }
 
         $validated = $request->validate([
@@ -130,7 +130,7 @@ class UserController extends Controller
 
         if ($creator->role !== 'administrator') {
             if ($validated['role'] === 'administrator' || $validated['role'] === 'manager') {
-                return response()->json(['status' => 'error', 'message' => 'Rol invalid pentru nivelul tău de acces.'], 403);
+                return response()->json(['status' => 'error', 'message' => __('api_users.invalid_role')], 403);
             }
             $validated['club_id'] = $creator->club_id;
         }
@@ -141,7 +141,7 @@ class UserController extends Controller
             if (!empty($teamIds)) {
                 $clubIdToCheck = $validated['club_id'] ?? $userToEdit->club_id;
                 if (!$this->teamSquadService->validateTeamsBelongToClub($teamIds, $clubIdToCheck)) {
-                    return response()->json(['status' => 'error', 'message' => 'Eroare: Grupele selectate nu aparțin clubului selectat.'], 422);
+                    return response()->json(['status' => 'error', 'message' => __('api_users.teams_not_in_club')], 422);
                 }
             }
         }
@@ -153,7 +153,7 @@ class UserController extends Controller
                 if ($userToEdit->role !== 'antrenor' && $validated['role'] !== 'antrenor') {
                     $assignedTeams = $request->has('team_ids') ? ($validated['team_ids'] ?? []) : $userToEdit->teams->pluck('id')->toArray();
                     if (!$this->teamSquadService->validateSquadsBelongToTeams($squadIds, $assignedTeams)) {
-                        return response()->json(['status' => 'error', 'message' => 'Eroare: Echipele selectate aparțin de alte grupe decât cele asociate utilizatorului.'], 422);
+                        return response()->json(['status' => 'error', 'message' => __('api_users.squads_not_in_teams')], 422);
                     }
                 }
             }
@@ -163,7 +163,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Utilizator actualizat!',
+            'message' => __('api_users.updated_success'),
             'data' => $updatedUser
         ]);
     }
@@ -176,7 +176,7 @@ class UserController extends Controller
         $caller = $request->user();
 
         if (!in_array($caller->role, ['administrator', 'manager'])) {
-            return response()->json(['status' => 'error', 'message' => 'Acces interzis.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_users.forbidden')], 403);
         }
 
         $userToDelete = $this->userService->getUserById($id);
@@ -190,7 +190,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Utilizatorul a fost șters.'
+            'message' => __('api_users.deleted_success')
         ]);
     }
 
@@ -212,7 +212,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Profil actualizat cu succes!',
+            'message' => __('api_users.profile_updated'),
             'data' => $updatedUser->load('club')
         ]);
     }

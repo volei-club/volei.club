@@ -18,13 +18,13 @@ class ExportImportController extends Controller
     public function export(Request $request, $type)
     {
         if ($request->user()->role !== 'administrator') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_export.unauthorized')], 403);
         }
 
         $data = $this->dataTransferService->exportData($type);
 
         if (empty($data)) {
-            return response()->json(['message' => 'Invalid export type or no data found'], 400);
+            return response()->json(['message' => __('api_export.invalid_type')], 400);
         }
 
         return response()->json($data, 200, [
@@ -35,7 +35,7 @@ class ExportImportController extends Controller
     public function import(Request $request)
     {
         if ($request->user()->role !== 'administrator') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_export.unauthorized')], 403);
         }
 
         $request->validate([
@@ -46,15 +46,15 @@ class ExportImportController extends Controller
         $data = json_decode($content, true);
 
         if (!$data) {
-            return response()->json(['message' => 'Invalid JSON file'], 400);
+            return response()->json(['message' => __('api_export.invalid_json')], 400);
         }
 
         try {
             $this->dataTransferService->importData($data);
-            return response()->json(['message' => 'Import completed successfully!']);
+            return response()->json(['message' => __('api_export.import_success')]);
         }
         catch (\Exception $e) {
-            return response()->json(['message' => 'Import failed: ' . $e->getMessage()], 500);
+            return response()->json(['message' => __('api_export.import_failed') . $e->getMessage()], 500);
         }
     }
 }

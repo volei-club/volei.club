@@ -34,7 +34,7 @@ class ClubController extends Controller
     public function store(Request $request)
     {
         if ($request->user()->role !== 'administrator') {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_clubs.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -45,7 +45,7 @@ class ClubController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Club creat cu succes!',
+            'message' => __('api_clubs.created_success'),
             'data' => $club->load('creator')
         ], 201);
     }
@@ -58,7 +58,7 @@ class ClubController extends Controller
         $club = $this->clubService->getClubById($id);
 
         if ($request->user()->role !== 'administrator' && $request->user()->club_id !== $club->id) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_clubs.unauthorized')], 403);
         }
 
         return response()->json([
@@ -75,7 +75,7 @@ class ClubController extends Controller
         $club = $this->clubService->getClubById($id);
 
         if ($request->user()->role !== 'administrator') {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_clubs.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -86,7 +86,7 @@ class ClubController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Club actualizat!',
+            'message' => __('api_clubs.updated_success'),
             'data' => $updatedClub
         ]);
     }
@@ -97,7 +97,7 @@ class ClubController extends Controller
     public function destroy(Request $request, string $id)
     {
         if ($request->user()->role !== 'administrator') {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 'error', 'message' => __('api_clubs.unauthorized')], 403);
         }
 
         $club = $this->clubService->getClubById($id);
@@ -114,7 +114,7 @@ class ClubController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Club șters cu succes!'
+            'message' => __('api_clubs.deleted_success')
         ]);
     }
 }

@@ -28,7 +28,7 @@ class PerformanceController extends Controller
         $targetUser = $this->userService->getUserById($userId);
 
         if (!$this->performanceService->canViewPerformance($viewer, $targetUser)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_performance.unauthorized')], 403);
         }
 
         $logs = $this->performanceService->getHistory($userId);
@@ -47,7 +47,7 @@ class PerformanceController extends Controller
         $coach = $request->user();
 
         if (!in_array($coach->role, ['administrator', 'manager', 'antrenor'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_performance.unauthorized')], 403);
         }
 
         $validated = $request->validate([
@@ -64,7 +64,7 @@ class PerformanceController extends Controller
 
         $athlete = $this->userService->getUserById($validated['user_id']);
         if ($coach->role === 'manager' && $athlete->club_id !== $coach->club_id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('api_performance.forbidden')], 403);
         }
 
         $log = $this->performanceService->storeEntry($validated, $coach->id);
@@ -84,11 +84,11 @@ class PerformanceController extends Controller
         $log = $this->performanceService->getLogById($id);
 
         if (!$this->performanceService->canManageEntry($user, $log)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('api_performance.unauthorized')], 403);
         }
 
         $log->delete();
 
-        return response()->json(['status' => 'success', 'message' => 'Entry deleted.']);
+        return response()->json(['status' => 'success', 'message' => __('api_performance.deleted')]);
     }
 }

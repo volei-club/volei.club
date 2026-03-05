@@ -32,7 +32,7 @@ class AttendanceController extends Controller
         $training = $this->attendanceService->getTrainingById($request->training_id, ['squad.users']);
 
         if ($user->role === 'antrenor' && $training->coach_id !== $user->id) {
-            return response()->json(['message' => 'Acces interzis.'], 403);
+            return response()->json(['message' => __('api_attendance.forbidden')], 403);
         }
 
         $data = $this->attendanceService->getAttendance($training, $request->date, $user);
@@ -48,7 +48,7 @@ class AttendanceController extends Controller
         $user = $request->user();
 
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
-            return response()->json(['message' => 'Acces interzis.'], 403);
+            return response()->json(['message' => __('api_attendance.forbidden')], 403);
         }
 
         $validated = $request->validate([
@@ -62,7 +62,7 @@ class AttendanceController extends Controller
         $training = $this->attendanceService->getTrainingById($validated['training_id']);
 
         if ($user->role === 'antrenor' && $training->coach_id !== $user->id) {
-            return response()->json(['message' => 'Nu esti antrenorul acestui antrenament.'], 403);
+            return response()->json(['message' => __('api_attendance.not_coach')], 403);
         }
 
         $attendance = $this->attendanceService->markAttendance($validated, $user);
@@ -79,7 +79,7 @@ class AttendanceController extends Controller
         $attendance = $this->attendanceService->getAttendanceById($id);
 
         if (!in_array($user->role, ['administrator', 'manager', 'antrenor'])) {
-            return response()->json(['message' => 'Acces interzis.'], 403);
+            return response()->json(['message' => __('api_attendance.forbidden')], 403);
         }
 
         $attendance->delete();
@@ -99,7 +99,7 @@ class AttendanceController extends Controller
         if ($user->role === 'parinte' && $childId) {
             $isParent = $user->children()->where('users.id', $childId)->exists();
             if (!$isParent) {
-                return response()->json(['message' => 'Acces interzis.'], 403);
+                return response()->json(['message' => __('api_attendance.forbidden')], 403);
             }
             $subject = $this->userService->getUserById($childId);
         }
