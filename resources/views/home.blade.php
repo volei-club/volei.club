@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="ro">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8" />
@@ -627,7 +627,7 @@
                                     <label class="block mb-1 text-sm font-medium text-slate-700">{{ __('home.club_config.labels.season') }}</label>
                                     <input
                                         class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
-                                        type="text" value="2023-2024" />
+                                        type="text" value="2025-2026" />
                                 </div>
                             </div>
                             <div class="flex items-center p-3 text-sm text-slate-800 rounded-lg bg-blue-50 border border-blue-100"
@@ -753,8 +753,8 @@
                         </div>
                         <div class="flex-1 overflow-y-auto p-6 bg-white relative">
                             <div class="mb-8 mt-4">
-                                <h3 class="text-2xl font-bold text-slate-900">Creează Club</h3>
-                                <p class="text-slate-500 text-sm">Pasul inițial pentru administrare</p>
+                                <h3 class="text-2xl font-bold text-slate-900">{{ __('home.steps_details.step1.card_title') }}</h3>
+                                <p class="text-slate-500 text-sm">{{ __('home.steps_details.step1.card_subtitle') }}</p>
                             </div>
                             <div class="space-y-6">
                                 <div class="flex justify-center mb-6">
