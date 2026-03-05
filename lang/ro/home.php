@@ -13,6 +13,7 @@ return [
         'about' => 'Despre aplicație',
         'how_it_works' => 'Cum funcționează ?',
         'notify_me' => 'Ține-mă la curent',
+        'early_access' => 'Acces timpuriu',
     ],
     'hero' => [
         'in_development' => 'Aplicația se află în stadiul de dezvoltare',
@@ -21,6 +22,7 @@ return [
         'title_p3' => 'de volei',
         'subtitle' => 'Simplifică administrarea, planificarea antrenamentelor și comunicarea cu părinții. Tot ce ai nevoie pentru a duce clubul tău la nivelul următor.',
         'notify_me' => 'Ține-mă la curent',
+        'early_access' => 'Acces timpuriu',
     ],
     'dashboard_preview' => [
         'active_players' => 'Jucători Activi',

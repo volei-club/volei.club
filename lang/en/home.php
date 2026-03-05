@@ -13,6 +13,7 @@ return [
         'about' => 'About the app',
         'how_it_works' => 'How it works?',
         'notify_me' => 'Keep me updated',
+        'early_access' => 'Acces timpuriu',
     ],
     'hero' => [
         'in_development' => 'The application is in development stage',
@@ -21,6 +22,7 @@ return [
         'title_p3' => 'volleyball club',
         'subtitle' => 'Simplify administration, training planning, and communication with parents. Everything you need to take your club to the next level.',
         'notify_me' => 'Keep me updated',
+        'early_access' => 'Early access',
     ],
     'dashboard_preview' => [
         'active_players' => 'Active Players',
