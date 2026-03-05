@@ -102,7 +102,7 @@ window.messagesManager = () => {
                 };
                 
                 if (this.activeConversationId && String(this.activeConversationId).startsWith('temp-')) {
-                    payload.recipient_id = this.activePartner.id;
+                    payload.receiver_id = this.activePartner.id;
                 } else {
                     payload.conversation_id = this.activeConversationId;
                 }

@@ -63,14 +63,24 @@ class ChatController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'receiver_id' => 'required|exists:users,id',
+            'conversation_id' => 'required_without:receiver_id|exists:conversations,id',
+            'receiver_id' => 'required_without:conversation_id|exists:users,id',
             'content' => 'required|string',
         ]);
 
         $sender = $request->user();
-        $receiverId = $request->receiver_id;
 
-        $conversation = $this->chatService->getConversation($sender->id, $receiverId);
+        if ($request->filled('conversation_id')) {
+            $conversation = $this->chatService->getConversationById($request->conversation_id, ['users']);
+            // Check if user is part of the conversation
+            if (!$conversation->users->contains($sender->id)) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
+        else {
+            $conversation = $this->chatService->getConversation($sender->id, $request->receiver_id);
+        }
+
         $message = $this->chatService->sendMessage($conversation, $sender->id, $request->content);
 
         // After sending, we might want to mark it as read for the sender (though it's their own message)
