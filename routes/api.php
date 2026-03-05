@@ -36,6 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('audit', [\App\Http\Controllers\AuditController::class , 'index']);
         Route::apiResource('locations', \App\Http\Controllers\LocationController::class)->except(['show']);
         Route::apiResource('trainings', \App\Http\Controllers\TrainingController::class)->except(['show']);
+        Route::post('trainings/{id}/cancel-instance', [\App\Http\Controllers\TrainingController::class , 'cancelInstance']);
+        Route::delete('trainings/{id}/cancel-instance', [\App\Http\Controllers\TrainingController::class , 'uncancelInstance']);
         Route::apiResource('games', \App\Http\Controllers\GameController::class)->except(['show']);
         Route::get('dashboard-stats', [\App\Http\Controllers\Api\DashboardController::class , 'stats']);
 

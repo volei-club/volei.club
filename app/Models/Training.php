@@ -20,6 +20,13 @@ class Training extends Model
         'day_of_week',
         'start_time',
         'end_time',
+        'start_date',
+        'end_date',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
     ];
 
     /**
@@ -68,5 +75,13 @@ class Training extends Model
     public function attendances()
     {
         return $this->hasMany(\App\Models\Attendance::class);
+    }
+
+    /**
+     * Get cancellations for this training.
+     */
+    public function cancellations()
+    {
+        return $this->hasMany(TrainingCancellation::class);
     }
 }

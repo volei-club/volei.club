@@ -75,10 +75,18 @@
                     <template x-for="session in sessionsForDay(day.date)" :key="session.id">
                         <div
                             @click="if (canMarkAttendance()) { if (session.type === 'game') { openGameModal(session); } else { openAttendance(session); } } else if (session.type === 'game') { openGameModal(session); }"
-                            class="rounded-xl border px-2 py-2 text-xs transition-all"
-                            :class="[statusColor(session), (canMarkAttendance() || session.type === 'game') ? 'cursor-pointer hover:shadow-md hover:scale-[1.02]' : '']"
+                            class="rounded-xl border px-2 py-2 text-xs transition-all relative overflow-hidden"
+                            :class="[
+                                session.is_cancelled ? 'bg-slate-50 dark:bg-slate-900 border-red-200 dark:border-red-900/50 opacity-60' : statusColor(session),
+                                (canMarkAttendance() || session.type === 'game') ? 'cursor-pointer hover:shadow-md hover:scale-[1.02]' : ''
+                            ]"
                         >
-                            <div x-show="session.type === 'game'" class="px-1.5 py-0.5 bg-indigo-500 text-white rounded text-[8px] font-black uppercase tracking-tighter w-fit mb-1">MECI</div>
+                            <div x-show="session.is_cancelled" class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none z-10">
+                                <span class="bg-red-500/90 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm rotate-[-12deg] tracking-wider">Anulat</span>
+                            </div>
+
+                            <div :class="{'opacity-50 grayscale': session.is_cancelled}">
+                                <div x-show="session.type === 'game'" class="px-1.5 py-0.5 bg-indigo-500 text-white rounded text-[8px] font-black uppercase tracking-tighter w-fit mb-1">MECI</div>
 
                             <div class="flex items-center gap-1 font-bold mb-1">
                                 <span class="material-symbols-outlined text-[14px]">schedule</span>
@@ -118,6 +126,7 @@
                                 <span class="material-symbols-outlined text-[12px]" x-text="session.type === 'game' ? 'edit' : 'how_to_reg'"></span>
                                 <span x-text="session.type === 'game' ? 'Detalii meci' : 'Bifează prezența'"></span>
                             </div>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -149,9 +158,18 @@
                         </p>
                     </template>
                 </div>
-                <button @click="closeAttendance()" class="text-slate-400 hover:text-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl p-2 transition-colors">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <template x-if="canMarkAttendance() && attendanceSession && attendanceSession.type === 'training' && attendanceSession.training_id">
+                         <button @click="toggleCancelInstance()" class="text-sm px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1"
+                                 :class="attendanceSession.is_cancelled ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'">
+                             <span class="material-symbols-outlined text-[16px]" x-text="attendanceSession.is_cancelled ? 'restore' : 'cancel'"></span>
+                             <span x-text="attendanceSession.is_cancelled ? 'Restaurează' : 'Anulează Sesiunea'"></span>
+                         </button>
+                    </template>
+                    <button @click="closeAttendance()" class="text-slate-400 hover:text-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl p-2 transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
             </div>
 
             {{-- Members list --}}

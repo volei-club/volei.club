@@ -21,7 +21,9 @@ Alpine.data('trainingManager', () => ({
         coach_id: '',
         day_of_week: 'luni',
         start_time: '18:00',
-        end_time: '20:00'
+        end_time: '20:00',
+        start_date: '',
+        end_date: ''
     },
 
     async init() {
@@ -182,6 +184,8 @@ Alpine.data('trainingManager', () => ({
             this.formData.day_of_week = t.day_of_week;
             this.formData.start_time = t.start_time.substring(0,5);
             this.formData.end_time = t.end_time.substring(0,5);
+            this.formData.start_date = t.start_date || '';
+            this.formData.end_date = t.end_date || '';
         } else {
             this.editingId = null;
             this.formData = {
@@ -192,7 +196,9 @@ Alpine.data('trainingManager', () => ({
                 coach_id: '',
                 day_of_week: 'luni',
                 start_time: '18:00',
-                end_time: '20:00'
+                end_time: '20:00',
+                start_date: '',
+                end_date: ''
             };
             if (this.formData.club_id) {
                 await this.onClubChange();

@@ -68,7 +68,7 @@ class AttendanceService
         $endDate = $startDate->copy()->addWeeks($weeks)->endOfDay();
         $period = CarbonPeriod::create($startDate, $endDate);
 
-        $trainingQuery = Training::with(['location', 'team', 'squad']);
+        $trainingQuery = Training::with(['location', 'team', 'squad', 'cancellations']);
         $gameQuery = Game::whereBetween('match_date', [$startDate, $endDate->format('Y-m-d')])
             ->with(['team', 'squad', 'players']);
 
@@ -100,38 +100,64 @@ class AttendanceService
         // Romanian day names mapping to Carbon dayOfWeek (0=Sun, 1=Mon...)
         // Includes versions with and without diacritics to be robust
         $dayMap = [
-            'duminica' => 0, 'duminică' => 0,
+            'duminica' => 0, 'duminica' => 0,
             'luni'     => 1,
-            'marti'    => 2, 'marți'    => 2,
+            'marti'    => 2, 'mar?i'    => 2,
             'miercuri' => 3,
             'joi'      => 4,
             'vineri'   => 5,
-            'sambata'  => 6, 'sâmbătă'  => 6,
+            'sambata'  => 6, 's�mbata'  => 6,
         ];
 
         // Generate training instances
         foreach ($period as $date) {
             $dayOfWeek = $date->dayOfWeek; // 0 (Sun) to 6 (Sat)
+            $dateStr = $date->format('Y-m-d');
 
-            $todaysTrainings = $trainings->filter(function ($t) use ($dayOfWeek, $dayMap) {
+            $todaysTrainings = $trainings->filter(function ($t) use ($dayOfWeek, $dayMap, $dateStr) {
                 $storedDay = mb_strtolower(trim($t->day_of_week));
-                return isset($dayMap[$storedDay]) && $dayMap[$storedDay] === $dayOfWeek;
+                $matchesDay = isset($dayMap[$storedDay]) && $dayMap[$storedDay] === $dayOfWeek;
+
+                if (!$matchesDay) {
+                    return false;
+                }
+
+                // Check date bounds
+                $tStartDate = $t->start_date instanceof Carbon ? $t->start_date->format('Y-m-d') : $t->start_date;
+                $tEndDate = $t->end_date instanceof Carbon ? $t->end_date->format('Y-m-d') : $t->end_date;
+
+                if ($tStartDate && $dateStr < $tStartDate) {
+                    return false;
+                }
+                if ($tEndDate && $dateStr > $tEndDate) {
+                    return false;
+                }
+
+                // Check cancellations
+                if ($t->cancellations->contains(function($c) use ($dateStr) {
+                    $cDate = $c->date instanceof Carbon ? $c->date->format('Y-m-d') : $c->date;
+                    return $cDate === $dateStr;
+                })) {
+                    return false;
+                }
+
+                return true;
             });
 
             foreach ($todaysTrainings as $training) {
                 $sessions[] = [
-                    'id' => 'training_' . $training->id . '_' . $date->format('Y-m-d'),
+                    'id' => 'training_' . $training->id . '_' . $dateStr,
                     'type' => 'training',
                     'title' => 'Antrenament ' . ($training->squad->name ?? $training->team->name),
-                    'start' => $date->format('Y-m-d') . ' ' . $training->start_time,
+                    'start' => $dateStr . ' ' . $training->start_time,
                     'start_time' => $training->start_time,
-                    'end' => $date->format('Y-m-d') . ' ' . $training->end_time,
+                    'end' => $dateStr . ' ' . $training->end_time,
                     'end_time' => $training->end_time,
                     'location' => $training->location->name ?? 'Nespecificat',
                     'training_id' => $training->id,
                     'squad' => $training->squad->name ?? null,
                     'team' => $training->team->name ?? null,
-                    'date' => $date->format('Y-m-d'),
+                    'date' => $dateStr,
                 ];
             }
         }

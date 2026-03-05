@@ -215,6 +215,48 @@ Alpine.data('calendarManager', () => ({
         this.savingAttendance = { ...this.savingAttendance, [member.user_id]: false };
     },
 
+    async toggleCancelInstance() {
+        if (!this.attendanceSession) return;
+        const s = this.attendanceSession;
+        
+        let url = `/api/trainings/${s.training_id}/cancel-instance`;
+        let method = s.is_cancelled ? 'DELETE' : 'POST';
+        let body = {};
+
+        if (!s.is_cancelled) {
+            let reason = prompt("Motivul anulării (opțional):");
+            if (reason === null) return; // User cancelled prompt
+            body.reason = reason;
+        } else {
+            if (!confirm("Ești sigur că vrei să restaurezi această sesiune?")) return;
+        }
+
+        try {
+            const req = {
+                method: method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                },
+                body: JSON.stringify({ date: s.date, ...body })
+            };
+
+            const res = await fetch(url, req);
+            const data = await res.json();
+
+            if (res.ok) {
+                window.showToast(data.message || (s.is_cancelled ? 'Sesiune restaurată.' : 'Sesiune anulată.'));
+                this.closeAttendance();
+                this.fetchSessions();
+            } else {
+                window.showToast(data.message || 'Eroare la modificare.', 'error');
+            }
+        } catch(e) {
+            window.showToast("Eroare de rețea.", 'error');
+        }
+    },
+
     openGameModal(game = null) {
         Alpine.store('gameModal').open(game);
     },

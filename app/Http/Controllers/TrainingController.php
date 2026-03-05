@@ -44,6 +44,8 @@ class TrainingController extends Controller
             'day_of_week' => ['required', Rule::in(['luni', 'marti', 'miercuri', 'joi', 'vineri', 'sambata', 'duminica'])],
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
         ]);
 
         $club_id = $user->role === 'administrator' ? $validated['club_id'] : $user->club_id;
@@ -83,6 +85,8 @@ class TrainingController extends Controller
             'day_of_week' => ['required', Rule::in(['luni', 'marti', 'miercuri', 'joi', 'vineri', 'sambata', 'duminica'])],
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
         ]);
 
         $club_id = ($user->role === 'administrator' && !empty($validated['club_id'])) ? $validated['club_id'] : $training->club_id;
@@ -115,5 +119,53 @@ class TrainingController extends Controller
 
         $training->delete();
         return response()->json(null, 204);
+    }
+
+    public function cancelInstance(Request $request, $id)
+    {
+        $user = $request->user();
+        $training = $this->eventService->getTrainingById($id);
+
+        if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($user->role !== 'administrator' && $user->role !== 'manager' && $user->role !== 'antrenor') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'date' => 'required|date_format:Y-m-d',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $training->cancellations()->updateOrCreate(
+        ['date' => $validated['date']],
+        ['reason' => $validated['reason'] ?? null]
+        );
+
+        return response()->json(['message' => 'Sesiunea de antrenament a fost anulată.']);
+    }
+
+    public function uncancelInstance(Request $request, $id)
+    {
+        $user = $request->user();
+        $training = $this->eventService->getTrainingById($id);
+
+        if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($user->role !== 'administrator' && $user->role !== 'manager' && $user->role !== 'antrenor') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'date' => 'required|date_format:Y-m-d',
+        ]);
+
+        $training->cancellations()->where('date', $validated['date'])->delete();
+
+        return response()->json(['message' => 'Sesiunea de antrenament a fost restaurată.']);
     }
 }
