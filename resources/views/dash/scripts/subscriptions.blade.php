@@ -9,6 +9,13 @@ Alpine.data('subscriptionManager', () => ({
     showModal: false,
     error: null,
     filters: { club_id: '' },
+    form: {
+        id: null,
+        name: '',
+        price: '',
+        period: '1_luna',
+        club_id: ''
+    },
     periodLabels: {
         '1_saptamana': `{{ __('subscriptions.form.periods.1_saptamana') }}`,
         '2_saptamani': `{{ __('subscriptions.form.periods.2_saptamani') }}`,
