@@ -9,9 +9,21 @@ Alpine.data('dashboard', () => ({
     token: null,
     isMobileMenuOpen: false,
     isImpersonating: false,
-    currentPage: window.location.pathname, // Route Tracker Simplu
+    currentPage: '', // Will be set in init
     unreadMessagesCount: 0,
     locale: document.documentElement.lang || 'ro-RO',
+    
+    normalizePath(path) {
+        return path.replace(/^\/(?:ro|en)(\/dash)/, '$1');
+    },
+
+    getLocalizedPath(path) {
+        if (path.startsWith('/ro/') || path.startsWith('/en/') || path === '/ro' || path === '/en') {
+            return path;
+        }
+        const currentLocale = document.documentElement.lang === 'en' ? 'en' : 'ro';
+        return `/${currentLocale}${path.startsWith('/') ? '' : '/'}${path}`;
+    },
     roleLabels: {
         'administrator': '{{ __('dash.roles.administrator') }}',
         'manager': '{{ __('dash.roles.manager') }}',
@@ -46,26 +58,29 @@ Alpine.data('dashboard', () => ({
                 && !path.startsWith('/dash/mesaje')
                 && !(calendarRoles.includes(this.user.role) && isCalendarOrPerf)
             ) {
-                path = '/dash';
+                path = this.getLocalizedPath('/dash');
             }
             if (this.user.role === 'manager' && path.startsWith('/dash/cluburi')) {
-                path = '/dash';
+                path = this.getLocalizedPath('/dash');
             }
         }
-        this.currentPage = path;
+        const fullPath = this.getLocalizedPath(path);
+        this.currentPage = this.normalizePath(fullPath);
         
         // Clear Hash State gracefully on programmatic navigation
         if (window.location.hash) {
-            window.history.pushState({}, '', path); // Set without hash
+            window.history.pushState({}, '', fullPath); // Set without hash
         } else {
-            window.history.pushState({}, '', path);
+            window.history.pushState({}, '', fullPath);
         }
     },
 
     async init() {
+        this.currentPage = this.normalizePath(window.location.pathname);
+
         // Ascultăm schimbările de istoric din browser (Butonul Back/Forward)
         window.addEventListener('popstate', () => {
-            this.currentPage = window.location.pathname;
+            this.currentPage = this.normalizePath(window.location.pathname);
         });
 
         // Listen for unread count refresh events
@@ -74,16 +89,16 @@ Alpine.data('dashboard', () => ({
         });
         
         // Suport fallback SPA imediat după încărcarea paginii dacă URL-ul este pe vreo subrută
-        const currentPath = window.location.pathname;
-        if (currentPath !== '/dash' && currentPath.startsWith('/dash/')) {
-             this.currentPage = currentPath;
+        const normalized = this.normalizePath(window.location.pathname);
+        if (normalized !== '/dash' && normalized.startsWith('/dash/')) {
+             this.currentPage = normalized;
         }
 
         this.token = localStorage.getItem('auth_token');
         this.isImpersonating = !!localStorage.getItem('original_admin_token');
         
         if (!this.token) {
-            window.location.href = '/dash/login';
+            window.location.href = this.getLocalizedPath('/dash/login');
             return;
         }
 
@@ -155,7 +170,7 @@ Alpine.data('dashboard', () => ({
         }
         localStorage.removeItem('auth_token');
         localStorage.removeItem('original_admin_token'); // Clear in caz ca era impersonat si da logout manual
-        window.location.href = '/dash/login';
+        window.location.href = this.getLocalizedPath('/dash/login');
     },
 
     async leaveImpersonation() {

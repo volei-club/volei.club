@@ -112,13 +112,17 @@ class DashAuthController extends Controller
 
     public function redirectToGoogle()
     {
-        return \Laravel\Socialite\Facades\Socialite::driver('google')->redirect();
+        return \Laravel\Socialite\Facades\Socialite::driver('google')
+            ->redirectUrl(route('dash.google.callback'))
+            ->redirect();
     }
 
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->user();
+            $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')
+                ->redirectUrl(route('dash.google.callback'))
+                ->user();
         }
         catch (\Exception $e) {
             return redirect()->route('dash.login')->withErrors(['email' => __('auth.google_error')]);

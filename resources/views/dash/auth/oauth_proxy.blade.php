@@ -51,9 +51,9 @@
             // Șterge eventale rămășițe temporare de 2FA
             sessionStorage.removeItem('2fa_user_id');
             // Redirecționează cu Javascript spre Dashboard pentru a declanșa logica API-Driven
-            window.location.replace('/dash');
+            window.location.replace('/{{ app()->getLocale() }}/dash');
         } else {
-            window.location.replace('/dash/login');
+            window.location.replace('/{{ app()->getLocale() }}/dash/login');
         }
     </script>
 </body>

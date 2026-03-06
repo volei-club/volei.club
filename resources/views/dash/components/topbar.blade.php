@@ -15,9 +15,9 @@
             <!-- Right side: Date (Desktop) or Profile Pic (Mobile) -->
             <div class="flex items-center justify-end w-1/3 gap-3">
                 <div class="flex items-center gap-2 mr-2 border-r border-slate-200 dark:border-slate-700 pr-3">
-                    <a href="{{ route('lang.switch', 'ro') }}" class="text-xs font-bold {{ App::getLocale() == 'ro' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300' }}">RO</a>
+                    <a :href="'/ro' + normalizePath(currentPage)" class="text-xs font-bold {{ App::getLocale() == 'ro' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300' }}">RO</a>
                     <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
-                    <a href="{{ route('lang.switch', 'en') }}" class="text-xs font-bold {{ App::getLocale() == 'en' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300' }}">EN</a>
+                    <a :href="'/en' + normalizePath(currentPage)" class="text-xs font-bold {{ App::getLocale() == 'en' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300' }}">EN</a>
                 </div>
                 <div class="text-sm text-slate-500 hidden sm:block" x-text="new Date().toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></div>
                 <button @click="$dispatch('open-profile-modal')" class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700">

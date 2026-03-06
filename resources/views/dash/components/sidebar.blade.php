@@ -15,10 +15,10 @@
         <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
             
             <!-- Home -->
-            <a href="/dash" @click.prevent="navigate('/dash'); isMobileMenuOpen = false;" 
-               :class="currentPage === '/dash' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+            <a href="{{ '/' . app()->getLocale() . '/dash' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash' }}'); isMobileMenuOpen = false;" 
+               :class="currentPage === '{{ '/' . app()->getLocale() . '/dash' }}' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '/dash' ? 'fill-1' : ''">dashboard</span>
+                <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '{{ '/' . app()->getLocale() . '/dash' }}' ? 'fill-1' : ''">dashboard</span>
                 {{ __('dash.nav.home') }}
             </a>
 
@@ -29,24 +29,24 @@
                 <div>
                     <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.administration') }}</div>
                     
-                    <a href="/dash/cluburi" @click.prevent="navigate('/dash/cluburi'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/cluburi') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/cluburi' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/cluburi' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/cluburi' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/cluburi') ? 'fill-1' : ''">domain</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/cluburi' }}') ? 'fill-1' : ''">domain</span>
                         {{ __('dash.nav.clubs') }}
                     </a>
 
-                    <a href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/grupe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/grupe' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/grupe' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/grupe' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/grupe' }}') ? 'fill-1' : ''">diversity_3</span>
                         {{ __('dash.nav.groups') }}
                     </a>
 
-                    <a href="/dash/echipe" @click.prevent="navigate('/dash/echipe'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/echipe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/echipe' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/echipe' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/echipe' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/echipe') ? 'fill-1' : ''">groups_2</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/echipe' }}') ? 'fill-1' : ''">groups_2</span>
                         {{ __('dash.nav.teams') }}
                     </a>
 
@@ -56,52 +56,52 @@
             <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
                 <div :class="user?.role === 'administrator' ? 'mt-4' : ''">
                     <div x-show="user?.role === 'manager'" class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.my_club') }}</div>
-                    <a href="/dash/membri" @click.prevent="navigate('/dash/membri'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/membri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/membri' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/membri' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/membri' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/membri') ? 'fill-1' : ''">groups</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/membri' }}') ? 'fill-1' : ''">groups</span>
                         {{ __('dash.nav.members') }}
                     </a>
 
-                    <a href="/dash/locatii" @click.prevent="navigate('/dash/locatii'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/locatii') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/locatii' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/locatii' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/locatii' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/locatii') ? 'fill-1' : ''">location_on</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/locatii' }}') ? 'fill-1' : ''">location_on</span>
                         {{ __('dash.nav.locations') }}
                     </a>
 
-                    <a href="/dash/antrenamente" @click.prevent="navigate('/dash/antrenamente'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/antrenamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/antrenamente' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/antrenamente' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/antrenamente' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/antrenamente') ? 'fill-1' : ''">calendar_month</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/antrenamente' }}') ? 'fill-1' : ''">calendar_month</span>
                         {{ __('dash.nav.trainings') }}
                     </a>
 
-                    <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/meciuri' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/meciuri' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/meciuri' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/meciuri' }}') ? 'fill-1' : ''">sports_volleyball</span>
                         {{ __('dash.nav.matches') }}
                     </a>
 
-                    <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/abonamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/abonamente' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/abonamente' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/abonamente' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/abonamente' }}') ? 'fill-1' : ''">loyalty</span>
                         {{ __('dash.nav.subscriptions') }}
                     </a>
                     
-                    <a x-show="user?.role === 'manager'" href="/dash/grupe" @click.prevent="navigate('/dash/grupe'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/grupe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a x-show="user?.role === 'manager'" href="{{ '/' . app()->getLocale() . '/dash/grupe' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/grupe' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/grupe' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/grupe') ? 'fill-1' : ''">diversity_3</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/grupe' }}') ? 'fill-1' : ''">diversity_3</span>
                         {{ __('dash.nav.my_groups') }}
                     </a>
 
-                    <a x-show="user?.role === 'manager'" href="/dash/echipe" @click.prevent="navigate('/dash/echipe'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/echipe') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a x-show="user?.role === 'manager'" href="{{ '/' . app()->getLocale() . '/dash/echipe' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/echipe' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/echipe' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/echipe') ? 'fill-1' : ''">groups_2</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/echipe' }}') ? 'fill-1' : ''">groups_2</span>
                         {{ __('dash.nav.my_teams') }}
                     </a>
 
@@ -111,10 +111,10 @@
             <div class="mt-8">
                 <div class="px-3 mb-4 mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.resources_system') }}</div>
                 
-                <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje'); isMobileMenuOpen = false;" 
-                    :class="currentPage.startsWith('/dash/mesaje') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                <a href="{{ '/' . app()->getLocale() . '/dash/mesaje' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/mesaje' }}'); isMobileMenuOpen = false;" 
+                    :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/mesaje' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                     class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                    <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
+                    <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/mesaje' }}') ? 'fill-1' : ''">chat</span>
                     <span class="flex-1">{{ __('dash.nav.messages') }}</span>
                     <template x-if="unreadMessagesCount > 0">
                         <span class="ml-2 px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full" x-text="unreadMessagesCount"></span>
@@ -122,19 +122,19 @@
                 </a>
 
                 <template x-if="user?.role === 'administrator' || user?.role === 'manager'">
-                    <a href="/dash/audit" @click.prevent="navigate('/dash/audit'); isMobileMenuOpen = false;"
-                        :class="currentPage.startsWith('/dash/audit') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/audit' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/audit' }}'); isMobileMenuOpen = false;"
+                        :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/audit' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                         class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/audit') ? 'fill-1' : ''">history_edu</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/audit' }}') ? 'fill-1' : ''">history_edu</span>
                         {{ __('dash.nav.audit') }}
                     </a>
                 </template>
 
                 <template x-if="user?.role === 'administrator'">
-                    <a href="/dash/sistem" @click.prevent="navigate('/dash/sistem'); isMobileMenuOpen = false;"
-                        :class="currentPage === '/dash/sistem' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/sistem' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/sistem' }}'); isMobileMenuOpen = false;"
+                        :class="currentPage === '{{ '/' . app()->getLocale() . '/dash/sistem' }}' ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                         class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '/dash/sistem' ? 'fill-1' : ''">settings_suggest</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage === '{{ '/' . app()->getLocale() . '/dash/sistem' }}' ? 'fill-1' : ''">settings_suggest</span>
                         {{ __('dash.nav.system') }}
                     </a>
                 </template>
@@ -147,31 +147,31 @@
                 <div class="mt-4">
                     <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.my_activity') }}</div>
                     
-                    <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/calendar') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/calendar' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/calendar' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/calendar' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">calendar_month</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/calendar' }}') ? 'fill-1' : ''">calendar_month</span>
                         {{ __('dash.nav.calendar') }}
                     </a>
 
-                    <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/performanta') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/performanta' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/performanta' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/performanta' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">monitoring</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/performanta' }}') ? 'fill-1' : ''">monitoring</span>
                         {{ __('dash.nav.performance') }}
                     </a>
                     
-                    <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/meciuri' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/meciuri' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/meciuri' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/meciuri' }}') ? 'fill-1' : ''">sports_volleyball</span>
                         {{ __('dash.nav.matches') }}
                     </a>
 
-                    <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/abonamente') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/abonamente' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/abonamente' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/abonamente' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/abonamente' }}') ? 'fill-1' : ''">loyalty</span>
                         {{ __('dash.nav.subscriptions') }}
                     </a>
                 </div>
@@ -181,24 +181,24 @@
             <template x-if="['administrator', 'manager', 'antrenor'].includes(user?.role)">
                 <div class="mt-4">
                     <div class="px-3 mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('dash.nav.activity') }}</div>
-                    <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/calendar') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/calendar' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/calendar' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/calendar' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">calendar_month</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/calendar' }}') ? 'fill-1' : ''">calendar_month</span>
                         {{ __('dash.nav.calendar') }}
                     </a>
-                    <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta'); isMobileMenuOpen = false;"
-                       :class="currentPage.startsWith('/dash/performanta') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/performanta' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/performanta' }}'); isMobileMenuOpen = false;"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/performanta' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">monitoring</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/performanta' }}') ? 'fill-1' : ''">monitoring</span>
                         {{ __('dash.nav.performance') }}
                     </a>
                     
-                    <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri'); isMobileMenuOpen = false;"
+                    <a href="{{ '/' . app()->getLocale() . '/dash/meciuri' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/meciuri' }}'); isMobileMenuOpen = false;"
                        x-show="['antrenor'].includes(user?.role)"
-                       :class="currentPage.startsWith('/dash/meciuri') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                       :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/meciuri' }}') ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
                        class="flex items-center px-3 py-2.5 rounded-xl transition-colors mb-1">
-                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
+                        <span class="material-symbols-outlined mr-3 text-xl" :class="currentPage.startsWith('{{ '/' . app()->getLocale() . '/dash/meciuri' }}') ? 'fill-1' : ''">sports_volleyball</span>
                         {{ __('dash.nav.matches') }}
                     </a>
                    

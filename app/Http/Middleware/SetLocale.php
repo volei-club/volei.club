@@ -17,8 +17,16 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Session::has('locale')) {
+        $locale = $request->route('locale');
+
+        if ($locale && in_array($locale, ['en', 'ro'])) {
+            App::setLocale($locale);
+            Session::put('locale', $locale);
+            \Illuminate\Support\Facades\URL::defaults(['locale' => $locale]);
+        }
+        elseif (Session::has('locale')) {
             App::setLocale(Session::get('locale'));
+            \Illuminate\Support\Facades\URL::defaults(['locale' => Session::get('locale')]);
         }
 
         return $next($request);

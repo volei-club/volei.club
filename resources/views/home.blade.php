@@ -10,7 +10,10 @@
         content="{{ __('home.meta.description') }}">
     <meta name="keywords"
         content="{{ __('home.meta.keywords') }}">
-    <link rel="canonical" href="https://volei.club" />
+    <link rel="canonical" href="https://volei.club/{{ app()->getLocale() }}" />
+    <link rel="alternate" hreflang="ro" href="https://volei.club/ro" />
+    <link rel="alternate" hreflang="en" href="https://volei.club/en" />
+    <link rel="alternate" hreflang="x-default" href="https://volei.club/ro" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -205,9 +208,9 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2 mr-2">
-                        <a href="{{ route('lang.switch', 'ro') }}" class="text-xs font-bold {{ App::getLocale() == 'ro' ? 'text-primary' : 'text-slate-400 hover:text-slate-600' }}">RO</a>
+                        <a href="/ro" class="text-xs font-bold {{ App::getLocale() == 'ro' ? 'text-primary' : 'text-slate-400 hover:text-slate-600' }}">RO</a>
                         <span class="text-slate-300 text-xs">|</span>
-                        <a href="{{ route('lang.switch', 'en') }}" class="text-xs font-bold {{ App::getLocale() == 'en' ? 'text-primary' : 'text-slate-400 hover:text-slate-600' }}">EN</a>
+                        <a href="/en" class="text-xs font-bold {{ App::getLocale() == 'en' ? 'text-primary' : 'text-slate-400 hover:text-slate-600' }}">EN</a>
                     </div>
                     <a class="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-md shadow-primary/20"
                         href="#contact">

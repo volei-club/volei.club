@@ -3,7 +3,7 @@
     <div class="flex justify-around items-center h-16 px-2">
         
         <!-- Acasa -->
-        <a href="/dash" @click.prevent="navigate('/dash')"
+        <a href="{{ '/' . app()->getLocale() . '/dash' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash' }}')"
            class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
            :class="currentPage === '/dash' ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
             <span class="material-symbols-outlined text-[24px]" :class="currentPage === '/dash' ? 'fill-1' : ''">dashboard</span>
@@ -12,7 +12,7 @@
 
         <!-- Calendar (Coaches/Admin) or Meciuri (Athlete) -->
         <template x-if="['antrenor', 'manager', 'administrator'].includes(user?.role)">
-            <a href="/dash/calendar" @click.prevent="navigate('/dash/calendar')"
+            <a href="{{ '/' . app()->getLocale() . '/dash/calendar' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/calendar' }}')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/calendar') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/calendar') ? 'fill-1' : ''">event</span>
@@ -20,7 +20,7 @@
             </a>
         </template>
         <template x-if="['sportiv', 'parinte'].includes(user?.role)">
-            <a href="/dash/meciuri" @click.prevent="navigate('/dash/meciuri')"
+            <a href="{{ '/' . app()->getLocale() . '/dash/meciuri' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/meciuri' }}')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/meciuri') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/meciuri') ? 'fill-1' : ''">sports_volleyball</span>
@@ -30,7 +30,7 @@
 
         <!-- Membri (Admin/Manager) or Performanta (Athletes) -->
         <template x-if="['manager', 'administrator'].includes(user?.role)">
-            <a href="/dash/membri" @click.prevent="navigate('/dash/membri')"
+            <a href="{{ '/' . app()->getLocale() . '/dash/membri' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/membri' }}')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/membri') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/membri') ? 'fill-1' : ''">groups</span>
@@ -38,7 +38,7 @@
             </a>
         </template>
         <template x-if="['sportiv', 'parinte'].includes(user?.role)">
-            <a href="/dash/performanta" @click.prevent="navigate('/dash/performanta')"
+            <a href="{{ '/' . app()->getLocale() . '/dash/performanta' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/performanta' }}')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/performanta') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/performanta') ? 'fill-1' : ''">trending_up</span>
@@ -47,7 +47,7 @@
         </template>
 
         <!-- Mesaje (Toate Rolurile) -->
-        <a href="/dash/mesaje" @click.prevent="navigate('/dash/mesaje')"
+        <a href="{{ '/' . app()->getLocale() . '/dash/mesaje' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/mesaje' }}')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors relative"
                :class="currentPage.startsWith('/dash/mesaje') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/mesaje') ? 'fill-1' : ''">chat</span>
@@ -69,7 +69,7 @@
             </button>
         </template>
         <template x-if="['sportiv', 'parinte'].includes(user?.role)">
-            <a href="/dash/abonamente" @click.prevent="navigate('/dash/abonamente')"
+            <a href="{{ '/' . app()->getLocale() . '/dash/abonamente' }}" @click.prevent="navigate('{{ '/' . app()->getLocale() . '/dash/abonamente' }}')"
                class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
                :class="currentPage.startsWith('/dash/abonamente') ? 'text-primary' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">
                 <span class="material-symbols-outlined text-[24px]" :class="currentPage.startsWith('/dash/abonamente') ? 'fill-1' : ''">loyalty</span>
