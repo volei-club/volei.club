@@ -32,7 +32,7 @@ class AuthApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
             'status' => 'success',
-            'message' => 'Credentials verified, 2FA code sent.',
+            'message' => __('auth.2fa_sent'),
             'user_id' => $user->id
         ]);
 
@@ -61,7 +61,7 @@ class AuthApiTest extends TestCase
         $response->assertStatus(401)
             ->assertJson([
             'status' => 'error',
-            'message' => 'Datele de autentificare sunt incorecte.'
+            'message' => __('auth.failed')
         ]);
     }
 

@@ -189,7 +189,7 @@ class SubscriptionApiTest extends TestCase
         $response = $this->actingAs($admin, 'sanctum')->deleteJson("/api/subscriptions/{$sub->id}");
 
         $response->assertStatus(400)
-            ->assertJsonFragment(['message' => 'Acest abonament este in uz de catre unii membri. Nu poate fi sters.']);
+            ->assertJsonFragment(['message' => __('api_subscriptions.in_use_error')]);
     }
 
     public function test_subscription_deletion_success()

@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'unauthorized' => 'Unauthorized',
-    'club_required' => 'Club ID is required.',
-    'created_success' => 'Subscription created successfully',
-    'updated_success' => 'Subscription updated successfully',
+    'unauthorized' => 'Neautorizat',
+    'club_required' => 'ID-ul clubului este obligatoriu.',
+    'created_success' => 'Abonament creat cu succes',
+    'updated_success' => 'Abonament actualizat cu succes',
     'in_use_error' => 'Acest abonament este in uz de catre unii membri. Nu poate fi sters.',
-    'deleted_success' => 'Subscription deleted successfully',
+    'deleted_success' => 'Abonament șters cu succes',
 ];

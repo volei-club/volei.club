@@ -186,6 +186,6 @@ class UserApiTest extends TestCase
         $response = $this->actingAs($admin, 'sanctum')->deleteJson("/api/users/{$admin->id}");
 
         $response->assertStatus(403)
-            ->assertJsonFragment(['message' => 'Nu vă puteți șterge propriul cont.']);
+            ->assertJsonFragment(['message' => __('api_users.delete_self')]);
     }
 }
