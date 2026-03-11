@@ -13,6 +13,7 @@ return [
         'about' => 'About the app',
         'how_it_works' => 'How it works?',
         'notify_me' => 'Keep me updated',
+        'notify_me_mobile' => 'Contact',
         'early_access' => 'Early access',
     ],
     'hero' => [
