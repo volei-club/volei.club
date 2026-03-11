@@ -13,6 +13,7 @@ return [
         'about' => 'Despre aplicație',
         'how_it_works' => 'Cum funcționează ?',
         'notify_me' => 'Ține-mă la curent',
+        'notify_me_mobile' => 'Contact',
         'early_access' => 'Acces timpuriu',
     ],
     'hero' => [

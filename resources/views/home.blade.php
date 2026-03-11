@@ -197,7 +197,7 @@
                     <a href="#acasa"><span
                             class="material-symbols-outlined text-primary text-3xl">sports_volleyball</span></a>
                     <a href="#acasa"><span
-                            class="text-xl font-extrabold tracking-tight text-slate-900">volei.club</span></a>
+                            class="text-xl font-extrabold tracking-tight text-slate-900 hidden sm:block">volei.club</span></a>
                     </a>
                 </div>
                 <div class="hidden md:flex space-x-8">
@@ -212,9 +212,10 @@
                         <span class="text-slate-300 text-xs">|</span>
                         <a href="/en" class="text-xs font-bold {{ App::getLocale() == 'en' ? 'text-primary' : 'text-slate-400 hover:text-slate-600' }}">EN</a>
                     </div>
-                    <a class="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-md shadow-primary/20"
+                    <a class="bg-primary hover:bg-primary-dark text-white px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all shadow-md shadow-primary/20 whitespace-nowrap"
                         href="#contact">
-                        {{ __('home.nav.notify_me') }}
+                        <span class="hidden sm:inline">{{ __('home.nav.notify_me') }}</span>
+                        <span class="sm:hidden">{{ __('home.nav.notify_me_mobile') }}</span>
                     </a>
                 </div>
             </div>
