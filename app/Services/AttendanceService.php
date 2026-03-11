@@ -92,7 +92,7 @@ class AttendanceService
             $gameQuery->whereIn('squad_id', $squadIds);
         }
 
-        $trainings = $trainingQuery->get();
+        $trainings = $trainingQuery->with('reschedules')->get();
         $games = $gameQuery->get();
 
         // Get attendances for this user in the date range (if sportiv)
@@ -117,61 +117,70 @@ class AttendanceService
             'sambata'  => 6,
         ];
 
-        // Generate training instances
+        // 1. Identify "Natural" series instances and check for reschedules
         foreach ($period as $date) {
-            $dayOfWeek = $date->dayOfWeek; // 0 (Sun) to 6 (Sat)
+            $dayOfWeek = $date->dayOfWeek;
             $dateStr = $date->format('Y-m-d');
 
-            $todaysTrainings = $trainings->filter(function ($t) use ($dayOfWeek, $dayMap, $dateStr) {
+            $activeTrainings = $trainings->filter(function ($t) use ($dayOfWeek, $dayMap, $dateStr) {
                 $storedDay = mb_strtolower(trim($t->day_of_week));
                 $matchesDay = isset($dayMap[$storedDay]) && $dayMap[$storedDay] === $dayOfWeek;
+                if (!$matchesDay) return false;
 
-                if (!$matchesDay) {
-                    return false;
-                }
-
-                // Check date bounds
                 $tStartDate = $t->start_date instanceof Carbon ? $t->start_date->format('Y-m-d') : $t->start_date;
                 $tEndDate = $t->end_date instanceof Carbon ? $t->end_date->format('Y-m-d') : $t->end_date;
 
-                if ($tStartDate && $dateStr < $tStartDate) {
-                    return false;
-                }
-                if ($tEndDate && $dateStr > $tEndDate) {
-                    return false;
-                }
+                if ($tStartDate && $dateStr < $tStartDate) return false;
+                if ($tEndDate && $dateStr > $tEndDate) return false;
 
                 return true;
             });
 
-            foreach ($todaysTrainings as $training) {
-                // Check if cancelled
-                $cancellation = $training->cancellations->first(function($c) use ($dateStr) {
-                    $cDate = $c->date instanceof Carbon ? $c->date->format('Y-m-d') : $c->date;
-                    return $cDate === $dateStr;
+            foreach ($activeTrainings as $training) {
+                // Check if this specific instance ($dateStr) was rescheduled
+                $reschedule = $training->reschedules->first(function($r) use ($dateStr) {
+                    $rDate = $r->original_date instanceof Carbon ? $r->original_date->format('Y-m-d') : $r->original_date;
+                    return $rDate === $dateStr;
                 });
+                
+                if ($reschedule) {
+                    $newDateStr = $reschedule->new_date instanceof Carbon ? $reschedule->new_date->format('Y-m-d') : $reschedule->new_date;
+                    $origDateStr = $reschedule->original_date instanceof Carbon ? $reschedule->original_date->format('Y-m-d') : $reschedule->original_date;
 
-                $attKey = $training->id . '_' . $dateStr;
-                $userAttendance = $attendances->get($attKey)?->first();
+                    // If moved to a DIFFERENT day, skip the original slot
+                    if ($newDateStr !== $origDateStr) {
+                        continue;
+                    }
+                    // If same day, we'll use updated times below
+                    $startTime = $reschedule->new_start_time;
+                    $endTime = $reschedule->new_end_time;
+                } else {
+                    $startTime = $training->start_time;
+                    $endTime = $training->end_time;
+                }
 
-                $sessions[] = [
-                    'id' => 'training_' . $training->id . '_' . $dateStr,
-                    'type' => 'training',
-                    'title' => __('calendar.training_title', ['name' => ($training->squad->name ?? $training->team->name)]),
-                    'start' => $dateStr . ' ' . $training->start_time,
-                    'start_time' => $training->start_time,
-                    'end' => $dateStr . ' ' . $training->end_time,
-                    'end_time' => $training->end_time,
-                    'location' => $training->location->name ?? __('calendar.unspecified_location'),
-                    'training_id' => $training->id,
-                    'is_cancelled' => (bool)$cancellation,
-                    'cancellation_reason' => $cancellation?->reason,
-                    'squad' => $training->squad->name ?? null,
-                    'team' => $training->team->name ?? null,
-                    'date' => $dateStr,
-                    'status' => $userAttendance?->status,
-                    'attendance_id' => $userAttendance?->id,
-                ];
+                /** @var Training $training */
+                $sessions[] = $this->formatTrainingSession($training, $dateStr, $startTime, $endTime, $attendances);
+            }
+        }
+
+        // 2. Add "Virtual" instances (Trainings moved TO a date in this range from another date)
+        foreach ($trainings as $training) {
+            foreach ($training->reschedules as $reschedule) {
+                $newDate = $reschedule->new_date instanceof Carbon ? $reschedule->new_date : Carbon::parse($reschedule->new_date);
+                $newDateStr = $newDate->format('Y-m-d');
+                
+                $origDate = $reschedule->original_date instanceof Carbon ? $reschedule->original_date : Carbon::parse($reschedule->original_date);
+                $origDateStr = $origDate->format('Y-m-d');
+
+                // If the new date is in our current period
+                if ($newDate->between($startDate, $endDate)) {
+                    // If it was moved FROM a different day, we have to add it as a new session
+                    // (If it was same day, it's already handled in the loop above)
+                    if ($newDateStr !== $origDateStr) {
+                         $sessions[] = $this->formatTrainingSession($training, $newDateStr, $reschedule->new_start_time, $reschedule->new_end_time, $attendances);
+                    }
+                }
             }
         }
 
@@ -202,6 +211,46 @@ class AttendanceService
         usort($sessions, fn($a, $b) => strcmp($a['start'], $b['start']));
 
         return $sessions;
+    }
+
+    /**
+     * Helper to format a training session for the calendar.
+     */
+    private function formatTrainingSession(Training $training, string $dateStr, string $startTime, string $endTime, $attendances): array
+    {
+        $cancellation = $training->cancellations->first(function($c) use ($dateStr) {
+            $cDate = $c->date instanceof Carbon ? $c->date->format('Y-m-d') : $c->date;
+            return $cDate === $dateStr;
+        });
+
+        $attKey = $training->id . '_' . $dateStr;
+        $userAttendance = $attendances->get($attKey)?->first();
+
+        $reschedule = $training->reschedules->first(function($r) use ($dateStr) {
+            $rDate = $r->original_date instanceof Carbon ? $r->original_date->format('Y-m-d') : $r->original_date;
+            return $rDate === $dateStr;
+        });
+
+        return [
+            'id' => 'training_' . $training->id . '_' . $dateStr,
+            'type' => 'training',
+            'title' => __('calendar.training_title', ['name' => ($training->squad->name ?? $training->team->name)]),
+            'start' => $dateStr . ' ' . $startTime,
+            'start_time' => $startTime,
+            'end' => $dateStr . ' ' . $endTime,
+            'end_time' => $endTime,
+            'location' => $training->location->name ?? __('calendar.unspecified_location'),
+            'training_id' => $training->id,
+            'is_cancelled' => (bool)$cancellation,
+            'cancellation_reason' => $cancellation?->reason,
+            'is_rescheduled' => (bool)$reschedule,
+            'reschedule_reason' => $reschedule?->reason,
+            'squad' => $training->squad->name ?? null,
+            'team' => $training->team->name ?? null,
+            'date' => $dateStr,
+            'status' => $userAttendance?->status,
+            'attendance_id' => $userAttendance?->id,
+        ];
     }
 
     /**

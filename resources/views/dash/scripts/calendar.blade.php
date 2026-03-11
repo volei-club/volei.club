@@ -11,6 +11,16 @@ Alpine.data('calendarManager', () => ({
     loadingAttendance: false,
     savingAttendance: {},
 
+    // Rescheduling modal
+    showRescheduleModal: false,
+    rescheduling: false,
+    rescheduleData: {
+        new_date: '',
+        new_start_time: '',
+        new_end_time: '',
+        reason: ''
+    },
+
     // Parent child selector
     children: [],
     selectedChildId: null,
@@ -190,7 +200,7 @@ Alpine.data('calendarManager', () => ({
     },
 
     closeAttendance() {
-        if (this.showCancelModal) return;
+        if (this.showCancelModal || this.showRescheduleModal) return;
         this.showAttendanceModal = false;
         this.attendanceSession = null;
         this.attendanceMembers = [];
@@ -290,6 +300,83 @@ Alpine.data('calendarManager', () => ({
             window.showToast("{{ __('calendar.messages.network_error') }}", 'error');
         } finally {
             this.cancelling = false;
+        }
+    },
+
+    // --- Reschedule Modal ---
+    openRescheduleModal() {
+        if (!this.attendanceSession) {
+            console.error("No attendance session found");
+            return;
+        }
+        const s = this.attendanceSession;
+        this.rescheduleData = {
+            new_date: s.date,
+            new_start_time: s.start_time?.slice(0,5) || '',
+            new_end_time: s.end_time?.slice(0,5) || '',
+            reason: s.reschedule_reason || ''
+        };
+        this.showRescheduleModal = true;
+    },
+
+    closeRescheduleModal() {
+        if (this.rescheduling) return;
+        this.showRescheduleModal = false;
+    },
+
+    async confirmToggleReschedule(isRestore = false) {
+        const s = this.attendanceSession;
+        if (!s) return;
+
+        let url = `/api/trainings/${s.training_id}/reschedule-instance`;
+        let method = isRestore ? 'DELETE' : 'POST';
+
+        if (isRestore) {
+            if (!confirm("{{ __('calendar.reschedule.restore_confirm') }}")) return;
+        }
+
+        this.rescheduling = true;
+        try {
+            const req = {
+                method: method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                }
+            };
+
+            if (!isRestore) {
+                req.body = JSON.stringify({
+                    original_date: s.date,
+                    new_date: this.rescheduleData.new_date,
+                    new_start_time: this.rescheduleData.new_start_time,
+                    new_end_time: this.rescheduleData.new_end_time,
+                    reason: this.rescheduleData.reason
+                });
+            } else {
+                req.body = JSON.stringify({ original_date: s.date });
+            }
+
+            const res = await fetch(url, req);
+            const data = await res.json();
+
+            if (res.ok) {
+                window.showToast(data.message || (isRestore ? '{{ __('calendar.messages.reschedule_restore_success') }}' : '{{ __('calendar.messages.reschedule_success') }}'));
+                this.closeRescheduleModal();
+                this.closeAttendance();
+                this.fetchSessions();
+            } else {
+                let msg = data.message || '{{ __('calendar.messages.modify_error') }}';
+                if (data.errors) {
+                    msg = Object.values(data.errors).flat().join(' ');
+                }
+                window.showToast(msg, 'error');
+            }
+        } catch(e) {
+            window.showToast("{{ __('calendar.messages.network_error') }}", 'error');
+        } finally {
+            this.rescheduling = false;
         }
     },
 

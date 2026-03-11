@@ -84,4 +84,12 @@ class Training extends Model
     {
         return $this->hasMany(TrainingCancellation::class);
     }
+
+    /**
+     * Get reschedules for this training.
+     */
+    public function reschedules()
+    {
+        return $this->hasMany(TrainingReschedule::class);
+    }
 }

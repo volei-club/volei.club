@@ -163,11 +163,17 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <template x-if="canMarkAttendance() && attendanceSession && attendanceSession.type === 'training' && attendanceSession.training_id">
-                         <button @click="openCancelModal()" class="text-sm px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1"
-                                 :class="attendanceSession.is_cancelled ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'">
-                             <span class="material-symbols-outlined text-[16px]" x-text="attendanceSession.is_cancelled ? 'restore' : 'cancel'"></span>
-                             <span x-text="attendanceSession.is_cancelled ? `{{ __('calendar.restore_session') }}` : `{{ __('calendar.cancel_session') }}`"></span>
-                         </button>
+                        <div class="flex items-center gap-2">
+                             <button @click="openRescheduleModal()" class="text-sm px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1 bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100">
+                                 <span class="material-symbols-outlined text-[16px]">edit_calendar</span>
+                                 <span>{{ __('calendar.reschedule.title') }}</span>
+                             </button>
+                             <button @click="openCancelModal()" class="text-sm px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1"
+                                     :class="attendanceSession.is_cancelled ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'">
+                                 <span class="material-symbols-outlined text-[16px]" x-text="attendanceSession.is_cancelled ? 'restore' : 'cancel'"></span>
+                                 <span x-text="attendanceSession.is_cancelled ? `{{ __('calendar.restore_session') }}` : `{{ __('calendar.cancel_session') }}`"></span>
+                             </button>
+                        </div>
                     </template>
                     <button @click="closeAttendance()" class="text-slate-400 hover:text-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl p-2 transition-colors">
                         <span class="material-symbols-outlined">close</span>
@@ -313,6 +319,68 @@
                         <span>{{ __('calendar.cancellation.confirm_cancel') }}</span>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ====== Instance Reschedule Modal ====== --}}
+    <div x-show="showRescheduleModal" @keydown.escape.window="closeRescheduleModal()"
+         class="fixed inset-0 z-[75] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div @click.outside="closeRescheduleModal()" class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 flex flex-col overflow-hidden">
+            
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/20">
+                <h2 class="font-bold text-slate-900 dark:text-white text-lg">{{ __('calendar.reschedule.title') }}</h2>
+                <button @click="closeRescheduleModal()" class="text-slate-400 hover:text-slate-600 rounded-xl p-2 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 overflow-y-auto max-h-[70vh]">
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4 flex gap-3 text-sm text-blue-800 dark:text-blue-300">
+                    <span class="material-symbols-outlined text-blue-500">info</span>
+                    <p>{{ __('calendar.reschedule.notice') }}</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">{{ __('calendar.reschedule.new_date') }}</label>
+                    <input type="date" x-model="rescheduleData.new_date" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary shadow-sm"/>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">{{ __('calendar.reschedule.new_start_time') }}</label>
+                        <input type="time" x-model="rescheduleData.new_start_time" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary shadow-sm"/>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">{{ __('calendar.reschedule.new_end_time') }}</label>
+                        <input type="time" x-model="rescheduleData.new_end_time" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary shadow-sm"/>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 shadow-sm block">{{ __('calendar.reschedule.reason_label') }}</label>
+                    <textarea x-model="rescheduleData.reason" rows="2" placeholder="{{ __('calendar.reschedule.reason_placeholder') }}"
+                              class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary shadow-sm resize-none"></textarea>
+                </div>
+
+                <template x-if="attendanceSession?.is_rescheduled">
+                    <button @click="confirmToggleReschedule(true)" :disabled="rescheduling" class="w-full py-2 text-red-500 font-bold text-xs hover:underline disabled:opacity-50">
+                        {{ __('calendar.reschedule.restore') }}
+                    </button>
+                </template>
+            </div>
+
+            <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex gap-3">
+                <button @click="closeRescheduleModal()" class="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-100 transition-all">
+                    {{ __('calendar.reschedule.back') }}
+                </button>
+                <button @click="confirmToggleReschedule(false)" :disabled="rescheduling"
+                        class="flex-[2] px-4 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2">
+                    <template x-if="rescheduling">
+                        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </template>
+                    <span>{{ __('calendar.reschedule.confirm') }}</span>
+                </button>
             </div>
         </div>
     </div>

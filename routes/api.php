@@ -38,6 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('trainings', \App\Http\Controllers\TrainingController::class)->except(['show']);
         Route::post('trainings/{id}/cancel-instance', [\App\Http\Controllers\TrainingController::class , 'cancelInstance']);
         Route::delete('trainings/{id}/cancel-instance', [\App\Http\Controllers\TrainingController::class , 'uncancelInstance']);
+        Route::post('trainings/{id}/reschedule-instance', [\App\Http\Controllers\TrainingController::class , 'rescheduleInstance']);
+        Route::delete('trainings/{id}/reschedule-instance', [\App\Http\Controllers\TrainingController::class , 'unrescheduleInstance']);
         Route::apiResource('games', \App\Http\Controllers\GameController::class)->except(['show']);
         Route::get('dashboard-stats', [\App\Http\Controllers\Api\DashboardController::class , 'stats']);
 

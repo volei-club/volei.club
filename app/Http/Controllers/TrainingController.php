@@ -227,4 +227,108 @@ class TrainingController extends Controller
 
         return response()->json(['message' => __('api_trainings.notifications.restore_success')]);
     }
+
+    public function rescheduleInstance(Request $request, $id)
+    {
+        $user = $request->user();
+        $training = $this->eventService->getTrainingById($id);
+
+        if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
+            return response()->json(['message' => __('api_trainings.forbidden')], 403);
+        }
+
+        if ($user->role !== 'administrator' && $user->role !== 'manager' && $user->role !== 'antrenor') {
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
+        }
+
+        $validated = $request->validate([
+            'original_date' => 'required|date_format:Y-m-d',
+            'new_date' => 'required|date_format:Y-m-d',
+            'new_start_time' => 'required|date_format:H:i',
+            'new_end_time' => 'required|date_format:H:i|after:new_start_time',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        $reason = $validated['reason'] ?? __('api_trainings.notifications.unspecified_reason');
+
+        $reschedule = $training->reschedules()->updateOrCreate(
+            ['original_date' => $validated['original_date']],
+            [
+                'new_date' => $validated['new_date'],
+                'new_start_time' => $validated['new_start_time'],
+                'new_end_time' => $validated['new_end_time'],
+                'reason' => $reason === __('api_trainings.notifications.unspecified_reason') ? null : $reason
+            ]
+        );
+
+        $this->sendRescheduleNotifications($training, $reschedule, $user);
+
+        return response()->json([
+            'message' => __('api_trainings.notifications.reschedule_success'),
+            'reschedule' => $reschedule
+        ]);
+    }
+
+    public function unrescheduleInstance(Request $request, $id)
+    {
+        $user = $request->user();
+        $training = $this->eventService->getTrainingById($id);
+
+        if ($user->role === 'manager' && $training->club_id !== $user->club_id) {
+            return response()->json(['message' => __('api_trainings.forbidden')], 403);
+        }
+
+        if ($user->role !== 'administrator' && $user->role !== 'manager' && $user->role !== 'antrenor') {
+            return response()->json(['message' => __('api_trainings.unauthorized')], 403);
+        }
+
+        $validated = $request->validate([
+            'original_date' => 'required|date_format:Y-m-d',
+        ]);
+
+        $training->reschedules()->where('original_date', $validated['original_date'])->delete();
+
+        return response()->json(['message' => __('api_trainings.notifications.reschedule_restore_success')]);
+    }
+
+    protected function sendRescheduleNotifications($training, $reschedule, $sender)
+    {
+        $squad = $training->squad()->with('users.parents')->first();
+        if (!$squad)
+            return;
+
+        $locale = app()->getLocale();
+        $oldDateFormatted = Carbon::parse($reschedule->original_date)->locale($locale)->isoFormat('dddd, D MMMM');
+        $newDateFormatted = Carbon::parse($reschedule->new_date)->locale($locale)->isoFormat('dddd, D MMMM');
+        
+        $reason = $reschedule->reason ?? __('api_trainings.notifications.unspecified_reason');
+
+        $messageContent = __('api_trainings.notifications.reschedule_message', [
+            'old_date' => $oldDateFormatted,
+            'old_time' => substr($training->start_time, 0, 5),
+            'new_date' => $newDateFormatted,
+            'new_time' => substr($reschedule->new_start_time, 0, 5),
+            'reason' => $reason
+        ]);
+
+        $notifiedUserIds = [];
+
+        foreach ($squad->users as $athlete) {
+            // Send to athlete
+            if (!isset($notifiedUserIds[$athlete->id])) {
+                $conversation = $this->chatService->getConversation($sender->id, $athlete->id);
+                $this->chatService->sendMessage($conversation, $sender->id, $messageContent);
+                $notifiedUserIds[$athlete->id] = true;
+            }
+
+            // Send to parents
+            foreach ($athlete->parents as $parent) {
+                if (!isset($notifiedUserIds[$parent->id])) {
+                    $conversation = $this->chatService->getConversation($sender->id, $parent->id);
+                    $this->chatService->sendMessage($conversation, $sender->id, $messageContent);
+                    $notifiedUserIds[$parent->id] = true;
+                }
+            }
+        }
+    }
 }
