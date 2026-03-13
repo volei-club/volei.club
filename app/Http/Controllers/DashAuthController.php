@@ -19,12 +19,12 @@ class DashAuthController extends Controller
         $this->userService = $userService;
     }
 
-    public function showLogin()
+    public function showLogin(Request $request, $locale)
     {
         return view('dash.auth.login');
     }
 
-    public function login(Request $request)
+    public function login(Request $request, $locale)
     {
         $request->validate([
             'email' => 'required|email',
@@ -48,12 +48,12 @@ class DashAuthController extends Controller
         ])->onlyInput('email');
     }
 
-    public function show2fa(Request $request)
+    public function show2fa(Request $request, $locale)
     {
         return view('dash.auth.2fa');
     }
 
-    public function verify2fa(Request $request)
+    public function verify2fa(Request $request, $locale)
     {
         $request->validate([
             'code' => 'required|numeric',
@@ -78,7 +78,7 @@ class DashAuthController extends Controller
         return redirect()->route('dash.index');
     }
 
-    public function resend2fa(Request $request)
+    public function resend2fa(Request $request, $locale)
     {
         $userId = $request->session()->get('2fa_user_id');
         if (!$userId) {
@@ -95,12 +95,12 @@ class DashAuthController extends Controller
         return response()->json(['success' => true, 'message' => __('auth.2fa_resent')]);
     }
 
-    public function showRecovery()
+    public function showRecovery(Request $request, $locale)
     {
         return view('dash.auth.recuperare');
     }
 
-    public function showResetForm(Request $request, $token = null)
+    public function showResetForm(Request $request, $locale, $token = null)
     {
         if (!$this->authService->validateResetToken($token)) {
             return redirect()->route('dash.login')
@@ -110,14 +110,14 @@ class DashAuthController extends Controller
         return view('dash.auth.reset', ['token' => $token]);
     }
 
-    public function redirectToGoogle()
+    public function redirectToGoogle(Request $request, $locale)
     {
         return \Laravel\Socialite\Facades\Socialite::driver('google')
             ->redirectUrl(route('dash.google.callback'))
             ->redirect();
     }
 
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request, $locale)
     {
         try {
             $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')
@@ -144,12 +144,12 @@ class DashAuthController extends Controller
         }
     }
 
-    public function index()
+    public function index(Request $request, $locale)
     {
         return view('dash.index');
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request, $locale)
     {
         Auth::logout();
         $request->session()->invalidate();
