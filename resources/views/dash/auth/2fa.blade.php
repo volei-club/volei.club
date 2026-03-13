@@ -91,7 +91,7 @@
             init() {
                 this.userId = sessionStorage.getItem('2fa_user_id');
                 if (!this.userId) {
-                    window.location.href = '/dash/login';
+                    window.location.href = "{{ route('dash.login', ['locale' => app()->getLocale()]) }}";
                 }
             },
             
@@ -118,7 +118,7 @@
                         // Salvează TOKEN-ul API pentru aplicația "SPA" / PWA
                         localStorage.setItem('auth_token', data.token);
                         sessionStorage.removeItem('2fa_user_id');
-                        window.location.href = '/dash';
+                        window.location.href = "{{ route('dash.index', ['locale' => app()->getLocale()]) }}";
                     } else {
                         this.errorMessage = data.message || '{{ __('frontend.auth.2fa.invalid_code') }}';
                     }

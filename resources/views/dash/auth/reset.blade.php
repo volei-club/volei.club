@@ -140,7 +140,7 @@
                         this.isSuccess = true;
                         this.message = data.message || '{{ __('frontend.auth.reset.success_message') }}';
                         setTimeout(() => {
-                            window.location.href = '/dash/login';
+                            window.location.href = "{{ route('dash.login', ['locale' => app()->getLocale()]) }}";
                         }, 2000);
                     } else {
                         this.isSuccess = false;

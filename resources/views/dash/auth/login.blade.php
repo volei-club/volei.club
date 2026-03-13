@@ -125,7 +125,7 @@
                     if (response.ok && data.status === 'success') {
                         // Salvează ID-ul utilizatorului temporal pentru ecranul 2FA
                         sessionStorage.setItem('2fa_user_id', data.user_id);
-                        window.location.href = '/dash/2fa';
+                        window.location.href = "{{ route('dash.2fa.show', ['locale' => app()->getLocale()]) }}";
                     } else {
                         this.errorMessage = data.message || '{{ __('frontend.auth.login.invalid_credentials') }}';
                     }
