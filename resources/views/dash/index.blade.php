@@ -44,7 +44,7 @@
     </script>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex" x-data="dashboard()">
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex" x-data="dashboard()">
     
     <!-- Global Loader -->
     <div x-show="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-slate-900 transition-opacity">
@@ -62,14 +62,14 @@
 
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-h-screen overflow-hidden" x-show="!isLoading" style="display: none;">
+    <div class="flex-1 flex flex-col h-screen overflow-hidden" x-show="!isLoading" style="display: none;">
         
         @include('dash.components.topbar')
 
 
         <!-- Dynamic Working Canvas -->
-        <main class="flex-1 px-6 pb-24 md:pb-6 pt-16 md:pt-6 relative"
-              :class="currentPage === '/dash/mesaje' ? 'flex flex-col overflow-hidden' : 'overflow-y-auto'">
+        <main class="flex-1 relative"
+              :class="currentPage === '/dash/mesaje' ? 'flex flex-col overflow-hidden p-0' : 'overflow-y-auto px-6 pb-24 md:pb-6 pt-16 md:pt-6'">
             
             @include('dash.components.home')
             @include('dash.components.clubs')
