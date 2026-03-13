@@ -86,9 +86,9 @@
             </template>
             
             <template x-if="activeConversationId">
-                <div class="flex flex-col h-full bg-white dark:bg-slate-800 md:bg-transparent">
+                <div class="flex flex-col h-full bg-white dark:bg-slate-800">
                     <!-- Chat Header -->
-                    <div class="p-4 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 md:rounded-tr-3xl flex items-center shrink-0">
+                    <div class="sticky top-0 p-4 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 md:rounded-tr-3xl flex items-center shrink-0 z-10">
                         <button @click="activeConversationId = null" class="md:hidden mr-3 w-8 h-8 flex items-center justify-center text-slate-500">
                             <span class="material-symbols-outlined">arrow_back</span>
                         </button>
@@ -110,7 +110,7 @@
                     </div>
                     
                     <!-- Messages Area -->
-                    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messagesScrollArea" x-ref="msgArea">
+                    <div class="flex-1 p-4 space-y-4" id="messagesScrollArea" x-ref="msgArea">
                         <template x-for="(msg, index) in messages" :key="msg.id">
                             <div class="flex w-full" :class="msg.sender_id === user.id ? 'justify-end' : 'justify-start'">
                                 <div class="max-w-[85%] md:max-w-[70%] lg:max-w-[60%] flex flex-col" :class="msg.sender_id === user.id ? 'items-end' : 'items-start'">
@@ -130,7 +130,7 @@
                     </div>
                     
                     <!-- Chat Input -->
-                    <div class="p-4 bg-white dark:bg-slate-800 md:bg-transparent md:rounded-br-3xl">
+                    <div class="sticky bottom-0 p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 md:rounded-br-3xl z-10">
                         <form @submit.prevent="sendMessage()" class="flex gap-2 p-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-lg focus-within:border-primary transition-all">
                             <input type="text" 
                                    x-model="newMessage" 
