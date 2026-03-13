@@ -1,12 +1,11 @@
 <div x-show="currentPage === '/dash/mesaje'" class="h-full flex flex-col" x-data="messagesManager()" x-init="init()" style="display: none;">
     <!-- Main Messaging Layout -->
-    <!-- Main Messaging Layout -->
-    <div class="flex-1 flex overflow-hidden bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm h-[calc(100vh-200px)] md:h-[calc(100vh-140px)]">
+    <div class="flex-1 flex overflow-hidden bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
         
         <!-- Sidebar: Conversations List -->
         <div class="w-full md:w-80 flex flex-col border-r border-slate-100 dark:border-slate-700 h-full" :class="activeConversationId ? 'hidden md:flex' : 'flex'">
             <!-- Sidebar Header -->
-            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('chat.title') }}</h2>
                 <button @click="openNewChat()" class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors">
                     <span class="material-symbols-outlined text-[20px]">add_comment</span>

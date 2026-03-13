@@ -68,7 +68,8 @@
 
 
         <!-- Dynamic Working Canvas -->
-        <main class="flex-1 overflow-y-auto px-6 pb-24 md:pb-6 pt-16 md:pt-6 relative">
+        <main class="flex-1 px-6 pb-24 md:pb-6 pt-16 md:pt-6 relative"
+              :class="currentPage === '/dash/mesaje' ? 'flex flex-col overflow-hidden' : 'overflow-y-auto'">
             
             @include('dash.components.home')
             @include('dash.components.clubs')
