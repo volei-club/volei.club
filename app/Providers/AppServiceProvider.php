@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
-            return route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()]);
+            return route('password.reset', ['locale' => app()->getLocale(), 'token' => $token, 'email' => $notifiable->getEmailForPasswordReset()]);
         });
 
         ResetPassword::toMailUsing(function (object $notifiable, string $token) {
@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
             return (new \Illuminate\Notifications\Messages\MailMessage)
             ->subject('Notificare de resetare a parolei')
             ->view('emails.templates.reset_password', [
-            'url' => route('password.reset', ['token' => $token]),
+            'url' => route('password.reset', ['locale' => app()->getLocale(), 'token' => $token]),
             'email' => $notifiable->getEmailForPasswordReset()
             ]);
         });
