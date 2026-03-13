@@ -1,6 +1,7 @@
 <div x-show="currentPage === '/dash/mesaje'" class="h-full flex flex-col" x-data="messagesManager()" x-init="init()" style="display: none;">
     <!-- Main Messaging Layout -->
-    <div class="flex-1 flex overflow-hidden bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
+    <!-- Main Messaging Layout -->
+    <div class="flex-1 flex overflow-hidden bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm h-[calc(100vh-200px)] md:h-[calc(100vh-140px)]">
         
         <!-- Sidebar: Conversations List -->
         <div class="w-full md:w-80 flex flex-col border-r border-slate-100 dark:border-slate-700 h-full" :class="activeConversationId ? 'hidden md:flex' : 'flex'">
@@ -73,7 +74,7 @@
         </div>
         
         <!-- Main Area: Active Chat Window -->
-        <div class="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/10" :class="activeConversationId ? 'flex' : 'hidden md:flex'">
+        <div class="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/10 overflow-hidden" :class="activeConversationId ? 'flex' : 'hidden md:flex'">
             
             <template x-if="!activeConversationId">
                 <div class="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400">
@@ -88,7 +89,7 @@
             <template x-if="activeConversationId">
                 <div class="flex flex-col h-full bg-white dark:bg-slate-800">
                     <!-- Chat Header -->
-                    <div class="sticky top-0 p-4 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 md:rounded-tr-3xl flex items-center shrink-0 z-10">
+                    <div class="p-4 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 md:rounded-tr-3xl flex items-center shrink-0">
                         <button @click="activeConversationId = null" class="md:hidden mr-3 w-8 h-8 flex items-center justify-center text-slate-500">
                             <span class="material-symbols-outlined">arrow_back</span>
                         </button>
@@ -110,7 +111,7 @@
                     </div>
                     
                     <!-- Messages Area -->
-                    <div class="flex-1 p-4 space-y-4" id="messagesScrollArea" x-ref="msgArea">
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messagesScrollArea" x-ref="msgArea">
                         <template x-for="(msg, index) in messages" :key="msg.id">
                             <div class="flex w-full" :class="msg.sender_id === user.id ? 'justify-end' : 'justify-start'">
                                 <div class="max-w-[85%] md:max-w-[70%] lg:max-w-[60%] flex flex-col" :class="msg.sender_id === user.id ? 'items-end' : 'items-start'">
@@ -130,7 +131,7 @@
                     </div>
                     
                     <!-- Chat Input -->
-                    <div class="sticky bottom-0 p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 md:rounded-br-3xl z-10">
+                    <div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 md:rounded-br-3xl shrink-0">
                         <form @submit.prevent="sendMessage()" class="flex gap-2 p-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-lg focus-within:border-primary transition-all">
                             <input type="text" 
                                    x-model="newMessage" 
